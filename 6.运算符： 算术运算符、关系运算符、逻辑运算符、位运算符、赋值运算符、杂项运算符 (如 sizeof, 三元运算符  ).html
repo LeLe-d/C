@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - 运算符</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 950px; /* Slightly wider for tables */
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px 12px; /* Adjusted padding */
+            text-align: left;
+            vertical-align: top; /* Align content to top */
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #555;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; font-weight: bold; } /* Make operators stand out */
+        .punctuation { color: #d4d4d4; }
+        .preprocessor { color: #c586c0;}
+
+        strong {
+            color: #e67e22;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段一：基础入门 - 运算符</h2>
+
+        <p>运算符是 C 语言中用于执行各种操作（如计算、比较、逻辑判断等）的特殊符号。运算符作用于一个或多个<strong>操作数 (Operand)</strong>（通常是变量或常量）。理解不同的运算符及其优先级是编写正确、高效代码的关键。</p>
+
+        <h3>1. 算术运算符 (Arithmetic Operators)</h3>
+        <p>用于执行基本的数学运算。</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>运算符</th>
+                    <th>名称</th>
+                    <th>示例</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>+</code></td>
+                    <td>加法</td>
+                    <td><code>a + b</code></td>
+                    <td>计算 a 与 b 的和</td>
+                </tr>
+                <tr>
+                    <td><code>-</code></td>
+                    <td>减法</td>
+                    <td><code>a - b</code></td>
+                    <td>计算 a 与 b 的差</td>
+                </tr>
+                <tr>
+                    <td><code>*</code></td>
+                    <td>乘法</td>
+                    <td><code>a * b</code></td>
+                    <td>计算 a 与 b 的积</td>
+                </tr>
+                <tr>
+                    <td><code>/</code></td>
+                    <td>除法</td>
+                    <td><code>a / b</code></td>
+                    <td>计算 a 除以 b 的商。<strong>注意：</strong> 若 a 和 b 均为整数，则结果为整数（舍弃小数部分）；若任一为浮点数，则结果为浮点数。</td>
+                </tr>
+                <tr>
+                    <td><code>%</code></td>
+                    <td>取模 (取余)</td>
+                    <td><code>a % b</code></td>
+                    <td>计算 a 除以 b 的余数。<strong>操作数必须是整数类型。</strong></td>
+                </tr>
+                <tr>
+                    <td><code>++</code></td>
+                    <td>自增</td>
+                    <td><code>a++</code> (后置) 或 <code>++a</code> (前置)</td>
+                    <td>将变量的值加 1。前置是先加1再使用变量，后置是先使用变量再加1。</td>
+                </tr>
+                 <tr>
+                    <td><code>--</code></td>
+                    <td>自减</td>
+                    <td><code>a--</code> (后置) 或 <code>--a</code> (前置)</td>
+                    <td>将变量的值减 1。规则同自增。</td>
+                </tr>
+            </tbody>
+        </table>
+        <pre><code class="language-c"><span class="type">int</span> a <span class="operator">=</span> <span class="number">10</span><span class="punctuation">,</span> b <span class="operator">=</span> <span class="number">3</span><span class="punctuation">;</span>
+<span class="type">int</span> sum <span class="operator">=</span> a <span class="operator">+</span> b<span class="punctuation">;</span>   <span class="comment">// sum is 13</span>
+<span class="type">int</span> diff <span class="operator">=</span> a <span class="operator">-</span> b<span class="punctuation">;</span>  <span class="comment">// diff is 7</span>
+<span class="type">int</span> product <span class="operator">=</span> a <span class="operator">*</span> b<span class="punctuation">;</span> <span class="comment">// product is 30</span>
+<span class="type">int</span> quotient_int <span class="operator">=</span> a <span class="operator">/</span> b<span class="punctuation">;</span> <span class="comment">// quotient_int is 3 (整数除法)</span>
+<span class="type">float</span> quotient_float <span class="operator">=</span> (<span class="type">float</span>)a <span class="operator">/</span> b<span class="punctuation">;</span> <span class="comment">// quotient_float is 3.333...</span>
+<span class="type">int</span> remainder <span class="operator">=</span> a <span class="operator">%</span> b<span class="punctuation">;</span>  <span class="comment">// remainder is 1</span>
+
+<span class="type">int</span> c <span class="operator">=</span> <span class="number">5</span><span class="punctuation">;</span>
+<span class="type">int</span> d <span class="operator">=</span> <span class="operator">++</span>c<span class="punctuation">;</span> <span class="comment">// c 变为 6, d 被赋值为 6 (前置)</span>
+<span class="type">int</span> e <span class="operator">=</span> <span class="number">5</span><span class="punctuation">;</span>
+<span class="type">int</span> f <span class="operator">=</span> e<span class="operator">++</span><span class="punctuation">;</span> <span class="comment">// f 被赋值为 5, e 变为 6 (后置)</span>
+
+<span class="function">printf</span>(<span class="string">"Sum: %d, Quotient (int): %d, Remainder: %d\n"</span>, sum, quotient_int, remainder)<span class="punctuation">;</span>
+<span class="function">printf</span>(<span class="string">"Quotient (float): %.2f\n"</span>, quotient_float)<span class="punctuation">;</span>
+<span class="function">printf</span>(<span class="string">"c=%d, d=%d, e=%d, f=%d\n"</span>, c, d, e, f)<span class="punctuation">;</span>
+</code></pre>
+
+        <h3>2. 关系运算符 (Relational Operators)</h3>
+        <p>用于比较两个操作数之间的关系，结果为<strong>真 (1)</strong> 或 <strong>假 (0)</strong> (在 C 语言中用整数表示)。常用于条件语句中。</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>运算符</th>
+                    <th>名称</th>
+                    <th>示例</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>==</code></td>
+                    <td>等于</td>
+                    <td><code>a == b</code></td>
+                    <td>判断 a 是否等于 b</td>
+                </tr>
+                <tr>
+                    <td><code>!=</code></td>
+                    <td>不等于</td>
+                    <td><code>a != b</code></td>
+                    <td>判断 a 是否不等于 b</td>
+                </tr>
+                <tr>
+                    <td><code>&gt;</code></td>
+                    <td>大于</td>
+                    <td><code>a &gt; b</code></td>
+                    <td>判断 a 是否大于 b</td>
+                </tr>
+                 <tr>
+                    <td><code>&lt;</code></td>
+                    <td>小于</td>
+                    <td><code>a &lt; b</code></td>
+                    <td>判断 a 是否小于 b</td>
+                </tr>
+                 <tr>
+                    <td><code>&gt;=</code></td>
+                    <td>大于等于</td>
+                    <td><code>a &gt;= b</code></td>
+                    <td>判断 a 是否大于或等于 b</td>
+                </tr>
+                <tr>
+                    <td><code>&lt;=</code></td>
+                    <td>小于等于</td>
+                    <td><code>a &lt;= b</code></td>
+                    <td>判断 a 是否小于或等于 b</td>
+                </tr>
+            </tbody>
+        </table>
+        <pre><code class="language-c"><span class="type">int</span> x <span class="operator">=</span> <span class="number">5</span><span class="punctuation">,</span> y <span class="operator">=</span> <span class="number">10</span><span class="punctuation">;</span>
+<span class="function">printf</span>(<span class="string">"x == y: %d\n"</span>, x <span class="operator">==</span> y)<span class="punctuation">;</span>   <span class="comment">// 输出 0 (假)</span>
+<span class="function">printf</span>(<span class="string">"x != y: %d\n"</span>, x <span class="operator">!=</span> y)<span class="punctuation">;</span>   <span class="comment">// 输出 1 (真)</span>
+<span class="function">printf</span>(<span class="string">"x < y: %d\n"</span>, x <span class="operator">&lt;</span> y)<span class="punctuation">;</span>    <span class="comment">// 输出 1 (真)</span>
+<span class="function">printf</span>(<span class="string">"x >= 5: %d\n"</span>, x <span class="operator">&gt;=</span> <span class="number">5</span>)<span class="punctuation">;</span>   <span class="comment">// 输出 1 (真)</span>
+</code></pre>
+
+        <h3>3. 逻辑运算符 (Logical Operators)</h3>
+        <p>用于组合或否定逻辑表达式（通常是关系运算的结果），结果也为真 (1) 或假 (0)。</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>运算符</th>
+                    <th>名称</th>
+                    <th>示例</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>&&</code></td>
+                    <td>逻辑与 (AND)</td>
+                    <td><code>expr1 && expr2</code></td>
+                    <td>当 expr1 和 expr2 都为真 (非零) 时，结果为真 (1)；否则为假 (0)。<br><strong>短路求值：</strong> 如果 expr1 为假 (0)，则不再计算 expr2。</td>
+                </tr>
+                <tr>
+                    <td><code>||</code></td>
+                    <td>逻辑或 (OR)</td>
+                    <td><code>expr1 || expr2</code></td>
+                    <td>当 expr1 或 expr2 中至少有一个为真 (非零) 时，结果为真 (1)；否则为假 (0)。<br><strong>短路求值：</strong> 如果 expr1 为真 (非零)，则不再计算 expr2。</td>
+                </tr>
+                <tr>
+                    <td><code>!</code></td>
+                    <td>逻辑非 (NOT)</td>
+                    <td><code>!expr</code></td>
+                    <td>如果 expr 为假 (0)，结果为真 (1)；如果 expr 为真 (非零)，结果为假 (0)。</td>
+                </tr>
+            </tbody>
+        </table>
+         <pre><code class="language-c"><span class="type">int</span> age <span class="operator">=</span> <span class="number">25</span><span class="punctuation">;</span>
+<span class="type">int</span> has_ticket <span class="operator">=</span> <span class="number">1</span><span class="punctuation">;</span> <span class="comment">// 1 表示真 (有票)</span>
+<span class="type">int</span> is_vip <span class="operator">=</span> <span class="number">0</span><span class="punctuation">;</span>    <span class="comment">// 0 表示假 (不是 VIP)</span>
+
+<span class="keyword">if</span> (age <span class="operator">&gt;=</span> <span class="number">18</span> <span class="operator">&&</span> has_ticket) {
+    <span class="function">printf</span>(<span class="string">"允许入场。\n"</span>)<span class="punctuation">;</span>
+}
+
+<span class="keyword">if</span> (is_vip <span class="operator">||</span> age <span class="operator">&gt;</span> <span class="number">65</span>) {
+    <span class="function">printf</span>(<span class="string">"享受优先通道。\n"</span>)<span class="punctuation">;</span>
+} <span class="keyword">else</span> {
+     <span class="function">printf</span>(<span class="string">"普通通道。\n"</span>)<span class="punctuation">;</span>
+}
+
+<span class="keyword">if</span> (<span class="operator">!</span>is_vip) {
+    <span class="function">printf</span>(<span class="string">"不是 VIP 用户。\n"</span>)<span class="punctuation">;</span>
+}
+</code></pre>
+
+        <h3>4. 位运算符 (Bitwise Operators)</h3>
+        <p>直接对操作数的<strong>二进制位</strong>进行操作。操作数通常是整型。常用于底层编程、硬件控制、数据压缩和加密等。</p>
+         <table>
+            <thead>
+                <tr>
+                    <th>运算符</th>
+                    <th>名称</th>
+                    <th>示例</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>&</code></td>
+                    <td>按位与 (AND)</td>
+                    <td><code>a & b</code></td>
+                    <td>对 a 和 b 的每一位进行与操作 (都为 1 则结果为 1，否则为 0)。</td>
+                </tr>
+                 <tr>
+                    <td><code>|</code></td>
+                    <td>按位或 (OR)</td>
+                    <td><code>a | b</code></td>
+                    <td>对 a 和 b 的每一位进行或操作 (任一为 1 则结果为 1，否则为 0)。</td>
+                </tr>
+                 <tr>
+                    <td><code>^</code></td>
+                    <td>按位异或 (XOR)</td>
+                    <td><code>a ^ b</code></td>
+                    <td>对 a 和 b 的每一位进行异或操作 (位相异则结果为 1，相同则为 0)。</td>
+                </tr>
+                 <tr>
+                    <td><code>~</code></td>
+                    <td>按位取反 (NOT)</td>
+                    <td><code>~a</code></td>
+                    <td>对 a 的每一位取反 (0 变 1，1 变 0)。这是一个一元运算符。</td>
+                </tr>
+                <tr>
+                    <td><code>&lt;&lt;</code></td>
+                    <td>左移</td>
+                    <td><code>a &lt;&lt; n</code></td>
+                    <td>将 a 的所有位向左移动 n 位，右侧空出的位补 0。效果通常等同于 a 乘以 2<sup>n</sup>。</td>
+                </tr>
+                 <tr>
+                    <td><code>&gt;&gt;</code></td>
+                    <td>右移</td>
+                    <td><code>a &gt;&gt; n</code></td>
+                    <td>将 a 的所有位向右移动 n 位。对于 <code>unsigned</code> 类型或正数 <code>signed</code> 类型，左侧空出的位补 0 (逻辑右移)；对于负数 <code>signed</code> 类型，结果是实现定义的 (可能是补 0 或补符号位，即算术右移)。效果通常等同于 a 除以 2<sup>n</sup>。</td>
+                </tr>
+            </tbody>
+        </table>
+        <pre><code class="language-c"><span class="type">unsigned char</span> p <span class="operator">=</span> <span class="number">5</span><span class="punctuation">;</span>  <span class="comment">// 二进制: 00000101</span>
+<span class="type">unsigned char</span> q <span class="operator">=</span> <span class="number">12</span><span class="punctuation">;</span> <span class="comment">// 二进制: 00001100</span>
+<span class="type">unsigned char</span> result_and <span class="operator">=</span> p <span class="operator">&</span> q<span class="punctuation">;</span> <span class="comment">// 结果: 00000100 (十进制 4)</span>
+<span class="type">unsigned char</span> result_or <span class="operator">=</span> p <span class="operator">|</span> q<span class="punctuation">;</span>  <span class="comment">// 结果: 00001101 (十进制 13)</span>
+<span class="type">unsigned char</span> result_xor <span class="operator">=</span> p <span class="operator">^</span> q<span class="punctuation">;</span>  <span class="comment">// 结果: 00001001 (十进制 9)</span>
+<span class="type">unsigned char</span> result_not <span class="operator">=</span> <span class="operator">~</span>p<span class="punctuation">;</span>   <span class="comment">// 结果: 11111010 (取决于 char 是 signed 还是 unsigned 及位数，此处假设 8 位 unsigned)</span>
+<span class="type">unsigned char</span> result_left_shift <span class="operator">=</span> p <span class="operator">&lt;&lt;</span> <span class="number">2</span><span class="punctuation">;</span> <span class="comment">// 结果: 00010100 (十进制 20)</span>
+<span class="type">unsigned char</span> result_right_shift <span class="operator">=</span> q <span class="operator">&gt;&gt;</span> <span class="number">1</span><span class="punctuation">;</span> <span class="comment">// 结果: 00000110 (十进制 6)</span>
+
+<span class="function">printf</span>(<span class="string">"p & q = %d\n"</span>, result_and)<span class="punctuation">;</span>
+<span class="function">printf</span>(<span class="string">"p << 2 = %d\n"</span>, result_left_shift)<span class="punctuation">;</span>
+</code></pre>
+
+        <h3>5. 赋值运算符 (Assignment Operators)</h3>
+        <p>用于给变量赋值。</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>运算符</th>
+                    <th>示例</th>
+                    <th>等价于</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>=</code></td>
+                    <td><code>a = b</code></td>
+                    <td>-</td>
+                    <td>简单赋值：将 b 的值赋给 a。</td>
+                </tr>
+                <tr>
+                    <td><code>+=</code></td>
+                    <td><code>a += b</code></td>
+                    <td><code>a = a + b</code></td>
+                    <td>加后赋值</td>
+                </tr>
+                <tr>
+                    <td><code>-=</code></td>
+                    <td><code>a -= b</code></td>
+                    <td><code>a = a - b</code></td>
+                    <td>减后赋值</td>
+                </tr>
+                <tr>
+                    <td><code>*=</code></td>
+                    <td><code>a *= b</code></td>
+                    <td><code>a = a * b</code></td>
+                    <td>乘后赋值</td>
+                </tr>
+                 <tr>
+                    <td><code>/=</code></td>
+                    <td><code>a /= b</code></td>
+                    <td><code>a = a / b</code></td>
+                    <td>除后赋值</td>
+                </tr>
+                 <tr>
+                    <td><code>%=</code></td>
+                    <td><code>a %= b</code></td>
+                    <td><code>a = a % b</code></td>
+                    <td>取模后赋值</td>
+                </tr>
+                <tr>
+                    <td><code>&=</code></td>
+                    <td><code>a &= b</code></td>
+                    <td><code>a = a & b</code></td>
+                    <td>按位与后赋值</td>
+                </tr>
+                <tr>
+                    <td><code>|=</code></td>
+                    <td><code>a |= b</code></td>
+                    <td><code>a = a | b</code></td>
+                    <td>按位或后赋值</td>
+                </tr>
+                 <tr>
+                    <td><code>^=</code></td>
+                    <td><code>a ^= b</code></td>
+                    <td><code>a = a ^ b</code></td>
+                    <td>按位异或后赋值</td>
+                </tr>
+                 <tr>
+                    <td><code>&lt;&lt;=</code></td>
+                    <td><code>a &lt;&lt;= n</code></td>
+                    <td><code>a = a &lt;&lt; n</code></td>
+                    <td>左移后赋值</td>
+                </tr>
+                 <tr>
+                    <td><code>&gt;&gt;=</code></td>
+                    <td><code>a &gt;&gt;= n</code></td>
+                    <td><code>a = a &gt;&gt; n</code></td>
+                    <td>右移后赋值</td>
+                </tr>
+            </tbody>
+        </table>
+        <pre><code class="language-c"><span class="type">int</span> score <span class="operator">=</span> <span class="number">100</span><span class="punctuation">;</span>
+score <span class="operator">+=</span> <span class="number">10</span><span class="punctuation">;</span> <span class="comment">// score 现在是 110</span>
+score <span class="operator">-=</span> <span class="number">20</span><span class="punctuation">;</span> <span class="comment">// score 现在是 90</span>
+<span class="function">printf</span>(<span class="string">"Score: %d\n"</span>, score)<span class="punctuation">;</span>
+
+<span class="type">int</span> flags <span class="operator">=</span> <span class="number">5</span><span class="punctuation">;</span> <span class="comment">// 0101</span>
+flags <span class="operator">|=</span> <span class="number">2</span><span class="punctuation">;</span> <span class="comment">// flags |= 0010 => 0111 (十进制 7)</span>
+<span class="function">printf</span>(<span class="string">"Flags: %d\n"</span>, flags)<span class="punctuation">;</span>
+</code></pre>
+
+        <h3>6. 杂项运算符 (Miscellaneous Operators)</h3>
+        <p>包括一些不属于上述类别但很重要的运算符。</p>
+         <table>
+            <thead>
+                <tr>
+                    <th>运算符</th>
+                    <th>名称</th>
+                    <th>示例</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>sizeof</code></td>
+                    <td>尺寸运算符</td>
+                    <td><code>sizeof(type)</code> 或 <code>sizeof(variable)</code></td>
+                    <td>返回操作数（类型或变量）所占用的内存<strong>字节数</strong>。结果是 <code>size_t</code> 类型 (通常是无符号整数)。</td>
+                </tr>
+                <tr>
+                    <td><code>? :</code></td>
+                    <td>条件运算符 (三元运算符)</td>
+                    <td><code>condition ? value_if_true : value_if_false</code></td>
+                    <td>如果 <code>condition</code> 为真 (非零)，则表达式的值为 <code>value_if_true</code>；否则为 <code>value_if_false</code>。是 <code>if-else</code> 语句的简洁形式。</td>
+                </tr>
+                <tr>
+                    <td><code>,</code></td>
+                    <td>逗号运算符</td>
+                    <td><code>expr1, expr2</code></td>
+                    <td>顺序计算 <code>expr1</code> 和 <code>expr2</code>，整个表达式的值是 <code>expr2</code> 的值。常用于 <code>for</code> 循环中同时更新多个变量。</td>
+                </tr>
+                <tr>
+                    <td><code>&</code></td>
+                    <td>地址运算符</td>
+                    <td><code>&variable</code></td>
+                    <td>返回变量 <code>variable</code> 的内存地址。与指针紧密相关。</td>
+                </tr>
+                 <tr>
+                    <td><code>*</code></td>
+                    <td>间接运算符 (解引用)</td>
+                    <td><code>*pointer</code></td>
+                    <td>访问指针 <code>pointer</code> 所指向地址处的值。与指针紧密相关。</td>
+                </tr>
+                 <tr>
+                    <td><code>(type)</code></td>
+                    <td>类型转换</td>
+                    <td><code>(float)int_var</code></td>
+                    <td>将表达式的值强制转换为指定的类型。</td>
+                </tr>
+                 <tr>
+                    <td><code>.</code> 和 <code>-&gt;</code></td>
+                    <td>成员访问</td>
+                    <td><code>struct_var.member</code><br><code>struct_ptr-&gt;member</code></td>
+                    <td>用于访问结构体 (<code>struct</code>) 或联合体 (<code>union</code>) 的成员。<code>.</code> 用于普通变量，<code>-&gt;</code> 用于指向结构/联合体的指针。</td>
+                </tr>
+                <tr>
+                    <td><code>[]</code></td>
+                    <td>数组下标</td>
+                    <td><code>array[index]</code></td>
+                    <td>用于访问数组中的元素。</td>
+                </tr>
+                 <tr>
+                    <td><code>()</code></td>
+                    <td>函数调用</td>
+                    <td><code>function_name(args)</code></td>
+                    <td>用于调用函数。</td>
+                </tr>
+            </tbody>
+        </table>
+        <pre><code class="language-c"><span class="type">int</span> num <span class="operator">=</span> <span class="number">10</span><span class="punctuation">;</span>
+<span class="function">printf</span>(<span class="string">"Size of int: %zu bytes\n"</span>, <span class="keyword">sizeof</span>(<span class="type">int</span>))<span class="punctuation">;</span>   <span class="comment">// 输出 int 类型的字节数</span>
+<span class="function">printf</span>(<span class="string">"Size of num: %zu bytes\n"</span>, <span class="keyword">sizeof</span>(num))<span class="punctuation">;</span>    <span class="comment">// 输出变量 num 的字节数</span>
+
+<span class="type">int</span> a <span class="operator">=</span> <span class="number">5</span><span class="punctuation">,</span> b <span class="operator">=</span> <span class="number">8</span><span class="punctuation">;</span>
+<span class="type">int</span> max_val <span class="operator">=</span> (a <span class="operator">&gt;</span> b) <span class="operator">?</span> a <span class="operator">:</span> b<span class="punctuation">;</span> <span class="comment">// max_val 会被赋值为 8</span>
+<span class="function">printf</span>(<span class="string">"Max value: %d\n"</span>, max_val)<span class="punctuation">;</span>
+
+<span class="type">int</span> i<span class="punctuation">,</span> j<span class="punctuation">;</span>
+<span class="keyword">for</span> (i <span class="operator">=</span> <span class="number">0</span>, j <span class="operator">=</span> <span class="number">5</span><span class="punctuation">;</span> i <span class="operator">&lt;</span> <span class="number">3</span><span class="punctuation">;</span> i<span class="operator">++</span>, j<span class="operator">--</span>) { <span class="comment">// 逗号运算符用于初始化和更新</span>
+    <span class="function">printf</span>(<span class="string">"i=%d, j=%d\n"</span>, i, j)<span class="punctuation">;</span>
+}
+
+<span class="type">int</span> val <span class="operator">=</span> <span class="number">100</span><span class="punctuation">;</span>
+<span class="type">int</span>* ptr <span class="operator">=</span> <span class="operator">&amp;</span>val<span class="punctuation">;</span> <span class="comment">// & 获取地址</span>
+<span class="function">printf</span>(<span class="string">"Value via pointer: %d\n"</span>, *ptr)<span class="punctuation">;</span> <span class="comment">// * 解引用指针</span>
+
+<span class="type">float</span> result <span class="operator">=</span> (<span class="type">float</span>)<span class="number">10</span> <span class="operator">/</span> <span class="number">3</span><span class="punctuation">;</span> <span class="comment">// 类型转换</span>
+<span class="function">printf</span>(<span class="string">"Result: %.2f\n"</span>, result)<span class="punctuation">;</span>
+</code></pre>
+
+        <div class="note">
+            <strong>运算符优先级和结合性：</strong> 不同的运算符有不同的执行优先级（例如乘除优先于加减）和结合性（例如赋值运算符是右结合 <code>a=b=c</code> 等价于 <code>a=(b=c)</code>）。当不确定优先级时，使用<strong>圆括号 <code>()</code></strong> 来明确指定计算顺序，这也能提高代码的可读性。
+        </div>
+    </div>
+</body>
+</html>

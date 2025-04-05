@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - 环境搭建</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        code {
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b; /* Slightly reddish color for code */
+        }
+        strong {
+            color: #e67e22;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段一：基础入门 - 环境搭建</h2>
+
+        <p>在开始编写 C 语言代码之前，我们需要准备好必要的工具。这包括了解 C 语言的背景、安装一个<strong>编译器</strong>（将你的代码翻译成机器能懂的指令）和一个<strong>集成开发环境</strong>（IDE，提供代码编辑、编译、调试等一体化功能，让开发更便捷）。</p>
+
+        <h3>1. C语言历史简介</h3>
+        <p>
+            C 语言是由<strong>丹尼斯·里奇 (Dennis Ritchie)</strong> 于 1972 年在贝尔实验室 (Bell Labs) 开发的。它的设计目标是为 UNIX 操作系统提供一种高效、可移植的系统编程语言。C 语言凭借其简洁、高效、接近硬件、功能强大且灵活的特点，迅速流行起来，并对后来的许多编程语言（如 C++, Java, C#, Python 等）产生了深远的影响。至今，C 语言仍在操作系统、嵌入式系统、驱动程序、高性能计算等领域广泛使用。
+        </p>
+
+        <h3>2. 安装编译器 (Compiler)</h3>
+        <p>
+            编译器是将你编写的 C 源代码 (<code>.c</code> 文件) 转换成计算机可以直接执行的可执行文件 (如 Windows 下的 <code>.exe</code> 文件) 的核心工具。
+        </p>
+        <p>
+            最常用和推荐的 C 编译器是 <strong>GCC (GNU Compiler Collection)</strong>。
+        </p>
+        <ul>
+            <li>
+                <strong>Linux (如 Ubuntu, CentOS):</strong> 通常系统自带或可以通过包管理器轻松安装。
+                <ul>
+                    <li>Debian/Ubuntu: 打开终端，运行 <code>sudo apt update && sudo apt install build-essential</code> (<code>build-essential</code> 包含 GCC、make 等开发必需工具)。</li>
+                    <li>Fedora/CentOS/RHEL: 打开终端，运行 <code>sudo dnf groupinstall "Development Tools"</code> 或 <code>sudo yum groupinstall "Development Tools"</code>。</li>
+                </ul>
+                安装后，可以在终端输入 <code>gcc --version</code> 来检查是否安装成功及查看版本。
+            </li>
+            <li>
+                <strong>macOS:</strong> 最简单的方法是安装 <strong>Xcode Command Line Tools</strong>。打开“终端” (Terminal) 应用，输入 <code>xcode-select --install</code> 并按回车，按照提示安装即可。这会安装 Clang (一个与 GCC 兼容性很好的编译器) 和其他开发工具。你可以用 <code>clang --version</code> 或有时也包含的 <code>gcc --version</code> 来验证。
+            </li>
+            <li>
+                <strong>Windows:</strong> Windows 本身不带 C 编译器，需要手动安装。常用选择有：
+                <ul>
+                    <li><strong>MinGW-w64:</strong> 提供适用于 Windows 的 GCC 编译器套件。你可以从其官网或通过 <a href="https://winlibs.com/" target="_blank" rel="noopener noreferrer">WinLibs</a> (提供预编译好的、独立的 MinGW-w64 版本) 或 MSYS2 (一个软件分发和构建平台) 来安装。<strong>注意：</strong> 安装后通常需要手动将 MinGW-w64 的 <code>bin</code> 目录添加到系统的 PATH 环境变量中，这样才能在命令行直接使用 <code>gcc</code> 命令。</li>
+                    <li><strong>WSL (Windows Subsystem for Linux):</strong> 推荐的方式之一。允许你在 Windows 上运行一个 Linux 环境，然后在该 Linux 环境中按照 Linux 的方式安装 GCC (如 <code>sudo apt install build-essential</code>)。</li>
+                    <li><strong>集成到 IDE：</strong> 某些 IDE (如下面的 Dev-C++) 会捆绑 MinGW。</li>
+                </ul>
+                 安装后，打开命令提示符 (cmd) 或 PowerShell，输入 <code>gcc --version</code> 验证 (如果添加了 PATH)。
+            </li>
+        </ul>
+        <p class="note"><strong>验证安装：</strong> 无论使用哪种操作系统，安装完成后都应该打开命令行/终端，输入 <code>gcc --version</code> (或 <code>clang --version</code> on macOS) 并回车，如果能看到版本信息，说明编译器安装基本成功。</p>
+
+        <h3>3. 安装集成开发环境 (IDE - Integrated Development Environment)</h3>
+        <p>
+            IDE 将代码编辑器、编译器、调试器等工具集成在一起，极大地提高了开发效率。虽然你可以只用文本编辑器 (如 Notepad++, Sublime Text, Vim) 配合命令行编译器来写 C 代码，但对于初学者，IDE 通常更友好。
+        </p>
+        <p>以下是一些流行的 C/C++ IDE 选择：</p>
+        <ul>
+            <li>
+                <strong>Visual Studio Code (VS Code):</strong> <a href="https://code.visualstudio.com/" target="_blank" rel="noopener noreferrer">官方网站</a>
+                <ul>
+                    <li><strong>特点：</strong> 轻量级、免费、跨平台 (Windows, macOS, Linux)、插件生态系统强大。</li>
+                    <li><strong>配置：</strong> 安装 VS Code 后，需要安装 C/C++ 扩展 (由 Microsoft 提供)。然后需要配置它使用你之前安装的编译器 (如 GCC)。通常扩展会自动检测或提供配置向导 (<code>tasks.json</code> 用于编译, <code>launch.json</code> 用于调试)。</li>
+                    <li><strong>推荐度：</strong> ★★★★★ (非常推荐，灵活且功能强大)</li>
+                </ul>
+            </li>
+             <li>
+                <strong>CLion:</strong> <a href="https://www.jetbrains.com/clion/" target="_blank" rel="noopener noreferrer">官方网站</a>
+                <ul>
+                    <li><strong>特点：</strong> 功能非常强大、智能的代码提示和重构、优秀的调试器、跨平台、由 JetBrains 公司开发。</li>
+                    <li><strong>配置：</strong> 通常能自动检测已安装的编译器 (GCC, Clang, MSVC) 和 CMake。使用 CMake 进行项目管理。</li>
+                    <li><strong>注意：</strong> CLion 是<strong>商业软件 (付费)</strong>，但为学生和开源项目提供免费许可证。</li>
+                    <li><strong>推荐度：</strong> ★★★★☆ (功能强大，但需付费或符合免费条件)</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Dev-C++ (及其衍生版，如 Embarcadero Dev-C++):</strong> <a href="https://sourceforge.net/projects/orwelldevcpp/" target="_blank" rel="noopener noreferrer">Orwell Dev-C++ (一个流行分支)</a> 或 <a href="https://www.embarcadero.com/free-tools/dev-cpp" target="_blank" rel="noopener noreferrer">Embarcadero Dev-C++</a>
+                <ul>
+                    <li><strong>特点：</strong> 简单、轻量级、免费、主要面向 Windows。通常会自带 MinGW 编译器，安装后即可使用。</li>
+                    <li><strong>配置：</strong> 安装相对简单，开箱即用。</li>
+                    <li><strong>注意：</strong> 界面和功能相对老旧，调试功能可能不如 VS Code 或 CLion 强大。</li>
+                    <li><strong>推荐度：</strong> ★★★☆☆ (适合 Windows 平台快速入门，但进阶可能受限)</li>
+                </ul>
+            </li>
+             <li>
+                <strong>Visual Studio (注意不是 VS Code):</strong> <a href="https://visualstudio.microsoft.com/vs/" target="_blank" rel="noopener noreferrer">官方网站</a>
+                <ul>
+                    <li><strong>特点：</strong> 功能极其全面的 IDE，主要面向 Windows 开发，也支持 C++ (和 C)。自带微软的 MSVC 编译器。社区版 (Community) 免费。</li>
+                    <li><strong>配置：</strong> 安装时选择 "Desktop development with C++" 工作负载。</li>
+                    <li><strong>注意：</strong> 主要使用 MSVC 编译器，虽然也支持 Clang，但与 GCC/Clang 在某些方面有细微差别。对于纯 C 学习，可能略显庞大。</li>
+                    <li><strong>推荐度：</strong> ★★★☆☆ (Windows 下功能强大，但主要面向 C++ 和 Windows 开发)</li>
+                </ul>
+            </li>
+        </ul>
+        <p class="warning"><strong>选择建议：</strong> 对于初学者，<strong>VS Code + C/C++ 扩展</strong> 是一个非常好的跨平台选择，因为它灵活、免费且社区支持广泛。如果你在 Windows 上希望“开箱即用”且不介意界面稍旧，<strong>Embarcadero Dev-C++</strong> 也是一个选项。如果你是学生或愿意付费，<strong>CLion</strong> 提供顶级的开发体验。</p>
+
+        <p>选择并安装好编译器和 IDE (或者配置好 VS Code 使用编译器) 之后，你的 C 语言开发环境就搭建好了！接下来就可以开始编写你的第一个 C 程序了。</p>
+    </div>
+</body>
+</html>

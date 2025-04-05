@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言入门到精通学习路线图</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #3498db;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: #ecf0f1;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        li:hover {
+            background-color: #d5dbdb;
+        }
+        strong {
+            color: #e67e22;
+        }
+        code {
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+        }
+        .note {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffeeba;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .note strong {
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>C语言入门到精通学习路线图</h1>
+
+        <p class="note">
+            <strong>提示：</strong> 理论学习与动手实践相结合至关重要。每个阶段都应编写大量代码进行练习，并尝试完成一些小项目来巩固知识。
+        </p>
+
+        <h2>阶段一：基础入门 (Beginner)</h2>
+        <ul>
+            <li><strong>环境搭建：</strong> 了解C语言历史，安装编译器 (如 GCC) 和集成开发环境 (IDE, 如 VS Code, Dev-C++, Clion)。</li>
+            <li><strong>第一个程序：</strong> 编写并运行 "Hello, World!" 程序，理解基本结构。</li>
+            <li><strong>基本语法：</strong> 注释、分号、代码块、大小写敏感性。</li>
+            <li><strong>数据类型：</strong> 整型 (<code>int</code>, <code>short</code>, <code>long</code>, <code>long long</code>)、浮点型 (<code>float</code>, <code>double</code>)、字符型 (<code>char</code>)、<code>void</code> 类型。</li>
+            <li><strong>变量与常量：</strong> 变量的声明、定义、初始化，常量的定义 (<code>#define</code>, <code>const</code>)。</li>
+            <li><strong>运算符：</strong> 算术运算符、关系运算符、逻辑运算符、位运算符、赋值运算符、杂项运算符 (如 <code>sizeof</code>, 三元运算符 <code>? :</code>)。</li>
+            <li><strong>类型转换：</strong> 自动类型转换与强制类型转换。</li>
+            <li><strong>基本输入输出：</strong> 使用 <code>printf</code> 进行格式化输出，使用 <code>scanf</code> 进行格式化输入。</li>
+        </ul>
+
+        <h2>阶段二：流程控制 (Control Flow)</h2>
+        <ul>
+            <li><strong>条件语句：</strong> <code>if</code> 语句、<code>if-else</code> 语句、<code>if-else if-else</code> 结构、<code>switch</code> 语句。</li>
+            <li><strong>循环语句：</strong> <code>for</code> 循环、<code>while</code> 循环、<code>do-while</code> 循环。</li>
+            <li><strong>跳转语句：</strong> <code>break</code> (跳出循环/switch)、<code>continue</code> (跳过本次循环)、<code>goto</code> (<strong>谨慎使用</strong>)。</li>
+        </ul>
+
+        <h2>阶段三：函数 (Functions)</h2>
+        <ul>
+            <li><strong>函数的定义与调用：</strong> 了解函数的概念、优点，学习如何定义和调用函数。</li>
+            <li><strong>函数参数：</strong> 值传递 (Pass by Value)。</li>
+            <li><strong>函数返回值：</strong> <code>return</code> 语句的使用。</li>
+            <li><strong>递归函数：</strong> 理解递归的概念和应用场景（如阶乘、斐波那契数列）。</li>
+            <li><strong>变量作用域与生命周期：</strong> 局部变量、全局变量、静态局部变量。</li>
+            <li><strong>存储类：</strong> <code>auto</code>, <code>register</code>, <code>static</code>, <code>extern</code>。</li>
+        </ul>
+
+        <h2>阶段四：数组与指针 (Arrays & Pointers - 核心)</h2>
+        <ul>
+            <li><strong>一维数组：</strong> 声明、初始化、访问数组元素。</li>
+            <li><strong>多维数组：</strong> 声明、初始化、访问元素 (以二维数组为主)。</li>
+            <li><strong>字符数组与字符串：</strong> C风格字符串 (以 <code>\0</code> 结尾)、常用字符串处理函数 (<code><string.h></code> 头文件：<code>strlen</code>, <code>strcpy</code>, <code>strcat</code>, <code>strcmp</code> 等)。</li>
+            <li><strong>指针基础：</strong> 指针变量的定义、取地址运算符 <code>&</code>、解引用运算符 <code>*</code>。</li>
+            <li><strong>指针与数组：</strong> 数组名作为指针、指针算术运算、通过指针访问数组元素。</li>
+            <li><strong>指针与函数：</strong> 指针作为函数参数 (模拟引用传递/地址传递)、函数返回指针。</li>
+            <li><strong>指针数组与数组指针：</strong> 理解其定义和区别。</li>
+            <li><strong>函数指针：</strong> 定义和使用指向函数的指针。</li>
+            <li><strong>动态内存分配：</strong> <code>malloc</code>, <code>calloc</code>, <code>realloc</code>, <code>free</code> (<code><stdlib.h></code> 头文件)。理解堆内存与栈内存的区别。</li>
+            <li><strong><code>void*</code> 指针：</strong> 通用指针类型。</li>
+        </ul>
+
+        <h2>阶段五：结构体、联合体与枚举 (Compound Data Types)</h2>
+        <ul>
+            <li><strong>结构体 (<code>struct</code>)：</strong> 定义、声明变量、访问成员 (使用 <code>.</code> 和 <code>-></code>)、结构体数组、指向结构体的指针、结构体嵌套。</li>
+            <li><strong>联合体 (<code>union</code>)：</strong> 定义、特点 (成员共享内存)、与结构体的区别。</li>
+            <li><strong>枚举 (<code>enum</code>)：</strong> 定义和使用枚举类型，提高代码可读性。</li>
+            <li><strong><code>typedef</code>：</strong> 为现有类型创建别名，简化复杂类型声明。</li>
+        </ul>
+
+        <h2>阶段六：文件操作 (File I/O)</h2>
+        <ul>
+            <li><strong>文件流与文件指针：</strong> <code>FILE</code> 类型。</li>
+            <li><strong>文件的打开与关闭：</strong> <code>fopen</code> 函数 (不同模式：<code>r</code>, <code>w</code>, <code>a</code>, <code>r+</code>, <code>w+</code>, <code>a+</code>, 以及二进制模式 <code>b</code>)、<code>fclose</code> 函数。</li>
+            <li><strong>文件读写：</strong>
+                <ul>
+                    <li>字符读写：<code>fgetc</code>, <code>fputc</code></li>
+                    <li>字符串读写：<code>fgets</code>, <code>fputs</code></li>
+                    <li>格式化读写：<code>fscanf</code>, <code>fprintf</code></li>
+                    <li>二进制读写：<code>fread</code>, <code>fwrite</code></li>
+                </ul>
+            </li>
+            <li><strong>文件定位：</strong> <code>fseek</code>, <code>ftell</code>, <code>rewind</code>。</li>
+            <li><strong>错误处理：</strong> <code>feof</code>, <code>ferror</code>。</li>
+        </ul>
+
+        <h2>阶段七：预处理器与编译链接 (Build Process)</h2>
+        <ul>
+            <li><strong>预处理指令：</strong> <code>#include</code> (包含头文件)、<code>#define</code> (宏定义，常量和类函数宏)、<code>#undef</code> (取消宏定义)。</li>
+            <li><strong>条件编译：</strong> <code>#if</code>, <code>#else</code>, <code>#elif</code>, <code>#endif</code>, <code>#ifdef</code>, <code>#ifndef</code>。</li>
+            <li><strong>其他指令：</strong> <code>#error</code>, <code>#pragma</code> (了解即可)。</li>
+            <li><strong>编译过程：</strong> 了解 C 程序的编译步骤 (预处理 -> 编译 -> 汇编 -> 链接)。</li>
+            <li><strong>多文件编程：</strong> 头文件 (<code>.h</code>) 和源文件 (<code>.c</code>) 的组织，<code>extern</code> 关键字的应用。</li>
+            <li><strong>静态库与动态库：</strong> 了解概念和基本使用方法 (创建和链接)。</li>
+        </ul>
+
+        <h2>阶段八：进阶主题 (Advanced Topics)</h2>
+        <ul>
+            <li><strong>位运算：</strong> <code>&</code>, <code>|</code>, <code>^</code>, <code>~</code>, <code><<</code>, <code>>></code> 及其应用场景 (如状态标志、掩码、效率优化)。</li>
+            <li><strong>常用库函数深入：</strong> 深入学习 <code><stdlib.h></code>, <code><math.h></code>, <code><time.h></code> 等标准库。</li>
+            <li><strong>数据结构基础：</strong> 使用 C 语言实现常见数据结构 (链表、栈、队列、哈希表、树等)。<strong>这是迈向精通的关键一步。</strong></li>
+            <li><strong>算法基础：</strong> 学习和实现基本排序算法 (冒泡、选择、插入、快速排序等)、查找算法 (顺序、二分查找)。</li>
+            <li><strong>错误处理机制：</strong> <code>errno</code> 全局变量、<code>perror</code> 函数、<code>strerror</code> 函数。</li>
+            <li><strong>内存管理深入：</strong> 内存对齐、内存池、理解内存泄漏、野指针、悬垂指针等问题及避免方法。</li>
+            <li><strong>调试技术：</strong> 学习使用调试工具 (如 GDB) 进行断点设置、单步执行、查看变量值、分析调用栈。</li>
+            <li><strong>编码规范与风格：</strong> 遵循良好的编码风格，提高代码可读性和可维护性 (如 K&R 风格、GNU 风格等)。</li>
+        </ul>
+
+        <h2>阶段九：走向精通 (Mastery Path)</h2>
+        <ul>
+            <li><strong>操作系统接口：</strong> 学习 POSIX 标准 (Linux/Unix) 或 Windows API，进行系统级编程 (如进程管理、线程、进程间通信 IPC)。</li>
+            <li><strong>网络编程：</strong> 学习 Socket 编程基础 (TCP/IP, UDP)。</li>
+            <li><strong>并发与多线程：</strong> 学习 Pthreads (POSIX) 或 Windows 线程库，实现并发程序，理解锁、信号量等同步机制。</li>
+            <li><strong>底层原理：</strong> 深入理解计算机体系结构、操作系统原理、编译原理，了解 C 代码如何转化为机器指令执行。</li>
+            <li><strong>阅读优秀开源项目代码：</strong> 如 Redis, Nginx (部分模块), Linux 内核 (选择性阅读) 等，学习高手如何组织和编写 C 代码。</li>
+            <li><strong>性能分析与优化：</strong> 使用性能分析工具 (如 Gprof, Valgrind) 找出程序瓶颈并进行优化。</li>
+            <li><strong>跨平台开发：</strong> 了解不同平台下的差异，编写可移植的 C 代码。</li>
+        </ul>
+
+        <p class="note">
+            <strong>持续学习：</strong> 技术日新月异，即使精通 C 语言，也需要持续关注相关技术的发展，不断学习和实践。祝您学习顺利！
+        </p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - 类型转换</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段一：基础入门 - 类型转换</h2>
+
+        <p>
+            类型转换 (Type Conversion) 指的是将一个数据类型的值转换为另一个数据类型的过程。在 C 语言中，类型转换可能在某些情况下<strong>自动发生</strong>，也可以由程序员<strong>显式指定</strong>。理解类型转换的规则和潜在影响对于避免错误和编写健壮的代码非常重要。
+        </p>
+
+        <h3>1. 自动类型转换 (Implicit Type Conversion)</h3>
+        <p>
+            自动类型转换是由编译器<strong>自动完成</strong>的，无需程序员干预。主要发生在以下情况：
+        </p>
+        <ul>
+            <li>
+                <strong>赋值运算：</strong> 当把一个类型的值赋给另一种类型的变量时，如果目标类型的表示范围或精度与源类型不同，可能会发生自动转换。
+                <pre><code class="language-c"><span class="type">int</span> i <span class="operator">=</span> <span class="number">10</span><span class="punctuation">;</span>
+<span class="type">float</span> f<span class="punctuation">;</span>
+f <span class="operator">=</span> i<span class="punctuation">;</span> <span class="comment">// 自动将 int 类型的 10 转换为 float 类型的 10.0f</span>
+<span class="function">printf</span>(<span class="string">"f = %f\n"</span>, f)<span class="punctuation">;</span> <span class="comment">// 输出: f = 10.000000</span>
+
+<span class="type">double</span> d <span class="operator">=</span> <span class="number">3.14</span><span class="punctuation">;</span>
+<span class="type">int</span> k<span class="punctuation">;</span>
+k <span class="operator">=</span> d<span class="punctuation">;</span> <span class="comment">// 自动将 double 类型的 3.14 转换为 int 类型，小数部分被截断</span>
+<span class="function">printf</span>(<span class="string">"k = %d\n"</span>, k)<span class="punctuation">;</span> <span class="comment">// 输出: k = 3 (数据丢失！)</span>
+</code></pre>
+            </li>
+            <li>
+                <strong>表达式求值 (Usual Arithmetic Conversions)：</strong> 当一个表达式中包含不同数据类型的操作数时，编译器会遵循一套规则（称为“通常算术转换”）将它们转换为共同的、通常是“更宽”或“更高等级”的类型，然后再进行计算。基本规则倾向于：
+                <ul>
+                    <li>如果任一操作数是 <code>long double</code>，则另一个操作数转换为 <code>long double</code>。</li>
+                    <li>否则，如果任一操作数是 <code>double</code>，则另一个操作数转换为 <code>double</code>。</li>
+                    <li>否则，如果任一操作数是 <code>float</code>，则另一个操作数转换为 <code>float</code>。</li>
+                    <li>否则，进行整数提升（<code>char</code>, <code>short</code> 通常提升为 <code>int</code> 或 <code>unsigned int</code>）。</li>
+                    <li>然后，如果操作数仍有不同类型（如 <code>int</code> 和 <code>unsigned int</code>，或 <code>int</code> 和 <code>long</code>），则较低等级的类型转换为较高等级的类型（大致等级：<code>int</code> &lt; <code>unsigned int</code> &lt; <code>long</code> &lt; <code>unsigned long</code> &lt; <code>long long</code> &lt; <code>unsigned long long</code>）。</li>
+                </ul>
+                 <pre><code class="language-c"><span class="type">int</span> num_int <span class="operator">=</span> <span class="number">5</span><span class="punctuation">;</span>
+<span class="type">float</span> num_float <span class="operator">=</span> <span class="number">2.5f</span><span class="punctuation">;</span>
+<span class="type">double</span> result_double<span class="punctuation">;</span>
+
+result_double <span class="operator">=</span> num_int <span class="operator">+</span> num_float<span class="punctuation">;</span> <span class="comment">// num_int (5) 会被自动转换为 float (5.0f)</span>
+                                   <span class="comment">// 5.0f + 2.5f = 7.5f</span>
+                                   <span class="comment">// 结果 7.5f 被赋给 double 变量 result_double (自动转换为 7.5)</span>
+<span class="function">printf</span>(<span class="string">"Result: %lf\n"</span>, result_double)<span class="punctuation">;</span> <span class="comment">// 输出: Result: 7.500000</span>
+
+<span class="type">char</span> c <span class="operator">=</span> <span class="string">'A'</span><span class="punctuation">;</span> <span class="comment">// ASCII 值为 65</span>
+<span class="type">int</span> sum <span class="operator">=</span> c <span class="operator">+</span> <span class="number">1</span><span class="punctuation">;</span> <span class="comment">// 字符 c 在表达式中通常被提升为 int 类型 (65)</span>
+                   <span class="comment">// sum = 65 + 1 = 66</span>
+<span class="function">printf</span>(<span class="string">"Sum: %d\n"</span>, sum)<span class="punctuation">;</span> <span class="comment">// 输出: Sum: 66</span>
+</code></pre>
+            </li>
+        </ul>
+         <div class="warning">
+            <strong>注意：</strong> 自动类型转换虽然方便，但也可能导致意想不到的结果，特别是当从表示范围大或精度高的类型转换为范围小或精度低的类型时，会发生<strong>数据丢失</strong>（如小数截断、高位数据丢失）。
+        </div>
+
+        <h3>2. 强制类型转换 (Explicit Type Conversion / Casting)</h3>
+        <p>
+            强制类型转换是由程序员<strong>显式指定</strong>的，使用<strong>类型转换运算符 <code>(type)</code></strong> 来完成。它告诉编译器：“我知道这里类型不匹配，但我明确要求你将这个表达式的值当作指定的 <code>type</code> 类型来处理。”
+        </p>
+        <p><strong>语法：</strong> <code>(target_type) expression</code></p>
+        <p>强制类型转换的常见用途：</p>
+        <ul>
+            <li>
+                <strong>改变运算行为（如实现浮点数除法）：</strong>
+                <pre><code class="language-c"><span class="type">int</span> total_score <span class="operator">=</span> <span class="number">100</span><span class="punctuation">;</span>
+<span class="type">int</span> count <span class="operator">=</span> <span class="number">3</span><span class="punctuation">;</span>
+<span class="type">double</span> average<span class="punctuation">;</span>
+
+<span class="comment">// 如果直接计算 total_score / count，会进行整数除法，结果为 33</span>
+average <span class="operator">=</span> total_score <span class="operator">/</span> count<span class="punctuation">;</span>
+<span class="function">printf</span>(<span class="string">"Average (integer division): %lf\n"</span>, average)<span class="punctuation">;</span> <span class="comment">// 可能输出 33.000000</span>
+
+<span class="comment">// 使用强制类型转换，将其中一个操作数转为浮点数，触发浮点数除法</span>
+average <span class="operator">=</span> (<span class="cast">(<span class="type">double</span>)</span>total_score) <span class="operator">/</span> count<span class="punctuation">;</span>
+<span class="function">printf</span>(<span class="string">"Average (float division): %lf\n"</span>, average)<span class="punctuation">;</span> <span class="comment">// 输出: Average (float division): 33.333333</span>
+
+<span class="comment">// 或者转换另一个操作数，或者两者都转 (转换一个就足够了)</span>
+average <span class="operator">=</span> total_score <span class="operator">/</span> (<span class="cast">(<span class="type">double</span>)</span>count)<span class="punctuation">;</span>
+<span class="function">printf</span>(<span class="string">"Average (float division): %lf\n"</span>, average)<span class="punctuation">;</span> <span class="comment">// 输出: Average (float division): 33.333333</span>
+</code></pre>
+            </li>
+            <li>
+                <strong>处理指针类型（尤其是 <code>void*</code>）：</strong> 当使用通用指针 <code>void*</code> 时，在实际访问其指向的数据之前，必须将其强制转换为具体的指针类型。
+                 <pre><code class="language-c"><span class="comment">// 假设 malloc 返回 void* (这是标准库函数)</span>
+<span class="type">void</span>* generic_memory <span class="operator">=</span> <span class="function">malloc</span>(<span class="keyword">sizeof</span>(<span class="type">int</span>))<span class="punctuation">;</span>
+<span class="keyword">if</span> (generic_memory <span class="operator">!=</span> <span class="keyword">NULL</span>) {
+    <span class="comment">// 需要将 void* 转换为 int* 才能对其解引用并赋值</span>
+    <span class="type">int</span>* int_ptr <span class="operator">=</span> (<span class="cast">(<span class="type">int</span>*)</span>generic_memory)<span class="punctuation">;</span>
+    *int_ptr <span class="operator">=</span> <span class="number">42</span><span class="punctuation">;</span>
+    <span class="function">printf</span>(<span class="string">"Value in allocated memory: %d\n"</span>, *int_ptr)<span class="punctuation">;</span>
+    <span class="function">free</span>(generic_memory)<span class="punctuation">;</span> <span class="comment">// 释放内存</span>
+}
+</code></pre>
+            </li>
+             <li>
+                <strong>消除编译器警告：</strong> 有时编译器会因为潜在的（但程序员确认安全的）类型不匹配而发出警告，可以使用强制类型转换来抑制这些警告（但要确保转换确实安全！）。
+            </li>
+        </ul>
+        <div class="warning">
+            <strong>警告：</strong> 强制类型转换赋予了程序员更大的控制权，但也带来了风险。<strong>不恰当的强制类型转换可能导致数据损坏、未定义行为或程序崩溃。</strong> 必须清楚转换的后果，确保转换是有效和安全的。例如，将一个指向 <code>int</code> 的指针强制转换为指向 <code>struct</code> 的指针，然后试图访问结构体成员，很可能会出错。
+        </div>
+
+        <div class="note">
+            <strong>总结：</strong>
+            <ul>
+                <li><strong>自动类型转换</strong>由编译器根据规则自动执行，常见于赋值和混合类型表达式中，需注意可能的数据丢失。</li>
+                <li><strong>强制类型转换</strong>使用 <code>(type)expression</code> 语法，由程序员显式执行，用于特定目的（如改变运算方式、处理指针），但需要谨慎使用，确保转换的安全性。</li>
+                <li>理解这两种转换对于编写正确、高效且无意外副作用的 C 代码至关重要。</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

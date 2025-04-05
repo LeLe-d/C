@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - 基本语法</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; } /* White-ish for operators */
+        .punctuation { color: #d4d4d4; } /* White-ish for punctuation like ; {} */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段一：基础入门 - 基本语法</h2>
+
+        <p>理解 C 语言的基础语法规则是编写正确、可读代码的第一步。这些规则就像语言的“语法”，规定了如何组织代码元素。以下是几个最核心的语法要点：</p>
+
+        <h3>1. 注释 (Comments)</h3>
+        <p>
+            注释是代码中用于<strong>解释说明</strong>的部分，它们会被编译器<strong>完全忽略</strong>，不会影响程序的执行。注释的主要目的是提高代码的可读性，方便自己和他人理解代码的意图。
+        </p>
+        <p>C 语言支持两种类型的注释：</p>
+        <ul>
+            <li>
+                <strong>单行注释：</strong> 以 <code>//</code> 开始，直到该行结束的所有内容都是注释。
+                <pre><code class="language-c"><span class="keyword">int</span> score <span class="operator">=</span> <span class="number">100</span><span class="punctuation">;</span> <span class="comment">// 这是单行注释，用来解释 score 变量的初始值</span></code></pre>
+            </li>
+            <li>
+                <strong>多行注释：</strong> 以 <code>/*</code> 开始，以 <code>*/</code> 结束。可以跨越多行，也可以在一行内使用。
+                <pre><code class="language-c"><span class="comment">/*
+这是一个
+多行注释的例子。
+它可以用来写较长的说明。
+*/</span>
+<span class="keyword">float</span> price <span class="operator">=</span> <span class="number">99.9</span><span class="punctuation">;</span> <span class="comment">/* 也可以像这样在一行内使用 */</span></code></pre>
+                <p><strong>注意：</strong> 在 C89 标准中只支持 <code>/* ... */</code>，<code>//</code> 是 C99 标准引入并被广泛支持的。</p>
+            </li>
+        </ul>
+
+        <h3>2. 分号 (Semicolon <code>;</code>)</h3>
+        <p>
+            在 C 语言中，分号扮演着 <span class="highlight">语句结束符</span> 的角色。它告诉编译器一个独立的语句到此结束。<strong>绝大多数 C 语句都必须以分号结尾。</strong>
+        </p>
+        <p>忘记加分号是初学者常见的编译错误。</p>
+        <pre><code class="language-c"><span class="keyword">int</span> age <span class="operator">=</span> <span class="number">25</span><span class="punctuation">;</span>       <span class="comment">// 声明并初始化变量，需要分号</span>
+<span class="function">printf</span>(<span class="string">"Hello\n"</span>)<span class="punctuation">;</span> <span class="comment">// 函数调用语句，需要分号</span>
+age <span class="operator">=</span> age <span class="operator">+</span> <span class="number">1</span><span class="punctuation">;</span>    <span class="comment">// 赋值语句，需要分号</span>
+<span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>         <span class="comment">// return 语句，需要分号</span>
+
+<span class="comment">// 例外情况（不需要分号的常见场景）：</span>
+<span class="comment">// 1. 预处理指令 (如 #include, #define)</span>
+<span class="comment">// #include &lt;stdio.h&gt;  &lt;-- 没有分号</span>
+<span class="comment">// 2. 函数定义的头部</span>
+<span class="comment">// int main() {        &lt;-- 没有分号</span>
+<span class="comment">// 3. 控制结构 (如 if, while, for) 的条件部分之后</span>
+<span class="comment">// if (age > 18) {    &lt;-- 没有分号</span>
+<span class="comment">// 4. 代码块的结束花括号 } 之后</span>
+<span class="comment">// }                 &lt;-- 没有分号</span>
+</code></pre>
+
+        <h3>3. 代码块 (Code Blocks <code>{ }</code>)</h3>
+        <p>
+            代码块是由一对<strong>花括号 <code>{ }</code></strong> 包围起来的一系列语句。代码块的作用是将多条语句<strong>组合</strong>在一起，形成一个逻辑单元。
+        </p>
+        <p>代码块常用于以下场景：</p>
+        <ul>
+            <li><strong>函数体：</strong> 函数的所有代码都必须放在一个代码块中。</li>
+            <li><strong>控制流语句：</strong> 如 <code>if</code>, <code>else</code>, <code>while</code>, <code>for</code>, <code>do-while</code> 等，当需要执行多条语句时，必须使用代码块将这些语句括起来。</li>
+            <li>定义局部变量的作用域。</li>
+        </ul>
+        <pre><code class="language-c"><span class="keyword">int</span> <span class="function">main</span>() <span class="punctuation">{</span> <span class="comment">// 函数体的开始，是一个代码块</span>
+
+    <span class="keyword">int</span> temperature <span class="operator">=</span> <span class="number">15</span><span class="punctuation">;</span>
+
+    <span class="keyword">if</span> (temperature <span class="operator">&lt;</span> <span class="number">20</span>) <span class="punctuation">{</span> <span class="comment">// if 语句关联的代码块开始</span>
+        <span class="function">printf</span>(<span class="string">"有点冷。\n"</span>)<span class="punctuation">;</span>
+        <span class="function">printf</span>(<span class="string">"建议穿外套。\n"</span>)<span class="punctuation">;</span> <span class="comment">// 这两条语句被组合在 if 的块内</span>
+    <span class="punctuation">}</span> <span class="comment">// if 语句关联的代码块结束</span>
+    <span class="keyword">else</span> <span class="punctuation">{</span> <span class="comment">// else 语句关联的代码块开始</span>
+         <span class="function">printf</span>(<span class="string">"天气不错。\n"</span>)<span class="punctuation">;</span>
+    <span class="punctuation">}</span> <span class="comment">// else 语句关联的代码块结束</span>
+
+    <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span> <span class="comment">// 函数体的结束</span>
+</code></pre>
+        <p><strong>注意：</strong> 代码块的结束花括号 <code>}</code> 后面不需要加分号。</p>
+
+        <h3>4. 大小写敏感性 (Case Sensitivity)</h3>
+        <p>
+            C 语言是<strong>严格区分大小写</strong>的。这意味着同一个字母的大写形式和小写形式被视为<strong>不同的字符</strong>。
+        </p>
+        <p>这适用于：</p>
+        <ul>
+            <li><strong>标识符 (Identifiers)：</strong> 变量名、函数名、结构体名等。例如，<code>myVariable</code>, <code>myvariable</code>, 和 <code>MyVariable</code> 是三个完全不同的标识符。</li>
+            <li><strong>关键字 (Keywords)：</strong> C 语言的关键字 (如 <code>int</code>, <code>float</code>, <code>if</code>, <code>else</code>, <code>while</code>, <code>return</code>) 必须<strong>全部小写</strong>。写成 <code>Int</code>, <code>IF</code>, <code>RETURN</code> 等都是错误的。</li>
+        </ul>
+        <pre><code class="language-c"><span class="keyword">int</span> count <span class="operator">=</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="keyword">int</span> Count <span class="operator">=</span> <span class="number">10</span><span class="punctuation">;</span> <span class="comment">// 'count' 和 'Count' 是两个不同的变量</span>
+
+<span class="function">printf</span>(<span class="string">"%d\n"</span>, count)<span class="punctuation">;</span> <span class="comment">// 正确调用 printf 函数</span>
+<span class="comment">// Printf("%d\n", Count); // 错误！没有名为 Printf 的函数 (除非自己定义)</span>
+
+<span class="keyword">if</span> (count <span class="operator">!=</span> Count) <span class="punctuation">{</span> <span class="comment">// 正确使用关键字 if</span>
+    <span class="comment">// ...</span>
+<span class="punctuation">}</span>
+<span class="comment">// IF (count != Count) { // 错误！IF 不是关键字</span>
+    <span class="comment">// ...</span>
+<span class="comment">// }</span>
+</code></pre>
+        <p><strong>建议：</strong> 养成统一的命名习惯（例如，变量名和函数名使用小写字母和下划线 <code>lower_case_with_underscores</code>，或者驼峰命名法 <code>camelCase</code>），并始终保持一致，以避免因大小写混淆导致的错误。</p>
+
+        <div class="note">
+            <strong>总结：</strong> 掌握注释、分号、代码块和大小写敏感性这些基本语法规则，是编写任何 C 程序的基础。务必在早期就养成严格遵守这些规则的习惯。
+        </div>
+    </div>
+</body>
+</html>

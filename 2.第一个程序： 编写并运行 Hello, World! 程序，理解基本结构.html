@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - 第一个程序：Hello, World!</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: none; /* Remove default bullets */
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 10px;
+            padding-left: 25px; /* Space for custom bullet */
+            position: relative;
+        }
+        /* Custom bullet using pseudo-element */
+        li::before {
+            content: '>';
+            position: absolute;
+            left: 0;
+            color: #3498db;
+            font-weight: bold;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        .keyword { color: #569cd6; font-weight: bold; } /* Blue for keywords */
+        .include { color: #9cdcfe; } /* Light blue for includes */
+        .function { color: #dcdcaa; } /* Yellow for functions */
+        .string { color: #ce9178; } /* Orange for strings */
+        .number { color: #b5cea8; } /* Green for numbers */
+        .comment { color: #6a9955; font-style: italic;} /* Green italics for comments */
+        .directive { color: #c586c0;} /* Purple for directives */
+
+        strong {
+            color: #e67e22;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .command {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+        }
+         .command::before {
+            content: "$ "; /* Simulate prompt */
+            color: #bbb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段一：基础入门 - 第一个程序：Hello, World!</h2>
+
+        <p>在搭建好开发环境后，我们来编写并运行第一个 C 语言程序。这几乎是所有编程语言入门的传统——打印 "Hello, World!" 到屏幕上。虽然简单，但它包含了 C 程序的基本骨架。</p>
+
+        <h3>1. 编写代码</h3>
+        <p>打开你选择的 IDE (如 VS Code, Dev-C++) 或一个纯文本编辑器 (如 Notepad++, Gedit)，创建一个新文件，并输入以下代码。将文件保存为 <code>hello.c</code> (文件名可以自定，但后缀必须是 <code>.c</code>)。</p>
+
+        <pre><code class="language-c"><span class="directive">#include</span> <span class="include">&lt;stdio.h&gt;</span> <span class="comment">// 包含标准输入输出头文件</span>
+
+<span class="keyword">int</span> <span class="function">main</span>() { <span class="comment">// 程序的主入口函数</span>
+    <span class="comment">// 调用 printf 函数打印字符串到控制台</span>
+    <span class="function">printf</span>(<span class="string">"Hello, World!\n"</span>);
+
+    <span class="keyword">return</span> <span class="number">0</span>; <span class="comment">// 向操作系统报告程序成功结束</span>
+}
+</code></pre>
+
+        <h3>2. 理解基本结构</h3>
+        <p>让我们逐行分解这个简单的程序：</p>
+        <ul>
+            <li>
+                <code><span class="directive">#include</span> <span class="include">&lt;stdio.h&gt;</span></code><br>
+                这是一个<strong>预处理指令</strong>。它告诉编译器在实际编译之前，将 "stdio.h" 这个<strong>头文件</strong>的内容包含进来。<code>stdio.h</code> 是 C 标准库的一部分，提供了标准输入 (Standard Input) 和标准输出 (Standard Output) 相关的功能，我们后面要用的 <code>printf</code> 函数就在这个文件里声明的。
+            </li>
+            <li>
+                <code><span class="keyword">int</span> <span class="function">main</span>()</code><br>
+                这是程序的主函数，也是 C 程序的<strong>入口点</strong>。当你的程序运行时，操作系统会首先调用 <code>main</code> 函数。
+                <ul>
+                    <li><code>int</code>：表示 <code>main</code> 函数执行完毕后会返回一个整数值给操作系统。</li>
+                    <li><code>main</code>：是 C 语言规定的主函数名，<strong>必须要有</strong>。</li>
+                    <li><code>()</code>：表示这是一个函数。括号内可以包含传递给函数的参数，这里为空，表示不接收任何参数。</li>
+                </ul>
+            </li>
+            <li>
+                <code>{</code> 和 <code>}</code><br>
+                这对<strong>花括号</strong>定义了一个<strong>代码块</strong>，<code>main</code> 函数的所有代码都必须写在这对花括号之间。
+            </li>
+            <li>
+                <code><span class="function">printf</span>(<span class="string">"Hello, World!\n"</span>);</code><br>
+                这是一个<strong>函数调用语句</strong>。
+                <ul>
+                    <li><code>printf</code>：是定义在 <code>stdio.h</code> 中的一个函数，用于将信息打印（输出）到控制台（通常是你的电脑屏幕）。</li>
+                    <li><code>("Hello, World!\n")</code>：是传递给 <code>printf</code> 函数的参数，是一个<strong>字符串字面量</strong>。双引号内的内容就是要打印的文本。</li>
+                    <li><code>\n</code>：是一个<strong>转义字符</strong>，表示一个<strong>换行符</strong>。它会让光标移动到下一行的开头，这样后续的输出就不会紧跟在 "Hello, World!" 后面了。</li>
+                    <li><code>;</code>：分号是 C 语言中语句的<strong>结束符</strong>，每个独立的语句后面都必须跟一个分号。</li>
+                </ul>
+            </li>
+             <li>
+                <code><span class="keyword">return</span> <span class="number">0</span>;</code><br>
+                这个语句结束 <code>main</code> 函数的执行，并返回一个值。按照惯例，<code>return 0;</code> 表示程序<strong>正常结束</strong>。如果返回非零值，通常表示程序遇到了某种错误。这个返回值是给调用该程序的操作系统或父进程看的。
+            </li>
+        </ul>
+
+        <h3>3. 编译和运行</h3>
+        <p>编写好代码后，需要经过两个步骤才能看到结果：编译和运行。</p>
+
+        <h4>方法一：使用命令行 (以 GCC 为例)</h4>
+        <ol>
+            <li>
+                <strong>打开终端或命令提示符:</strong>
+                <ul>
+                    <li>Windows: 打开 CMD 或 PowerShell。</li>
+                    <li>macOS/Linux: 打开终端 (Terminal)。</li>
+                </ul>
+            </li>
+            <li>
+                <strong>导航到文件目录:</strong> 使用 <code>cd</code> 命令切换到你保存 <code>hello.c</code> 文件的那个目录。例如： <code>cd Desktop</code> 或 <code>cd C:\Users\YourName\Documents\C_Projects</code>。
+            </li>
+            <li>
+                <strong>编译 (Compile):</strong> 在命令行中输入以下命令并按回车：
+                <div class="command">gcc hello.c -o hello</div>
+                <ul>
+                    <li><code>gcc</code>: 调用 GCC 编译器。</li>
+                    <li><code>hello.c</code>: 你要编译的源文件名。</li>
+                    <li><code>-o hello</code>: (字母 o，不是数字 0) 指定输出的可执行文件的名字为 <code>hello</code> (Windows 下会自动生成 <code>hello.exe</code>)。如果省略 <code>-o hello</code>，Linux/macOS 下默认生成 <code>a.out</code>，Windows (MinGW) 下默认生成 <code>a.exe</code>。</li>
+                </ul>
+                如果没有错误信息输出，说明编译成功，当前目录下会生成一个名为 <code>hello</code> (或 <code>hello.exe</code>) 的文件。
+            </li>
+            <li>
+                <strong>运行 (Run):</strong>
+                <ul>
+                    <li>Linux/macOS: 在命令行输入 <code>./hello</code> 并回车。 (<code>./</code> 表示运行当前目录下的文件)</li>
+                    <li>Windows: 在命令行输入 <code>hello</code> 或 <code>.\hello</code> (取决于你的环境配置) 并回车。</li>
+                </ul>
+            </li>
+        </ol>
+        <p>执行后，你应该能在命令行窗口看到输出：</p>
+        <pre style="background-color: #f0f0f0; color: #333; padding: 10px;">Hello, World!</pre>
+
+        <h4>方法二：使用 IDE</h4>
+        <p>如果你使用的是 IDE (如 VS Code 配置好 C/C++ 扩展, Dev-C++, CLion)，操作通常会更简单：</p>
+        <ol>
+            <li>打开或创建 <code>hello.c</code> 文件。</li>
+            <li>找到 IDE 中的 "编译" (Compile/Build) 按钮或菜单项，点击它。IDE 会自动调用编译器。</li>
+            <li>找到 IDE 中的 "运行" (Run/Execute) 按钮或菜单项，点击它。IDE 会执行编译好的程序，并通常会在内置的控制台或终端窗口显示输出 "Hello, World!"。</li>
+        </ol>
+        <p class="note">
+            <strong>关键理解：</strong> 无论使用哪种方法，核心流程都是：<strong>编写源代码 -> 编译器编译 -> 生成可执行文件 -> 运行可执行文件 -> 查看输出</strong>。IDE 只是将这些步骤自动化和集成了。
+        </p>
+        <p>恭喜！你已经成功编写并运行了你的第一个 C 程序。现在你对 C 程序的基本结构（包含头文件、主函数、语句、返回）有了初步的认识。</p>
+
+    </div>
+</body>
+</html>

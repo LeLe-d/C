@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - 数据类型</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #555;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; } /* Like 'int', 'float' */
+        .type { color: #569cd6; } /* Use same color for type names */
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+
+        strong {
+            color: #e67e22;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段一：基础入门 - 数据类型</h2>
+
+        <p>在 C 语言中，<strong>数据类型</strong>用于指定变量可以存储的数据种类以及所需的内存大小。声明变量时必须指定其数据类型。这有助于编译器理解如何存储数据、可以执行哪些操作以及如何解释内存中的位模式。</p>
+        <p>C 语言的基本数据类型主要可以分为以下几类：</p>
+
+        <h3>1. 整型 (Integer Types)</h3>
+        <p>用于存储<strong>整数</strong>（没有小数部分的数字）。根据存储范围和内存占用的不同，有多种整型类型。</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>类型关键字</th>
+                    <th>描述</th>
+                    <th>典型内存大小 (可能变化)</th>
+                    <th>典型取值范围 (可能变化)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>short</code> (或 <code>short int</code>)</td>
+                    <td>短整型</td>
+                    <td>2 字节</td>
+                    <td>-32,768 到 32,767</td>
+                </tr>
+                <tr>
+                    <td><code>int</code></td>
+                    <td>基本整型 (最常用)</td>
+                    <td>通常 4 字节 (有时 2 或 8)</td>
+                    <td>约 -21亿 到 +21亿 (4字节时)</td>
+                </tr>
+                <tr>
+                    <td><code>long</code> (或 <code>long int</code>)</td>
+                    <td>长整型</td>
+                    <td>通常 4 或 8 字节</td>
+                    <td>范围比 <code>int</code> 大或相等</td>
+                </tr>
+                <tr>
+                    <td><code>long long</code> (或 <code>long long int</code>) (C99 标准)</td>
+                    <td>更长的整型</td>
+                    <td>通常 8 字节</td>
+                    <td>范围非常大</td>
+                </tr>
+            </tbody>
+        </table>
+        <p><strong>修饰符：</strong></p>
+        <ul>
+            <li><code>signed</code> (默认): 可以存储正数、负数和零。</li>
+            <li><code>unsigned</code>: 只能存储非负数（零和正数）。使用 <code>unsigned</code> 可以将正数的存储范围扩大约一倍。例如 <code>unsigned int</code>。</li>
+        </ul>
+        <pre><code class="language-c"><span class="comment">// 声明和初始化整型变量</span>
+<span class="type">int</span> age <span class="operator">=</span> <span class="number">30</span><span class="punctuation">;</span>
+<span class="type">short</span> count <span class="operator">=</span> <span class="number">100</span><span class="punctuation">;</span>
+<span class="type">long</span> population <span class="operator">=</span> <span class="number">7800000000L</span><span class="punctuation">;</span> <span class="comment">// L 后缀表示 long 类型常量</span>
+<span class="type">long long</span> very_large_number <span class="operator">=</span> <span class="number">123456789012345LL</span><span class="punctuation">;</span> <span class="comment">// LL 后缀表示 long long</span>
+<span class="type">unsigned int</span> positive_value <span class="operator">=</span> <span class="number">4000000000U</span><span class="punctuation">;</span> <span class="comment">// U 后缀表示 unsigned</span>
+
+<span class="function">printf</span>(<span class="string">"年龄: %d\n"</span>, age)<span class="punctuation">;</span> <span class="comment">// %d 用于输出 signed int</span>
+<span class="function">printf</span>(<span class="string">"人口: %ld\n"</span>, population)<span class="punctuation">;</span> <span class="comment">// %ld 用于输出 long int</span>
+<span class="function">printf</span>(<span class="string">"无符号值: %u\n"</span>, positive_value)<span class="punctuation">;</span> <span class="comment">// %u 用于输出 unsigned int</span>
+</code></pre>
+
+        <h3>2. 浮点型 (Floating-Point Types)</h3>
+        <p>用于存储带有<strong>小数部分</strong>的数字，也称为实数。</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>类型关键字</th>
+                    <th>描述</th>
+                    <th>典型内存大小 (可能变化)</th>
+                    <th>精度 (有效数字位数)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>float</code></td>
+                    <td>单精度浮点型</td>
+                    <td>4 字节</td>
+                    <td>约 6-7 位</td>
+                </tr>
+                <tr>
+                    <td><code>double</code></td>
+                    <td>双精度浮点型 (更常用，精度更高)</td>
+                    <td>8 字节</td>
+                    <td>约 15-16 位</td>
+                </tr>
+                 <tr>
+                    <td><code>long double</code></td>
+                    <td>扩展精度浮点型</td>
+                    <td>通常 10, 12 或 16 字节</td>
+                    <td>更高精度 (依赖于实现)</td>
+                </tr>
+            </tbody>
+        </table>
+         <div class="warning">
+            <strong>注意：</strong> 浮点数在计算机中存储的是近似值，进行比较时要小心精度问题。直接用 <code>==</code> 比较两个浮点数是否相等通常是不可靠的。
+        </div>
+        <pre><code class="language-c"><span class="comment">// 声明和初始化浮点型变量</span>
+<span class="type">float</span> price <span class="operator">=</span> <span class="number">19.99f</span><span class="punctuation">;</span> <span class="comment">// f 或 F 后缀表示 float 类型常量</span>
+<span class="type">double</span> pi <span class="operator">=</span> <span class="number">3.141592653589793</span><span class="punctuation">;</span> <span class="comment">// 默认的小数常量是 double 类型</span>
+<span class="type">long double</span> very_precise_value <span class="operator">=</span> <span class="number">0.1234567890123456789L</span><span class="punctuation">;</span> <span class="comment">// L 后缀 (大写) 表示 long double</span>
+
+<span class="function">printf</span>(<span class="string">"价格: %.2f\n"</span>, price)<span class="punctuation">;</span> <span class="comment">// %f 用于输出 float 或 double, .2 指定保留两位小数</span>
+<span class="function">printf</span>(<span class="string">"圆周率: %lf\n"</span>, pi)<span class="punctuation">;</span>  <span class="comment">// %lf 在 printf 中通常与 %f 效果相同，但在 scanf 中必须用 %lf 读取 double</span>
+<span class="function">printf</span>(<span class="string">"高精度值: %Lf\n"</span>, very_precise_value)<span class="punctuation">;</span> <span class="comment">// %Lf 用于输出 long double</span>
+</code></pre>
+
+        <h3>3. 字符型 (Character Type)</h3>
+        <p>用于存储<strong>单个字符</strong>（如字母 'A'、数字 '5'、符号 '$'）。</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>类型关键字</th>
+                    <th>描述</th>
+                    <th>内存大小</th>
+                    <th>存储内容</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>char</code></td>
+                    <td>字符型</td>
+                    <td>1 字节</td>
+                    <td>存储字符的 ASCII 值 (或其他字符集编码值)</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            实际上，<code>char</code> 类型在内部存储的是一个小的整数值（通常是字符对应的 ASCII 码）。它可以像整数一样参与运算。字符常量用<strong>单引号</strong> <code>' '</code> 括起来。
+        </p>
+        <pre><code class="language-c"><span class="comment">// 声明和初始化字符型变量</span>
+<span class="type">char</span> grade <span class="operator">=</span> <span class="string">'A'</span><span class="punctuation">;</span>
+<span class="type">char</span> initial <span class="operator">=</span> <span class="string">'J'</span><span class="punctuation">;</span>
+<span class="type">char</span> digit <span class="operator">=</span> <span class="string">'7'</span><span class="punctuation">;</span>
+<span class="type">char</span> symbol <span class="operator">=</span> <span class="string">'$'</span><span class="punctuation">;</span>
+<span class="type">char</span> newline_char <span class="operator">=</span> <span class="string">'\n'</span><span class="punctuation">;</span> <span class="comment">// 转义字符表示换行</span>
+
+<span class="function">printf</span>(<span class="string">"等级: %c\n"</span>, grade)<span class="punctuation">;</span>      <span class="comment">// %c 用于输出字符</span>
+<span class="function">printf</span>(<span class="string">"等级的ASCII码: %d\n"</span>, grade)<span class="punctuation">;</span> <span class="comment">// 可以用 %d 输出字符对应的整数值</span>
+</code></pre>
+
+        <h3>4. void 类型</h3>
+        <p><code>void</code> 是一个特殊的类型，表示<strong>“无类型”</strong>或<strong>“空类型”</strong>。它主要用于以下三个方面：</p>
+        <ul>
+            <li><strong>函数返回类型：</strong> 当函数不返回任何值时，其返回类型应声明为 <code>void</code>。
+                <pre><code class="language-c"><span class="type">void</span> <span class="function">print_message</span>(<span class="type">char</span>* msg) {
+    <span class="function">printf</span>(<span class="string">"%s\n"</span>, msg)<span class="punctuation">;</span>
+    <span class="comment">// 没有 return 语句返回值</span>
+}</code></pre>
+            </li>
+             <li><strong>函数参数列表：</strong> 当函数不接受任何参数时，可以在括号内写 <code>void</code> (虽然在现代 C 中，更常见的做法是直接写空括号 <code>()</code>)。
+                <pre><code class="language-c"><span class="type">int</span> <span class="function">get_random_number</span>(<span class="type">void</span>) {
+    <span class="comment">// ... 函数体 ...</span>
+    <span class="keyword">return</span> <span class="number">42</span><span class="punctuation">;</span> <span class="comment">// 示例</span>
+}
+<span class="comment">// 等价于： int get_random_number(); (在函数原型中) 或 int get_random_number() { ... } (在定义中)</span>
+</code></pre>
+             </li>
+            <li><strong>通用指针 (<code>void*</code>)：</strong> <code>void*</code> 是一种特殊的指针类型，可以指向<strong>任何类型</strong>的数据。它提供了一种泛型编程的机制，但在使用前通常需要将其强制转换为具体的类型指针。 (这是更高级的用法)
+                 <pre><code class="language-c"><span class="type">int</span> num <span class="operator">=</span> <span class="number">10</span><span class="punctuation">;</span>
+<span class="type">void</span>* generic_ptr <span class="operator">=</span> <span class="operator">&amp;</span>num<span class="punctuation">;</span> <span class="comment">// 指向一个 int</span>
+
+<span class="comment">// 需要转换才能解引用</span>
+<span class="type">int</span>* int_ptr <span class="operator">=</span> (<span class="type">int</span>*)generic_ptr<span class="punctuation">;</span>
+<span class="function">printf</span>(<span class="string">"Value via void*: %d\n"</span>, *int_ptr)<span class="punctuation">;</span>
+</code></pre>
+            </li>
+        </ul>
+
+        <div class="note">
+            <strong><code>sizeof</code> 运算符：</strong> 你可以使用 <code>sizeof</code> 运算符来获取某个数据类型或变量在当前系统上占用的内存字节数。例如：<code>sizeof(int)</code> 会返回 <code>int</code> 类型占用的字节数。这对于理解不同平台上的差异很有帮助。
+            <pre><code class="language-c"><span class="function">printf</span>(<span class="string">"Size of int: %zu bytes\n"</span>, <span class="keyword">sizeof</span>(<span class="type">int</span>))<span class="punctuation">;</span>
+<span class="function">printf</span>(<span class="string">"Size of float: %zu bytes\n"</span>, <span class="keyword">sizeof</span>(<span class="type">float</span>))<span class="punctuation">;</span>
+<span class="function">printf</span>(<span class="string">"Size of char: %zu bytes\n"</span>, <span class="keyword">sizeof</span>(<span class="type">char</span>))<span class="punctuation">;</span>
+<span class="comment">// %zu 是用于打印 sizeof 返回值 (size_t 类型) 的格式说明符</span>
+</code></pre>
+        </div>
+
+        <p>正确选择数据类型对于编写高效且正确的 C 程序至关重要。它影响内存使用、程序性能以及可以存储的数据范围。</p>
+
+    </div>
+</body>
+</html>
