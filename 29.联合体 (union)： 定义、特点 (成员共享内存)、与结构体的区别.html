@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - C/C++ 联合体 (Union) 详解</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段五：结构体、联合体与枚举 - C/C++ 联合体 (Union) 详解</h2>
+
+        <p>联合体 (Union) 是一种特殊的用户自定义数据类型，它允许在相同的内存位置存储不同的数据类型。你可以定义一个包含多个成员的联合体，但任何时候只有一个成员能持有值。</p>
+
+        <h3>1. 联合体的定义</h3>
+        <p>使用 <code>union</code> 关键字来定义一个联合体。其语法与结构体类似。</p>
+        <pre><code class="language-c">
+// 定义一个可以存储整数、浮点数或字符串（最多4个字符）的数据联合体
+union Data {
+   int i;
+   float f;
+   char str[4]; // 注意大小
+};
+
+// 定义一个表示状态的联合体
+union Status {
+    int signal_value;
+    char *error_message; // 指针
+};
+        </code></pre>
+        <p>声明联合体变量的方式也与结构体类似：</p>
+        <pre><code class="language-c">
+#include <stdio.h>
+#include <string.h>
+
+union Data {
+   int i;
+   float f;
+   char str[4];
+};
+
+int main() {
+   union Data data1; // 声明一个 Data 类型的联合体变量 data1
+
+   // 访问和赋值 (一次只能用一个成员)
+   data1.i = 10;
+   printf("data1.i: %d\n", data1.i);
+
+   data1.f = 220.5;
+   printf("data1.f: %.1f\n", data1.f);
+
+   // 注意：给 f 赋值后，i 的值就不再有效（或被覆盖）了
+   // printf("访问 data1.i (在给 f 赋值后): %d\n", data1.i); // 结果未定义或无意义
+
+   strcpy(data1.str, "Hi!"); // 给 str 赋值
+   printf("data1.str: %s\n", data1.str);
+
+   // 注意：给 str 赋值后，f 的值也无效了
+   // printf("访问 data1.f (在给 str 赋值后): %.1f\n", data1.f); // 结果未定义或无意义
+
+   // 初始化：只能初始化第一个成员
+   union Data data2 = { 100 }; // 初始化 data2.i = 100
+   // union Data data3 = {.f = 3.14}; // C99/C++ 指定初始化器可以初始化其他成员
+
+   return 0;
+}
+        </code></pre>
+
+        <h3>2. 联合体的特点 (成员共享内存)</h3>
+        <p>联合体最核心的特点是：<strong>它的所有成员都从相同的内存地址开始存储</strong>。</p>
+        <ul>
+            <li><strong>内存共享：</strong>联合体变量所占用的内存大小等于其<strong>最大成员</strong>所占用的内存大小（可能加上一些对齐字节）。所有成员共享这块内存。</li>
+            <li><strong>一次一个值：</strong>因为内存是共享的，所以对一个成员赋值会覆盖掉其他成员的值（或者说，改变了这块共享内存的内容）。任何时候，联合体只能有效地存储<strong>一个</strong>成员的值。</li>
+            <li><strong>类型解释：</strong>访问联合体成员时，编译器会根据你访问的成员类型来解释共享内存中的数据。如果你写入一个 <code>int</code>，然后尝试按 <code>float</code> 读出，得到的结果通常是无意义的（除非你明确知道你在做什么，例如进行类型转换或底层操作）。</li>
+        </ul>
+        <pre><code class="language-c">
+#include <stdio.h>
+
+union Data {
+   int i;       // 通常占 4 字节
+   float f;     // 通常占 4 字节
+   char str[20]; // 占 20 字节
+};
+
+int main() {
+   union Data data;
+
+   printf("联合体 Data 的大小: %zu 字节\n", sizeof(data)); // 通常会是最大成员的大小 (20) 或稍大（考虑对齐）
+   printf("成员 i 的大小: %zu 字节\n", sizeof(data.i));
+   printf("成员 f 的大小: %zu 字节\n", sizeof(data.f));
+   printf("成员 str 的大小: %zu 字节\n", sizeof(data.str));
+
+   data.i = 97; // 写入整数 97
+   printf("\n写入 data.i = %d 后:\n", data.i);
+   printf("  data.i = %d\n", data.i);
+   // 尝试以 char 解释第一个字节 (ASCII 'a' 是 97)
+   printf("  data.str[0] (作为 char) = %c\n", data.str[0]);
+   // 尝试以 float 解释这 4 个字节
+   printf("  data.f (重新解释) = %f (可能无意义)\n", data.f);
+
+   data.f = 3.14f; // 写入浮点数
+   printf("\n写入 data.f = %f 后:\n", data.f);
+   printf("  data.f = %f\n", data.f);
+   // 尝试以 int 解释这 4 个字节
+   printf("  data.i (重新解释) = %d (可能无意义)\n", data.i);
+
+   return 0;
+}
+        </code></pre>
+        <p><strong>用途：</strong>联合体常用于：</p>
+        <ul>
+            <li><strong>节省内存：</strong>当一组数据项中，任何时候只有一个是有效的时候，使用联合体可以节省内存。</li>
+            <li><strong>类型双关 (Type Punning)：</strong> 以不同的数据类型来访问同一块内存区域，这是一种底层编程技巧，需要非常小心。</li>
+            <li><strong>硬件寄存器访问：</strong> 某些硬件寄存器根据写入/读取方式的不同，可能有不同的含义，联合体可以模拟这种情况。</li>
+        </ul>
+
+
+        <h3>3. 联合体与结构体的区别</h3>
+        <p>联合体和结构体在语法上相似，但根本区别在于内存布局和使用方式。</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>特性</th>
+                    <th>结构体 (Struct)</th>
+                    <th>联合体 (Union)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>内存分配</strong></td>
+                    <td>每个成员都有自己<strong>独立</strong>的内存空间。</td>
+                    <td>所有成员<strong>共享</strong>同一块内存空间，地址相同。</td>
+                </tr>
+                <tr>
+                    <td><strong>内存大小</strong></td>
+                    <td>总大小至少是所有成员大小之<strong>和</strong>（可能因对齐而更大）。</td>
+                    <td>总大小由其<strong>最大</strong>成员的大小决定（可能因对齐而更大）。</td>
+                </tr>
+                <tr>
+                    <td><strong>成员存储</strong></td>
+                    <td>可以同时存储和访问<strong>所有</strong>成员的值。</td>
+                    <td>任何时候只能有效地存储和访问<strong>一个</strong>成员的值。给一个成员赋值会覆盖其他成员。</td>
+                </tr>
+                 <tr>
+                    <td><strong>初始化</strong></td>
+                    <td>可以用 <code>{}</code> 初始化所有成员。</td>
+                    <td>默认只能用 <code>{}</code> 初始化<strong>第一个</strong>成员（C99/C++ 可用指定初始化器）。</td>
+                </tr>
+                 <tr>
+                    <td><strong>主要用途</strong></td>
+                    <td>将逻辑相关的<strong>不同类型</strong>数据组合在一起。</td>
+                    <td>在同一内存空间存储<strong>不同类型</strong>的数据（一次一个），节省内存，或进行类型转换。</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>总的来说，当你需要一个数据结构来包含多个<strong>同时有效</strong>的不同类型字段时，使用<strong>结构体</strong>。当你需要在多个不同类型之间<strong>选择一个</strong>来存储在同一内存位置时（为了节省空间或进行类型解释），使用<strong>联合体</strong>。</p>
+        </div>
+    </div>
+</body>
+</html>

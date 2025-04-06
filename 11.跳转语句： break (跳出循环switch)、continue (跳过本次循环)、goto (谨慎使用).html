@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - C语言跳转语句</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段二：流程控制 - C语言跳转语句</h2>
+
+        <p>跳转语句用于改变程序正常的、自上而下的执行流程。它们允许程序在代码中“跳转”到不同的位置。C 语言提供了三种主要的跳转语句：<code>break</code>、<code>continue</code> 和 <code>goto</code>。</p>
+
+        <h3>1. break 语句</h3>
+        <p><code>break</code> 语句用于立即终止<strong>最内层</strong>的 <code>switch</code> 语句或循环语句（<code>for</code>、<code>while</code>、<code>do-while</code>）的执行。程序控制权将转移到该语句或循环体之后的下一条语句。</p>
+        <p><strong>主要用途：</strong></p>
+        <ul>
+            <li>在 <code>switch</code> 语句中，防止“贯穿”（fall-through）到下一个 <code>case</code>。</li>
+            <li>在循环中，根据某个条件提前退出循环。</li>
+        </ul>
+        <p><strong>语法：</strong></p>
+        <pre>break;</pre>
+
+        <p><strong>示例 (在循环中使用)：</strong> 查找数组中第一个负数</p>
+        <pre>#include <stdio.h>
+
+int main() {
+    int arr[] = {10, 5, 8, -3, 12, 7};
+    int i, found = 0;
+    int size = sizeof(arr) / sizeof(arr[0]);
+
+    for (i = 0; i < size; i++) {
+        if (arr[i] < 0) {
+            printf("找到第一个负数：%d，在索引 %d 处。\n", arr[i], i);
+            found = 1;
+            break; // 找到后立即跳出 for 循环
+        }
+    }
+
+    if (!found) {
+        printf("数组中没有负数。\n");
+    }
+
+    printf("循环（或break）后的下一条语句。\n");
+    return 0;
+}</pre>
+        <p>当 <code>arr[i]</code> 第一次小于 0 时（即 <code>-3</code>），打印信息，设置 <code>found</code> 标志，然后 <code>break</code> 语句使程序立即退出 <code>for</code> 循环，执行后面的 <code>printf</code>。</p>
+
+        <h3>2. continue 语句</h3>
+        <p><code>continue</code> 语句用于跳过当前循环迭代中<strong>剩余</strong>的语句，并立即开始下一次迭代。</p>
+        <ul>
+            <li>在 <code>while</code> 和 <code>do-while</code> 循环中，<code>continue</code> 会使程序跳转到循环条件判断部分。</li>
+            <li>在 <code>for</code> 循环中，<code>continue</code> 会使程序跳转到更新表达式（<code>update</code> 部分），然后再进行条件判断。</li>
+        </ul>
+        <p><strong>主要用途：</strong> 当满足某个条件时，跳过本次循环的特定处理，直接进行下一次循环。</p>
+        <p><strong>语法：</strong></p>
+        <pre>continue;</pre>
+
+        <p><strong>示例：</strong> 打印 1 到 10 之间的所有奇数</p>
+        <pre>#include <stdio.h>
+
+int main() {
+    int i;
+
+    printf("1 到 10 之间的奇数：");
+    for (i = 1; i <= 10; i++) {
+        if (i % 2 == 0) { // 如果 i 是偶数
+            continue;     // 跳过本次循环剩余的 printf，直接进行 i++ 和下一次条件判断
+        }
+        printf("%d ", i); // 只会为奇数执行
+    }
+    printf("\n");
+    return 0;
+}</pre>
+        <p>当 <code>i</code> 是偶数时，<code>if</code> 条件为真，执行 <code>continue</code>，跳过 <code>printf</code>，直接执行 <code>i++</code> 并开始下一次循环判断。因此，只有奇数会被打印出来。</p>
+
+        <h3>3. goto 语句 (谨慎使用)</h3>
+        <p><code>goto</code> 语句提供了一种<strong>无条件</strong>跳转到程序中同一函数内<strong>已标记</strong>位置的方法。标签（label）是一个标识符，后面跟着一个冒号 <code>:</code>。</p>
+        <p><strong>语法：</strong></p>
+        <pre>// 跳转语句
+goto label_name;
+
+// ... 其他代码 ...
+
+// 标签定义 (在同一函数内)
+<span class="label">label_name</span>:
+    statement;</pre>
+
+        <p><strong>示例 (模拟跳出嵌套循环，但不推荐此写法)：</strong></p>
+        <pre>#include <stdio.h>
+
+int main() {
+    int i, j;
+
+    for (i = 0; i < 5; i++) {
+        for (j = 0; j < 5; j++) {
+            if (i * j > 10) {
+                printf("找到 i=%d, j=%d 使得 i*j > 10，跳出所有循环。\n", i, j);
+                goto end_loops; // 跳转到标签 end_loops
+            }
+            printf("i=%d, j=%d\n", i, j);
+        }
+    }
+
+<span class="label">end_loops</span>: // 定义标签
+    printf("已跳出循环。\n");
+
+    return 0;
+}</pre>
+        <p>在这个例子中，当 <code>i * j</code> 大于 10 时，<code>goto end_loops;</code> 会使程序直接跳转到 <code>end_loops:</code> 标签所在的位置，从而跳出了两层循环。</p>
+
+        <div class="warning">
+            <p><strong>⚠️ 关于 `goto` 的警告：</strong></p>
+            <ul>
+                <li><strong>强烈建议避免使用 `goto` 语句。</strong> 过度或不恰当地使用 <code>goto</code> 会使程序的控制流程变得混乱，难以理解、调试和维护，容易产生所谓的“意大利面条式代码”（Spaghetti Code）。</li>
+                <li>大多数情况下，使用 <code>if</code>、<code>switch</code>、循环（<code>for</code>、<code>while</code>、<code>do-while</code>）、<code>break</code>、<code>continue</code> 以及函数调用等结构化编程技术可以更清晰、更安全地实现相同的功能。</li>
+                <li>虽然在极少数特定场景下（如跳出深层嵌套循环、某些复杂的错误处理模式）<code>goto</code> 可能被认为是简洁的解决方案，但通常有更好的替代方案。新手程序员应优先掌握结构化控制流。</li>
+            </ul>
+        </div>
+
+        <h3>总结</h3>
+        <p>跳转语句改变了程序的顺序执行流程：</p>
+        <ul>
+            <li><code>break</code>：完全<strong>退出</strong>最内层的循环或 <code>switch</code>。</li>
+            <li><code>continue</code>：<strong>跳过</strong>当前循环迭代的剩余部分，开始下一次迭代。</li>
+            <li><code>goto</code>：<strong>无条件跳转</strong>到同一函数内的指定标签处，但应<strong>极力避免</strong>使用，以保持代码的清晰和可维护性。</li>
+        </ul>
+        <p>理解并恰当使用 <code>break</code> 和 <code>continue</code> 是编写高效循环逻辑的重要部分。对于 <code>goto</code>，了解其存在即可，实际编程中应优先寻求结构化的替代方案。</p>
+
+        </div>
+    </div>
+</body>
+</html>

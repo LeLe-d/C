@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - 文件字符串读写：fgets 与 fputs</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段六：文件操作 - 文件字符串读写：<code>fgets</code> 与 <code>fputs</code></h2>
+		
+        <p>除了逐个字符读写文件，C 语言还提供了更方便的函数来读取和写入整个字符串（通常是一行文本）：<code>fgets</code> 和 <code>fputs</code>。这两个函数通常比使用 <code>fgetc</code>/<code>fputc</code> 循环更高效和简洁。</p>
+
+        <h3><code>fgets</code> 函数 (读取字符串/行)</h3>
+        <p><code>fgets</code> 函数用于从指定的文件流中读取一行或最多指定数量的字符，并将它们存储到字符数组（字符串）中。</p>
+
+        <h4>函数原型</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+char *fgets(char *str, int n, FILE *stream);</code></pre>
+
+        <h4>参数说明</h4>
+        <ul>
+            <li><code>str</code>: 指向用于存储读取到的字符串的字符数组的指针。</li>
+            <li><code>n</code>: 最多读取 <code class="highlight">n-1</code> 个字符。这是缓冲区的总大小，函数会确保留出空间给末尾的空字符 <code>\0</code>。</li>
+            <li><code>stream</code>: 指向要读取的文件的 <code>FILE</code> 结构指针（由 <code>fopen</code> 返回）。</li>
+        </ul>
+
+        <h4>行为</h4>
+        <ul>
+            <li><code>fgets</code> 从 `stream` 读取字符，直到遇到换行符 <code>\n</code>、到达文件末尾 (EOF)、或者已经读取了 <code class="highlight">n-1</code> 个字符为止。</li>
+            <li><span class="highlight">如果读取了换行符 <code>\n</code>，它会被存储在字符串 <code>str</code> 中。</span></li>
+            <li>在存储的字符之后，<span class="highlight"><code>fgets</code> 会自动添加一个空字符 <code>\0</code></span> 来标记字符串的结束。</li>
+            <li>由于有 `n` 参数限制读取的字符数，<code>fgets</code> 是<span class="highlight">缓冲区安全的</span>，可以有效防止缓冲区溢出，是替代不安全的 `gets` 函数的首选。</li>
+        </ul>
+
+        <h4>返回值</h4>
+        <ul>
+            <li>成功时，返回指向字符串 <code>str</code> 的指针。</li>
+            <li>如果到达文件末尾（在读取任何字符之前）或者发生读取错误，返回 <code>NULL</code>。</li>
+        </ul>
+
+        <div class="warning">
+            <strong>EOF/错误检查：</strong> 当 <code>fgets</code> 返回 <code>NULL</code> 时，需要使用 <code>feof(stream)</code> 和 <code>ferror(stream)</code> 来区分是到达文件末尾还是发生了读取错误。
+        </div>
+
+        <h4>使用示例</h4>
+        <pre><code class="language-c">#include <stdio.h>
+#include <string.h> // 用于 strlen
+
+#define BUFFER_SIZE 100
+
+int main() {
+    FILE *fp = NULL;
+    char lineBuffer[BUFFER_SIZE];
+
+    fp = fopen("input.txt", "r"); // 假设 input.txt 存在且包含多行文本
+    if (fp == NULL) {
+        perror("Error opening input.txt");
+        return 1;
+    }
+
+    printf("Reading lines from input.txt:\n");
+
+    // 循环读取每一行，直到 fgets 返回 NULL
+    while (fgets(lineBuffer, BUFFER_SIZE, fp) != NULL) {
+        printf("Read line: %s", lineBuffer); // 直接打印，因为 fgets 保留了换行符
+
+        // 可选：如果想移除末尾的换行符
+        /*
+        size_t len = strlen(lineBuffer);
+        if (len > 0 && lineBuffer[len - 1] == '\n') {
+            lineBuffer[len - 1] = '\0';
+            printf("Processed line (no newline): %s\n", lineBuffer);
+        }
+        */
+    }
+
+    // 检查循环结束的原因
+    if (feof(fp)) {
+        printf("\nFinished reading file (reached EOF).\n");
+    } else if (ferror(fp)) {
+        perror("Error reading from file");
+    }
+
+    // 关闭文件
+    if (fclose(fp) != 0) {
+        perror("Error closing file");
+    }
+
+    return 0;
+}</code></pre>
+
+
+        <h3><code>fputs</code> 函数 (写入字符串)</h3>
+        <p><code>fputs</code> 函数用于将一个空字符 `\0` 结尾的字符串写入到指定的文件流中。</p>
+
+        <h4>函数原型</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+int fputs(const char *str, FILE *stream);</code></pre>
+
+        <h4>参数说明</h4>
+        <ul>
+            <li><code>str</code>: 指向要写入的空字符结尾的字符串的指针。</li>
+            <li><code>stream</code>: 指向要写入的文件的 <code>FILE</code> 结构指针（由 <code>fopen</code> 以写入或追加模式打开）。</li>
+        </ul>
+
+        <h4>行为</h4>
+        <ul>
+            <li><code>fputs</code> 将字符串 `str` 中的字符（<span class="highlight">不包括末尾的空字符 <code>\0</code></span>）写入到 `stream` 中。</li>
+            <li><span class="highlight"><code>fputs</code> 不会自动在写入的字符串末尾添加换行符 <code>\n</code>。</span> 如果需要换行，必须在要写入的字符串 `str` 中显式包含 <code>\n</code>。</li>
+        </ul>
+
+        <h4>返回值</h4>
+        <ul>
+            <li>成功时，返回一个非负值。</li>
+            <li>如果发生写入错误，返回 <code>EOF</code>，并设置文件流的错误指示器。</li>
+        </ul>
+
+        <div class="note">
+             检查 <code>fputs</code> 的返回值是否等于 <code>EOF</code> 可以判断写入操作是否成功。
+        </div>
+
+        <h4>使用示例</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+int main() {
+    FILE *fp = NULL;
+    char *line1 = "This is the first line.\n"; // 包含换行符
+    char *line2 = "This is the second line.";  // 不包含换行符
+    char *line3 = " This is the third line (appended).\n"; // 包含换行符
+
+    fp = fopen("output.txt", "w"); // 以写入模式打开，若存在则清空
+    if (fp == NULL) {
+        perror("Error opening output.txt for writing");
+        return 1;
+    }
+
+    printf("Writing lines to output.txt...\n");
+
+    // 写入第一行 (带换行)
+    if (fputs(line1, fp) == EOF) {
+        perror("Error writing line 1");
+        fclose(fp);
+        return 1;
+    }
+
+    // 写入第二行 (不带换行，下一行会紧跟着)
+    if (fputs(line2, fp) == EOF) {
+        perror("Error writing line 2");
+        fclose(fp);
+        return 1;
+    }
+
+    // 写入第三行 (带换行)
+    if (fputs(line3, fp) == EOF) {
+        perror("Error writing line 3");
+        fclose(fp);
+        return 1;
+    }
+
+    printf("Finished writing.\n");
+
+    // 关闭文件（确保数据写入磁盘）
+    if (fclose(fp) != 0) {
+        perror("Error closing file");
+    } else {
+        printf("File closed successfully.\n");
+    }
+
+    return 0;
+}</code></pre>
+
+        <h3>总结</h3>
+        <ul>
+            <li><code>fgets</code> 用于从文件读取一行或最多 n-1 个字符，是<span class="highlight">缓冲区安全</span>的。</li>
+            <li><code>fgets</code> <span class="highlight">会读取并存储换行符 <code>\n</code></span>（如果空间足够且遇到的话），并<span class="highlight">自动添加 <code>\0</code></span>。</li>
+            <li><code>fgets</code> 成功返回指向缓冲区的指针，失败或EOF返回 <code>NULL</code>（需用 <code>feof/ferror</code> 区分）。</li>
+            <li><code>fputs</code> 用于向文件写入一个<span class="highlight">空字符结尾</span>的字符串。</li>
+            <li><code>fputs</code> <span class="highlight">不会写入字符串末尾的 <code>\0</code></span>，也<span class="highlight">不会自动添加换行符 <code>\n</code></span>。</li>
+            <li><code>fputs</code> 成功返回非负值，失败返回 <code>EOF</code>。</li>
+            <li>使用这两个函数都需要先用 <code>fopen</code> 打开文件，并用 <code>fclose</code> 关闭。</li>
+        </ul>
+        </div>
+    </div>
+</body>
+</html>

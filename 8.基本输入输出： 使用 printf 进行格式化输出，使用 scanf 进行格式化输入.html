@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - printf 与 scanf</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段一：基础入门 - Printf与Scanf</h2>
+        <p>在 C 语言中，最基本的输入输出操作是通过标准库函数 printf 和 scanf 来完成的。它们分别用于向标准输出（通常是屏幕）打印格式化数据和从标准输入（通常是键盘）读取格式化数据。这两个函数都定义在头文件 <stdio.h> 中。</p>
+
+        <h3>1. 使用 printf 进行格式化输出</h3>
+        <p>printf 函数（print formatted）用于将数据按照指定的格式输出到标准输出设备。</p>
+        <p><strong>基本语法：</strong></p>
+        <pre>int printf(const char *format, ...);</pre>
+        <ul>
+            <li>format：是一个字符串，包含了要输出的普通字符和<strong>格式说明符</strong>（Format Specifiers）。</li>
+            <li>...：表示可变参数列表，这些参数是要输出的数据，其数量和类型必须与 format 字符串中的格式说明符一一对应。</li>
+            <li>返回值：如果成功，返回输出的字符总数；如果发生错误，则返回一个负值。</li>
+        </ul>
+
+        <p><strong>常用格式说明符：</strong></p>
+        <table>
+            <thead>
+                <tr>
+                    <th>说明符</th>
+                    <th>说明</th>
+                    <th>示例</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>%d 或 %i</td>
+                    <td>输出有符号十进制整数</td>
+                    <td>printf("%d", 10); 输出 10</td>
+                </tr>
+                <tr>
+                    <td>%u</td>
+                    <td>输出无符号十进制整数</td>
+                    <td>printf("%u", 10); 输出 10</td>
+                </tr>
+                <tr>
+                    <td>%f</td>
+                    <td>输出浮点数（小数形式）</td>
+                    <td>printf("%f", 3.14); 输出 3.140000</td>
+                </tr>
+                 <tr>
+                    <td>%.nf</td>
+                    <td>输出浮点数，保留n位小数</td>
+                    <td>printf("%.2f", 3.14159); 输出 3.14</td>
+                </tr>
+                 <tr>
+                    <td>%e 或 %E</td>
+                    <td>输出浮点数（科学计数法）</td>
+                    <td>printf("%e", 1234.5); 输出 1.234500e+03</td>
+                </tr>
+                <tr>
+                    <td>%c</td>
+                    <td>输出单个字符</td>
+                    <td>printf("%c", 'A'); 输出 A</td>
+                </tr>
+                <tr>
+                    <td>%s</td>
+                    <td>输出字符串</td>
+                    <td>printf("%s", "Hello"); 输出 Hello</td>
+                </tr>
+                <tr>
+                    <td>%p</td>
+                    <td>输出指针地址（十六进制）</td>
+                    <td>int x; printf("%p", &x); 输出变量x的内存地址</td>
+                </tr>
+                 <tr>
+                    <td>%%</td>
+                    <td>输出一个百分号 % 字符</td>
+                    <td>printf("Rate: 50%%"); 输出 Rate: 50%</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p><strong>示例代码：</strong></p>
+        <pre>#include <stdio.h>
+
+int main() {
+    int age = 25;
+    float score = 95.5f;
+    char grade = 'A';
+    char name[] = "Alice";
+
+    printf("姓名：%s\n", name); // 输出字符串
+    printf("年龄：%d 岁\n", age); // 输出整数
+    printf("成绩：%.1f 分\n", score); // 输出浮点数，保留1位小数
+    printf("等级：%c\n", grade); // 输出字符
+
+    printf("----\n");
+    printf("大家好，我是 %s，今年 %d 岁，成绩是 %.1f，等级是 %c。\n", name, age, score, grade);
+
+    return 0;
+}</pre>
+        <p><strong>注意：</strong> \n 是一个转义字符，表示换行。</p>
+
+        <h3>2. 使用 scanf 进行格式化输入</h3>
+        <p>scanf 函数（scan formatted）用于从标准输入设备读取数据，并按照指定的格式将其存储到变量中。</p>
+        <p><strong>基本语法：</strong></p>
+        <pre>int scanf(const char *format, ...);</pre>
+        <ul>
+            <li>format：是一个字符串，包含了<strong>格式说明符</strong>，用于指定期望从输入中读取的数据类型。</li>
+            <li>...：表示可变参数列表，这些参数是<strong>变量的地址</strong>（使用取地址符 &），用于接收读取到的数据。<strong>对于字符串数组，不需要加 &</strong>，因为数组名本身就代表了数组的首地址。</li>
+            <li>返回值：如果成功，返回成功读取并赋值的变量个数；如果输入不匹配或遇到文件结束符（EOF），则可能返回 0 或 EOF。</li>
+        </ul>
+
+        <p><strong>常用格式说明符（与 printf 类似）：</strong></p>
+        <p>%d（整数），%f 或 %lf（单/双精度浮点数，<strong>注意：读取 double 类型必须用 %lf</strong>），%c（字符），%s（字符串）等。</p>
+
+        <p><strong>示例代码：</strong></p>
+        <pre>#include <stdio.h>
+
+int main() {
+    int id;
+    float price;
+    char category;
+    char productName[50]; // 声明一个足够大的字符数组来存储字符串
+
+    printf("请输入商品ID (整数): ");
+    scanf("%d", &id); // 读取整数，注意 &id
+
+    printf("请输入商品名称 (字符串): ");
+    scanf("%s", productName); // 读取字符串，注意 productName 前没有 &
+
+    printf("请输入商品类别 (单个字符): ");
+    // 注意：scanf("%c") 可能会读取到上一次输入后留下的换行符。
+    // 通常在读取字符前，加一个空格 " %c" 来跳过空白符。
+    scanf(" %c", &category); // 读取字符，注意 &category 和前面的空格
+
+    printf("请输入商品价格 (浮点数): ");
+    scanf("%f", &price); // 读取浮点数，注意 &price
+
+    printf("\n--- 输入确认 ---\n");
+    printf("ID: %d\n", id);
+    printf("名称: %s\n", productName);
+    printf("类别: %c\n", category);
+    printf("价格: %.2f\n", price);
+
+    return 0;
+}</pre>
+
+        <div class="warning">
+            <p><strong>重要提示：</strong></p>
+            <ul>
+                <li>使用 scanf 读取数据时，必须提供变量的<strong>内存地址</strong>（使用 &），否则程序会出错（通常是段错误）。字符串数组例外，因为数组名本身就是地址。</li>
+                <li>scanf("%s", ...) 在读取字符串时遇到<strong>空白符（空格、制表符、换行符）</strong>会停止读取。这意味着它不能直接读取包含空格的完整句子。</li>
+                <li>scanf("%s", ...) 存在<strong>缓冲区溢出</strong>的风险。如果输入的字符串长度超过了目标数组的大小，多余的字符会写入到数组边界之外的内存，可能导致程序崩溃或安全漏洞。为了更安全地读取字符串，推荐使用 fgets 函数。</li>
+                <li>使用 %c 读取字符时，它会读取包括空白符在内的任何字符。如果想跳过前面的空白符（如换行符），可以在 %c 前加一个空格，如 scanf(" %c", &var);。</li>
+            </ul>
+        </div>
+
+        <h3>总结</h3>
+        <p>printf 和 scanf 是 C 语言中处理格式化输入输出的基础工具。printf 用于将数据显示在屏幕上，而 scanf 用于从键盘读取用户输入。理解它们的格式说明符以及 scanf 中地址参数的重要性是 C 语言编程的基础。</p>
+        <p>虽然 scanf 很方便，但在处理字符串输入时需要特别注意其局限性和安全风险。</p>
+    </div>
+</body>
+</html>

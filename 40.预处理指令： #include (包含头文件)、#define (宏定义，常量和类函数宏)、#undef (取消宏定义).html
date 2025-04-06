@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C 预处理指令</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #3498db;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #2980b9;
+            margin-top: 20px;
+        }
+        code {
+            background-color: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: "Courier New", Courier, monospace;
+            color: #c0392b; /* Dark red for inline code */
+        }
+        pre {
+            background-color: #2d3436; /* Dark background for code blocks */
+            color: #dfe6e9;          /* Light text */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;       /* Handle long lines */
+            font-family: "Courier New", Courier, monospace;
+            border: 1px solid #bdc3c7;
+        }
+        pre code {
+            background-color: transparent; /* Reset background for code inside pre */
+            color: inherit;                /* Inherit color from pre */
+            padding: 0;
+            border-radius: 0;
+        }
+        p {
+            margin-bottom: 10px;
+        }
+        .directive-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed #bdc3c7;
+        }
+        .directive-section:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>C 预处理指令</h1>
+
+        <p>预处理指令是在 C 语言编译器进行实际编译之前由预处理器处理的指令。它们以 <code>#</code> 符号开头。</p>
+
+        <div class="directive-section">
+            <h2>#include (包含头文件)</h2>
+            <p><code>#include</code> 指令告诉预处理器将指定头文件的内容复制到当前源文件中。这通常用于包含标准库函数声明、类型定义和宏定义。</p>
+            <p>有两种常见的形式：</p>
+            <ul>
+                <li><code>#include &lt;filename&gt;</code>: 用于包含标准库头文件。预处理器会在系统指定的标准包含路径中查找文件。</li>
+                <li><code>#include "filename"</code>: 用于包含用户自定义的头文件。预处理器通常会先在当前源文件所在的目录中查找，如果找不到，再去系统指定的标准包含路径中查找。</li>
+            </ul>
+            <h3>示例：</h3>
+            <pre><code class="language-c">// 包含标准输入输出库
+#include &lt;stdio.h&gt; 
+
+// 包含用户自定义的头文件 (假设与源文件在同一目录或指定路径下)
+#include "my_functions.h" 
+
+int main() {
+    printf("Hello, World!\n");
+    // 假设 my_functions.h 中声明了 my_function
+    // my_function(); 
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="directive-section">
+            <h2>#define (宏定义)</h2>
+            <p><code>#define</code> 指令用于定义宏。宏是一种预处理阶段的文本替换机制。</p>
+            
+            <h3>1. 定义常量 (对象式宏 / Object-like Macro)</h3>
+            <p>这允许你为常量值赋予一个有意义的名字。预处理器会在编译前将代码中所有出现的宏名替换为指定的文本（或值）。</p>
+            <h3>示例：</h3>
+            <pre><code class="language-c">#include &lt;stdio.h&gt;
+
+#define PI 3.14159
+#define GREETING "Hello"
+
+int main() {
+    double radius = 5.0;
+    double circumference = 2 * PI * radius;
+    printf("%s! The circumference is: %f\n", GREETING, circumference); 
+    // 预处理后近似于:
+    // printf("Hello"! The circumference is: %f\n", 2 * 3.14159 * radius);
+    return 0;
+}</code></pre>
+
+            <h3>2. 定义类函数宏 (函数式宏 / Function-like Macro)</h3>
+            <p>这种宏可以接受参数，看起来像函数调用，但在预处理阶段进行文本替换。需要特别注意括号的使用，以避免运算优先级问题和副作用。</p>
+            <h3>示例：</h3>
+            <pre><code class="language-c">#include &lt;stdio.h&gt;
+
+// 定义一个简单的求较大值的宏
+// 注意参数和整个表达式都用括号括起来
+#define MAX(a, b) ((a) > (b) ? (a) : (b)) 
+
+// 定义一个计算平方的宏 (注意括号)
+#define SQUARE(x) ((x) * (x))
+
+int main() {
+    int x = 5, y = 10;
+    printf("Max of %d and %d is %d\n", x, y, MAX(x, y)); 
+    // 预处理后近似于: printf("...", ((x) > (y) ? (x) : (y)));
+
+    int z = 4;
+    printf("Square of %d is %d\n", z, SQUARE(z));
+    // 预处理后近似于: printf("...", ((z) * (z)));
+
+    // 注意副作用：宏参数可能被多次计算
+    int i = 2;
+    printf("Square of i++ (%d) is %d\n", i, SQUARE(i++)); 
+    // 预处理后近似于: printf("...", ((i++) * (i++))); 
+    // i 的值会增加两次，结果可能不符合预期！
+    printf("After SQUARE(i++), i is now %d\n", i); 
+
+    return 0;
+}</code></pre>
+             <p><strong>注意：</strong> 类函数宏的参数和整个宏体通常需要用括号括起来，以避免操作符优先级问题。同时，要警惕宏参数带来的副作用（例如，使用 <code>i++</code> 作为参数时，<code>i</code> 可能被增加多次）。</p>
+        </div>
+
+        <div class="directive-section">
+            <h2>#undef (取消宏定义)</h2>
+            <p><code>#undef</code> 指令用于取消（移除）之前通过 <code>#define</code> 定义的宏。一旦宏被 <code>#undef</code>，它就不再有效，后续代码不能再使用该宏名（除非重新定义）。</p>
+            <p>这通常用于：</p>
+            <ul>
+                <li>限制宏的作用域，避免名称冲突。</li>
+                <li>在条件编译块 (<code>#ifdef</code>, <code>#ifndef</code>) 中根据需要定义或取消定义宏。</li>
+            </ul>
+            <h3>示例：</h3>
+            <pre><code class="language-c">#include &lt;stdio.h&gt;
+
+#define MY_MACRO 100
+printf("Before undef: %d\n", MY_MACRO); // 输出: Before undef: 100
+
+#undef MY_MACRO
+
+// 下面的代码会导致编译错误，因为 MY_MACRO 已经被取消定义
+// printf("After undef: %d\n", MY_MACRO); 
+
+// 可以重新定义
+#define MY_MACRO "Defined again"
+printf("After redefinition: %s\n", MY_MACRO); // 输出: After redefinition: Defined again
+
+int main() {
+   // main 函数体通常放在这里，上面的示例为了简洁直接写在全局
+   // 但 #define 和 #undef 是预处理指令，可以在函数内外使用
+   return 0; 
+}</code></pre>
+        </div>
+    </div>
+</body>
+</html>

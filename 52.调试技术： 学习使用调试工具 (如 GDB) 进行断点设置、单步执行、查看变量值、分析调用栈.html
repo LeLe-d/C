@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C 语言调试技术 - GDB 入门</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.8;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: #ffffff;
+            padding: 35px 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e4e4e4;
+        }
+        h1 {
+            color: #e74c3c; /* Red for Debugging/Errors */
+            text-align: center;
+            border-bottom: 3px solid #f5b7b1; /* Light red */
+            padding-bottom: 18px;
+            margin-bottom: 40px;
+            font-size: 2.4em;
+        }
+        h2 {
+            color: #c0392b; /* Stronger Red */
+            margin-top: 45px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #fadde1; /* Very light red border */
+            font-size: 1.9em;
+        }
+        h3 {
+            color: #3498db; /* Blue for sub-topics */
+            margin-top: 30px;
+            font-weight: 600;
+            font-size: 1.5em;
+        }
+        code.inline, code.command {
+            background-color: #ecf0f1; /* Light gray */
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            color: #2c3e50; /* Dark blue-gray */
+            font-size: 0.9em;
+            border: 1px solid #d5dbdb;
+        }
+        code.command { /* Specific style for GDB commands */
+            font-weight: bold;
+            color: #16a085; /* Teal for commands */
+            background-color: #e8f6f3;
+            border-color: #a9dfbf;
+        }
+        pre {
+            background-color: #34495e; /* Dark slate blue */
+            color: #ecf0f1;          /* Light gray text */
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            border: 1px solid #7f8c8d; /* Gray border */
+            font-size: 0.95em;
+            margin-top: 15px;
+            margin-bottom: 25px;
+        }
+        pre code { /* Reset styles for code inside pre */
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+            font-size: 1em;
+            border: none;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin-bottom: 12px;
+        }
+        strong, .emphasis {
+            font-weight: 700;
+             color: #e67e22; /* Carrot orange */
+        }
+        .introduction, .conclusion, .practice-tips {
+            background-color: #fdfefe;
+            padding: 20px;
+            border-left: 5px solid #e74c3c; /* Red border */
+            margin: 25px 0;
+            border-radius: 5px;
+        }
+        .debug-section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 1px solid #e4e4e4;
+            border-radius: 8px;
+            background-color: #fdfdfd;
+        }
+        .gdb-prompt {
+            color: #7f8c8d; /* Gray for prompt */
+            font-style: italic;
+        }
+        .code-example {
+             background-color: #f8f9f9;
+             border: 1px dashed #bdc3c7;
+             padding: 15px;
+             margin-top: 15px;
+             border-radius: 5px;
+        }
+        .code-example h4 { margin-top: 0; color: #7f8c8d; }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>调试技术：使用 GDB 驾驭 C 代码</h1>
+
+        <div class="introduction">
+            <p>编写 C 代码不可避免地会遇到错误（Bug）。虽然通过 <code class="inline">printf</code> 打印信息是一种简单的调试方式，但对于复杂的逻辑、难以复现的问题或深层次的错误（如内存问题），它往往显得力不从心且效率低下。</p>
+            <p>这时，使用专业的<strong>调试工具 (Debugger)</strong> 就变得至关重要。调试器允许你<strong class="emphasis">在程序运行时对其进行检查和控制</strong>，就像给程序做 “CT 扫描”一样。<strong>GDB (GNU Debugger)</strong> 是 Linux 和类 Unix 系统下最常用、功能最强大的 C/C++ 命令行调试器。掌握 GDB 的基本用法是 C 程序员必备的核心技能。</p>
+        </div>
+
+        <!-- ==================== Preparation ==================== -->
+        <div class="debug-section">
+            <h2>准备工作：为调试而编译</h2>
+            <p>为了让 GDB 能够有效地工作（例如，将机器代码地址映射回源代码行、显示变量名等），你需要在编译 C 代码时加入<strong>调试信息</strong>。这通常通过在 GCC 或 Clang 编译器命令中添加 <code class="inline">-g</code> 标志来实现。</p>
+            <pre><code class="language-bash"># 编译 example.c 并包含调试信息，生成可执行文件 example
+gcc -g example.c -o example 
+# 或者使用 clang
+# clang -g example.c -o example</code></pre>
+            <p>没有 <code class="inline">-g</code> 标志编译的程序也可以用 GDB 运行，但很多有用的调试功能将无法使用。</p>
+            <div class="code-example">
+                 <h4>示例 C 代码 (<code class="inline">example.c</code>)</h4>
+                 <p>我们将使用下面这个简单的代码来演示 GDB 命令：</p>
+                <pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int factorial(int n) {
+    int result = 1;
+    // 故意引入一个 bug: 循环条件应该是 i <= n
+    for (int i = 1; i &lt; n; i++) { 
+        result *= i;
+    }
+    return result; 
+}
+
+int main() {
+    int num = 5;
+    int fact = factorial(num); // 计算 5! (预期 120)
+    
+    printf("Factorial of %d is %d\n", num, fact); // 输出错误的结果 (可能是 24)
+
+    return 0;
+}</code></pre>
+             </div>
+        </div>
+
+        <!-- ==================== Starting GDB ==================== -->
+        <div class="debug-section">
+            <h2>启动 GDB</h2>
+            <p>在编译好包含调试信息的可执行文件后，在终端中启动 GDB 并加载该文件：</p>
+            <pre><code class="language-bash">gdb ./example</code></pre>
+            <p>启动后，你会看到 GDB 的欢迎信息和提示符 <code class="gdb-prompt">(gdb)</code>，表示 GDB 已准备好接收命令。</p>
+        </div>
+
+        <!-- ==================== Breakpoints ==================== -->
+        <div class="debug-section">
+            <h2>设置断点 (Breakpoints)</h2>
+            <p>断点是让程序在执行到特定位置时暂停下来的标记。这是调试的基础。</p>
+            <h3>常用设置命令</h3>
+            <ul>
+                <li>设置在函数入口： <code class="command">break &lt;function_name&gt;</code> 或 <code class="command">b &lt;function_name&gt;</code>
+                   <pre><span class="gdb-prompt">(gdb)</span> b main</pre>
+                   <pre><span class="gdb-prompt">(gdb)</span> break factorial</pre>
+                </li>
+                <li>设置在特定文件的特定行： <code class="command">break &lt;filename&gt;:&lt;line_number&gt;</code> 或 <code class="command">b &lt;filename&gt;:&lt;line_number&gt;</code>
+                   <pre><span class="gdb-prompt">(gdb)</span> b example.c:13  // 在 printf 语句行设置断点</pre>
+                </li>
+            </ul>
+            <h3>管理断点</h3>
+            <ul>
+                <li>查看所有断点：<code class="command">info breakpoints</code> 或 <code class="command">i b</code></li>
+                <li>删除指定编号的断点：<code class="command">delete &lt;breakpoint_number&gt;</code> 或 <code class="command">d &lt;breakpoint_number&gt;</code></li>
+                <li>禁用/启用断点：<code class="command">disable &lt;num&gt;</code> / <code class="command">enable &lt;num&gt;</code></li>
+            </ul>
+        </div>
+
+        <!-- ==================== Running & Stepping ==================== -->
+        <div class="debug-section">
+            <h2>运行和单步执行</h2>
+            <p>设置好断点后，就可以运行程序并控制其执行流程。</p>
+            <h3>启动和继续</h3>
+            <ul>
+                <li>开始执行程序（或从头开始执行）：<code class="command">run</code> 或 <code class="command">r</code>。程序会一直运行，直到遇到第一个断点、程序结束或发生错误。</li>
+                <li>从当前暂停处继续执行，直到下一个断点、程序结束或发生错误：<code class="command">continue</code> 或 <code class="command">c</code>。</li>
+            </ul>
+            <h3>单步执行（程序暂停时使用）</h3>
+            <ul>
+                <li><strong class="emphasis">逐过程 (Step Over)</strong>：<code class="command">next</code> 或 <code class="command">n</code>。执行当前行。如果当前行包含函数调用，它会<strong class="emphasis">执行整个函数</strong>，然后停在下一行（在当前函数内）。</li>
+                <li><strong class="emphasis">逐语句 (Step Into)</strong>：<code class="command">step</code> 或 <code class="command">s</code>。执行当前行。如果当前行包含函数调用，它会<strong class="emphasis">进入该函数内部</strong>，并停在函数的第一行。</li>
+                <li><strong class="emphasis">完成当前函数 (Finish)</strong>：<code class="command">finish</code>。继续执行，直到当前函数返回，并停在函数调用之后的下一条语句。</li>
+                <li>执行到指定行：<code class="command">until &lt;line_number&gt;</code>。</li>
+            </ul>
+            <div class="warning">
+                <strong>理解 <code class="command">next</code> 和 <code class="command">step</code> 的区别至关重要！</strong> 当你怀疑问题出在某个函数内部时，使用 <code class="command">step</code> 进入；如果你确定当前调用的函数没问题，或者只想看它执行后的结果，使用 <code class="command">next</code> 跳过其内部细节。
+            </div>
+        </div>
+
+        <!-- ==================== Inspecting Data ==================== -->
+        <div class="debug-section">
+            <h2>检查数据 (变量值)</h2>
+            <p>程序暂停时，你可以查看变量的当前值，这是理解程序状态的关键。</p>
+            <h3>常用检查命令</h3>
+            <ul>
+                <li>打印变量值（一次性）：<code class="command">print &lt;variable_name&gt;</code> 或 <code class="command">p &lt;variable_name&gt;</code>。可以打印基本类型、指针、结构体、数组等。
+                    <pre><span class="gdb-prompt">(gdb)</span> p num
+<span class="gdb-prompt">(gdb)</span> p i
+<span class="gdb-prompt">(gdb)</span> p result
+<span class="gdb-prompt">(gdb)</span> p &num   // 打印 num 的地址
+<span class="gdb-prompt">(gdb)</span> p *ptr  // 如果 ptr 是指针，打印它指向的值
+<span class="gdb-prompt">(gdb)</span> p argv[0] // 打印命令行参数
+</pre>
+                </li>
+                 <li>按特定格式打印：<code class="command">p/&lt;format&gt; &lt;variable_name&gt;</code>。常用格式：<code>x</code> (十六进制), <code>d</code> (十进制), <code>u</code> (无符号十进制), <code>o</code> (八进制), <code>t</code> (二进制), <code>a</code> (地址), <code>c</code> (字符), <code>f</code> (浮点), <code>s</code> (字符串)。
+                    <pre><span class="gdb-prompt">(gdb)</span> p/x num</pre>
+                 </li>
+                 <li>自动显示变量值：<code class="command">display &lt;variable_name&gt;</code>。每次程序暂停时，GDB 都会自动打印用 `display` 标记的变量的值。</li>
+                 <li>查看自动显示的变量列表：<code class="command">info display</code>。</li>
+                 <li>取消自动显示：<code class="command">undisplay &lt;display_number&gt;</code>。</li>
+                 <li>查看当前函数的所有局部变量：<code class="command">info locals</code>。</li>
+                 <li>查看变量的类型：<code class="command">ptype &lt;variable_name&gt;</code>。</li>
+            </ul>
+        </div>
+
+        <!-- ==================== Call Stack ==================== -->
+        <div class="debug-section">
+            <h2>分析调用栈 (Call Stack)</h2>
+            <p>调用栈记录了函数调用的顺序。当程序暂停时（尤其是在深层嵌套的函数中），查看调用栈可以帮助你理解程序是如何执行到当前位置的。</p>
+            <h3>常用栈命令</h3>
+            <ul>
+                <li>显示当前调用栈信息：<code class="command">backtrace</code> 或 <code class="command">bt</code>。会列出从当前函数回溯到 <code class="inline">main</code> 函数（或线程起点）的函数调用链，包括函数名、参数（如果可能）和源代码位置。</li>
+                 <li>显示完整的调用栈信息（包括局部变量）：<code class="command">bt full</code>。</li>
+                 <li>切换到栈中的特定帧 (Frame)：<code class="command">frame &lt;frame_number&gt;</code>。栈帧编号从 0 开始（当前函数）。切换帧后，<code class="command">info locals</code> 和 <code class="command">print</code> 会显示该帧上下文中的变量。</li>
+                 <li>向上移动栈帧（向调用者移动）：<code class="command">up</code>。</li>
+                 <li>向下移动栈帧（向被调用者移动）：<code class="command">down</code>。</li>
+             </ul>
+             <p>通过分析调用栈和在不同栈帧间切换，你可以追踪函数调用的路径，检查不同层级函数的参数和局部变量状态，这对定位错误的根源非常有帮助。</p>
+        </div>
+
+        <!-- ==================== Quitting GDB ==================== -->
+        <div class="debug-section">
+            <h2>退出 GDB</h2>
+            <p>完成调试后，使用以下命令退出 GDB：</p>
+            <pre><code class="command">quit</code> 或 <code class="command">q</code></pre>
+            <p>如果程序仍在运行，GDB 会询问你是否确认退出。</p>
+        </div>
+
+        <!-- ==================== Practice Tips ==================== -->
+        <div class="practice-tips">
+            <h2>调试技巧与建议</h2>
+            <ul>
+                <li><strong>始终用 <code class="inline">-g</code> 编译调试版本。</strong></li>
+                <li><strong>从简单开始：</strong> 先学会设置断点、运行、单步执行 (<code class="inline">n</code>/<code class="inline">s</code>) 和打印变量 (<code class="inline">p</code>)。</li>
+                <li><strong>有效利用断点：</strong> 不要在每一行都设置断点。将断点设置在关键逻辑之前、可疑代码段或函数入口处。</li>
+                <li><strong>理解 <code class="inline">next</code> 与 <code class="inline">step</code>：</strong> 这是控制执行流程的核心。</li>
+                <li><strong>善用 <code class="inline">print</code> 和 <code class="inline">display</code>：</strong> 观察变量值的变化是定位问题的关键。</li>
+                <li><strong>利用调用栈 (<code class="inline">bt</code>)：</strong> 快速了解函数调用路径，尤其是在处理崩溃或意外行为时。</li>
+                <li><strong>学习更多命令：</strong> GDB 功能非常强大，可以使用 <code class="command">help</code> 命令探索更多功能（如条件断点、观察点、多线程调试等）。</li>
+                <li><strong>多加练习：</strong> 调试是一项技能，需要通过实际操作来熟练掌握。尝试在你自己的代码或一些示例代码上使用 GDB。</li>
+                 <li><strong>考虑图形化前端：</strong> 如果不习惯命令行，可以尝试 GDB 的图形化前端，如 DDD、Insight、或者集成在 IDE（如 VS Code, CLion）中的调试器（它们底层通常也使用 GDB 或 LLDB）。</li>
+             </ul>
+        </div>
+
+        <!-- ==================== Conclusion ==================== -->
+        <div class="conclusion">
+            <p>掌握 GDB 等调试工具是 C 语言开发者的必备技能。它能极大地提高你定位和修复 Bug 的效率，让你更深入地理解代码的实际执行过程。虽然初看起来命令较多，但通过实践，你会发现它是一个极其强大的帮手。投入时间学习调试技术，将为你未来的编程生涯节省无数个小时。</p>
+        </div>
+
+    </div>
+</body>
+</html>

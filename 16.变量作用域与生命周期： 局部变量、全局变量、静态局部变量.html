@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - C语言变量作用域与生命周期</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段三：函数 - C语言变量作用域与生命周期</h2>
+
+        <p>在 C 语言中，理解变量的 **作用域 (Scope)** 和 **生命周期 (Lifetime)** 对于编写正确、高效和易于维护的代码至关重要。作用域决定了变量在代码的哪个区域内是可见和可访问的，而生命周期则决定了变量在内存中存在的时间。</p>
+
+        <h3>1. 局部变量 (Local Variables)</h3>
+        <p>局部变量是在函数内部或代码块（由花括号 <span class="code-inline">{}</span> 包围的区域）内部声明的变量。</p>
+        <ul>
+            <li><strong>作用域 (Scope):</strong> 仅限于声明它的函数或代码块内部。从声明点开始，到该函数或代码块结束为止。在函数或代码块外部无法访问。</li>
+            <li><strong>生命周期 (Lifetime):</strong> 当程序执行进入该函数或代码块时，局部变量被创建（在栈上分配内存）；当执行离开该函数或代码块时，局部变量被销毁，其占用的内存被释放。</li>
+            <li><strong>存储位置:</strong> 通常存储在内存的 **栈 (Stack)** 区域。</li>
+            <li><strong>初始化:</strong> 如果没有显式初始化，局部变量的初始值是 **未定义的（垃圾值）**。</li>
+        </ul>
+
+        <p><strong>示例代码：</strong></p>
+        <pre>#include <stdio.h>
+
+void myFunction() {
+    int localVar = 10; // 局部变量，只在 myFunction 内有效
+    printf("在 myFunction 内部：localVar = %d\n", localVar);
+}
+
+int main() {
+    int mainVar = 5; // main 函数的局部变量
+
+    if (mainVar > 0) {
+        int blockVar = 20; // 代码块内的局部变量
+        printf("在 if 代码块内部：blockVar = %d\n", blockVar);
+        printf("在 if 代码块内部：mainVar = %d\n", mainVar); // 可以访问 mainVar
+    }
+
+    // printf("在 main 函数外部 if 块：blockVar = %d\n", blockVar); // 错误！blockVar 在此不可见
+    printf("在 main 函数：mainVar = %d\n", mainVar);
+
+    myFunction();
+
+    // printf("在 main 函数：localVar = %d\n", localVar); // 错误！localVar 在此不可见
+
+    return 0;
+}</pre>
+        <p><strong>解释：</strong> <span class="code-inline">localVar</span> 只在 <span class="code-inline">myFunction</span> 中存在和可见。<span class="code-inline">blockVar</span> 只在 <span class="code-inline">if</span> 语句块内存在和可见。</p>
+
+        <h3>2. 全局变量 (Global Variables)</h3>
+        <p>全局变量是在所有函数外部声明的变量，通常在程序的顶部。</p>
+        <ul>
+            <li><strong>作用域 (Scope):</strong> 从声明点开始，到整个文件的末尾。文件中的所有函数都可以访问和修改全局变量（除非被同名的局部变量覆盖）。通过 <span class="code-inline">extern</span> 关键字，其作用域可以扩展到其他文件。</li>
+            <li><strong>生命周期 (Lifetime):</strong> 与程序的整个运行时间相同。在程序启动时创建，在程序结束时销毁。</li>
+            <li><strong>存储位置:</strong> 存储在内存的 **静态/全局存储区 (Static/Global Storage Area)**。</li>
+            <li><strong>初始化:</strong> 如果没有显式初始化，全局变量会被自动初始化为 **0**（对于数值类型）、**NULL**（对于指针类型）。</li>
+        </ul>
+        <div class="warning">
+            <p><strong>注意：</strong> 过度使用全局变量会增加程序各部分之间的耦合度，使得代码难以理解、调试和维护，容易引入意想不到的副作用。应尽量限制全局变量的使用。</p>
+        </div>
+
+        <p><strong>示例代码：</strong></p>
+        <pre>#include <stdio.h>
+
+int globalVar = 100; // 全局变量
+
+void function1() {
+    printf("在 function1：globalVar = %d\n", globalVar);
+    globalVar += 10; // 修改全局变量
+}
+
+void function2() {
+    int globalVar = 5; // 局部变量 globalVar 覆盖了全局变量
+    printf("在 function2 (局部)：globalVar = %d\n", globalVar);
+    // 如何访问全局 globalVar？ (通常不建议这样做，但可以通过作用域解析符，C中没有，C++有 ::)
+    // C 语言中，同名局部变量会隐藏全局变量。
+}
+
+int main() {
+    printf("在 main (开始)：globalVar = %d\n", globalVar);
+    function1();
+    printf("在 main (调用 function1 后)：globalVar = %d\n", globalVar);
+    function2();
+    printf("在 main (调用 function2 后)：globalVar = %d\n", globalVar); // 全局值未被 function2 改变
+
+    return 0;
+}</pre>
+        <p><strong>解释：</strong> <span class="code-inline">globalVar</span> 在所有函数外定义，因此 <span class="code-inline">main</span> 和 <span class="code-inline">function1</span> 都可以访问它。<span class="code-inline">function2</span> 定义了一个同名的局部变量，它在该函数内部隐藏（覆盖）了全局的 <span class="code-inline">globalVar</span>。</p>
+
+        <h3>3. 静态局部变量 (Static Local Variables)</h3>
+        <p>静态局部变量是在函数内部声明的变量，但使用了 <span class="code-inline">static</span> 关键字进行修饰。</p>
+        <ul>
+            <li><strong>作用域 (Scope):</strong> 与普通局部变量相同，仅限于声明它的函数或代码块内部。</li>
+            <li><strong>生命周期 (Lifetime):</strong> 与全局变量类似，存在于程序的整个运行期间。**它只会被初始化一次**（在程序第一次执行到其声明时），并且在函数调用结束后其值 **会被保留** 到下一次调用。</li>
+            <li><strong>存储位置:</strong> 存储在内存的 **静态/全局存储区**。</li>
+            <li><strong>初始化:</strong> 如果没有显式初始化，静态局部变量会被自动初始化为 **0**（或 NULL）。显式初始化只在第一次执行到声明时发生。</li>
+        </ul>
+        <p>静态局部变量常用于需要在函数调用之间保持状态的情况，例如计数器或确保某段初始化代码只执行一次。</p>
+
+        <p><strong>示例代码：</strong></p>
+        <pre>#include <stdio.h>
+
+void counterFunction() {
+    static int count = 0; // 静态局部变量，只初始化一次
+    int localVar = 0;     // 普通局部变量，每次调用都初始化
+
+    count++;
+    localVar++;
+
+    printf("静态 count = %d, 普通 localVar = %d\n", count, localVar);
+}
+
+int main() {
+    printf("第一次调用:\n");
+    counterFunction();
+
+    printf("第二次调用:\n");
+    counterFunction();
+
+    printf("第三次调用:\n");
+    counterFunction();
+
+    return 0;
+}</pre>
+        <p><strong>预期输出：</strong></p>
+        <pre>第一次调用:
+静态 count = 1, 普通 localVar = 1
+第二次调用:
+静态 count = 2, 普通 localVar = 1
+第三次调用:
+静态 count = 3, 普通 localVar = 1</pre>
+        <p><strong>解释：</strong> 静态变量 <span class="code-inline">count</span> 只在第一次调用 <span class="code-inline">counterFunction</span> 时被初始化为 0。每次调用时，<span class="code-inline">count</span> 的值会增加并被保留到下一次调用。而普通局部变量 <span class="code-inline">localVar</span> 每次调用时都会被重新创建并初始化为 0，然后增加到 1。</p>
+
+        <h3>总结与对比</h3>
+        <p>下表总结了这三种变量的主要区别：</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>特性</th>
+                    <th>局部变量 (Local)</th>
+                    <th>全局变量 (Global)</th>
+                    <th>静态局部变量 (Static Local)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>声明位置</strong></td>
+                    <td>函数或代码块内部</td>
+                    <td>所有函数外部</td>
+                    <td>函数或代码块内部 (带 static)</td>
+                </tr>
+                <tr>
+                    <td><strong>作用域</strong></td>
+                    <td>函数/代码块</td>
+                    <td>整个文件 (或程序，需 extern)</td>
+                    <td>函数/代码块</td>
+                </tr>
+                <tr>
+                    <td><strong>生命周期</strong></td>
+                    <td>函数/代码块执行期间</td>
+                    <td>整个程序运行期间</td>
+                    <td>整个程序运行期间</td>
+                </tr>
+                <tr>
+                    <td><strong>存储位置</strong></td>
+                    <td>栈 (Stack)</td>
+                    <td>静态/全局区</td>
+                    <td>静态/全局区</td>
+                </tr>
+                <tr>
+                    <td><strong>默认初始值</strong></td>
+                    <td>未定义 (垃圾值)</td>
+                    <td>0 / NULL</td>
+                    <td>0 / NULL</td>
+                </tr>
+                 <tr>
+                    <td><strong>初始化时机</strong></td>
+                    <td>每次进入作用域时</td>
+                    <td>程序启动时一次</td>
+                    <td>第一次进入作用域时一次</td>
+                </tr>
+                <tr>
+                    <td><strong>值是否保留</strong></td>
+                    <td>否 (离开作用域销毁)</td>
+                    <td>是 (贯穿程序)</td>
+                    <td>是 (跨函数调用保留)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>正确理解和使用不同作用域和生命周期的变量，有助于编写出模块化、可靠且易于管理的代码。</p>
+
+        </div>
+    </div>
+</body>
+</html>

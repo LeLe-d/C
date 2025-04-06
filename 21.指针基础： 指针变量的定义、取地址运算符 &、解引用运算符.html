@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - 指针基础：定义、取地址与解引用</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段四：数组与指针 - 指针基础：定义、取地址与解引用</h2>
+
+        <p>在 C/C++ 等语言中，指针是一个非常重要且强大的概念。它允许我们直接操作内存地址，提供了更灵活的数据处理方式。理解指针的基础是掌握这些语言的关键一步。</p>
+        <p>本篇将介绍指针的三个核心基础知识点：指针变量的定义、取地址运算符 <code>&</code> 以及解引用运算符 <code>*</code>。</p>
+
+        <h3>1. 指针变量的定义</h3>
+        <p>指针变量，简称指针，是一种特殊的变量，它存储的不是普通的数据值（如整数、浮点数、字符），而是另一个变量的<strong>内存地址</strong>。</p>
+        <p>定义指针变量的语法格式如下：</p>
+        <pre><code>data_type *pointer_name;</code></pre>
+        <ul>
+            <li><code>data_type</code>：表示该指针将要指向的变量的数据类型。例如，<code>int</code>、<code>float</code>、<code>char</code> 等。这决定了指针在进行解引用操作时读取多少字节的数据，以及指针进行算术运算时移动的步长。</li>
+            <li><code>*</code>：星号在这里表示正在声明的是一个指针变量。<strong>注意：</strong>这里的 <code>*</code> 是类型说明符的一部分，与后面要讲的解引用运算符 <code>*</code> 不同。</li>
+            <li><code>pointer_name</code>：是你为这个指针变量起的名字，遵循变量命名规则。</li>
+        </ul>
+        <p><strong>示例：</strong></p>
+        <pre><code>int *p_int;    // 定义一个指向整型(int)变量的指针，名为 p_int
+char *p_char;  // 定义一个指向字符型(char)变量的指针，名为 p_char
+double *p_double; // 定义一个指向双精度浮点型(double)变量的指针，名为 p_double
+
+int *ptr1, *ptr2; // 在同一行定义多个同类型的指针</code></pre>
+        <p>刚定义的指针变量没有指向任何有效的内存地址，通常称之为“野指针”。为了安全，建议在定义指针时进行初始化，可以初始化为 <code>NULL</code> (或 C++11 及以后版本的 <code>nullptr</code>)，表示它不指向任何对象：</p>
+        <pre><code>int *p_safe = NULL; // 初始化为 NULL，表示空指针</code></pre>
+
+        <h3>2. 取地址运算符 (<code class="operator">&</code>)</h3>
+        <p>要让指针指向一个具体的变量，我们需要获取那个变量的内存地址。<strong>取地址运算符 <code>&</code></strong> (Ampersand) 就是用来获取一个变量的内存地址的。</p>
+        <p>语法：</p>
+        <pre><code>&variable_name</code></pre>
+        <p>将 <code>&</code> 放在一个变量名前面，其运算结果就是该变量在内存中的起始地址。</p>
+        <p><strong>示例：</strong></p>
+        <pre><code>int age = 30;      // 定义一个整型变量 age
+int *p_age = NULL; // 定义一个整型指针 p_age 并初始化为 NULL
+
+p_age = &age;     // 使用取地址运算符 & 获取变量 age 的地址
+                   // 并将这个地址赋值给指针变量 p_age
+                   // 现在，p_age 指向了变量 age</code></pre>
+        <p>执行 <code>p_age = &age;</code> 后，指针 <code>p_age</code> 就存储了变量 <code>age</code> 的内存地址。我们可以说 “<code>p_age</code> 指向 <code>age</code>”。</p>
+        <p><strong>重要：</strong>指针的类型必须与其指向的变量的类型相匹配（或兼容）。例如，<code>int *</code> 类型的指针应该指向 <code>int</code> 类型的变量。</p>
+
+        <h3>3. 解引用运算符 (<code class="operator">*</code>)</h3>
+        <p>一旦指针变量存储了某个有效地址，我们就可以通过该指针来访问（读取或修改）它所指向的内存地址中存储的数据。这个操作称为<strong>解引用</strong> (Dereferencing)，使用的运算符是<strong>解引用运算符 <code>*</code></strong> (Asterisk)。</p>
+        <p><strong>注意：</strong>这里的 <code>*</code> 是一个<strong>运算符</strong>，用于操作已存在的指针变量，与指针定义时的 <code>*</code> (类型说明符) 含义不同。</p>
+        <p>语法：</p>
+        <pre><code>*pointer_name</code></pre>
+        <p>将 <code>*</code> 放在一个<strong>已经指向有效地址</strong>的指针变量名前面，其运算结果就是该指针所指向的内存地址中存储的<strong>值</strong>。</p>
+        <p><strong>示例（续上例）：</strong></p>
+        <pre><code>int age = 30;
+int *p_age = &age; // p_age 现在指向 age
+
+// 使用解引用运算符 * 访问 p_age 指向的值
+int value_from_pointer = *p_age; // *p_age 的结果就是 age 的值，即 30
+                                 // 将 30 赋值给 value_from_pointer
+
+printf("通过指针获取的值: %d\n", value_from_pointer); // 输出: 通过指针获取的值: 30
+printf("变量 age 的值: %d\n", age);                 // 输出: 变量 age 的值: 30
+
+// 也可以通过解引用来修改指针指向的值
+*p_age = 31; // 这等价于 age = 31;
+printf("修改后，变量 age 的值: %d\n", age);                 // 输出: 修改后，变量 age 的值: 31
+printf("修改后，再次通过指针获取的值: %d\n", *p_age);         // 输出: 修改后，再次通过指针获取的值: 31</code></pre>
+        <p>通过 <code>*p_age</code>，我们不仅可以读取 <code>age</code> 的值，还可以修改 <code>age</code> 的值。</p>
+
+        <h3>4. 综合示例代码 (C语言)</h3>
+        <p>下面的 C 代码演示了这三个概念的结合使用：</p>
+        <pre><code class="language-c">#include <stdio.h>
+
+int main() {
+    // 1. 定义一个普通整型变量
+    int number = 42;
+
+    // 2. 定义一个整型指针变量，并初始化为 NULL
+    int *p_number = NULL;
+    printf("初始化后, p_number: %p\n", (void*)p_number); // 输出: (nil) 或 0x0
+
+    // 3. 使用取地址运算符 (&) 获取 number 的地址，并赋给指针 p_number
+    p_number = &number;
+    printf("------------------------------------\n");
+    printf("变量 number 的值: %d\n", number);
+    // 使用 %p 格式说明符打印地址，通常需要将指针转换为 void*
+    printf("变量 number 的内存地址 (&number): %p\n", (void*)&number);
+    printf("指针 p_number 存储的地址: %p\n", (void*)p_number);
+
+    // 4. 使用解引用运算符 (*) 访问指针 p_number 指向的值
+    printf("------------------------------------\n");
+    printf("通过指针 p_number 访问变量的值 (*p_number): %d\n", *p_number);
+
+    // 5. 通过解引用修改指针指向的变量的值
+    printf("------------------------------------\n");
+    printf("通过 *p_number 修改前, number = %d\n", number);
+    *p_number = 99; // 修改 p_number 指向的内存（即 number 变量）的值
+    printf("通过 *p_number 修改后, number = %d\n", number);
+    printf("修改后, 再次通过 *p_number 访问值: %d\n", *p_number);
+
+    return 0;
+}</code></pre>
+        <p><strong>预期输出（地址值会变化）：</strong></p>
+        <pre><code>初始化后, p_number: (nil)
+------------------------------------
+变量 number 的值: 42
+变量 number 的内存地址 (&number): 0x7ffeedcba45c
+指针 p_number 存储的地址: 0x7ffeedcba45c
+------------------------------------
+通过指针 p_number 访问变量的值 (*p_number): 42
+------------------------------------
+通过 *p_number 修改前, number = 42
+通过 *p_number 修改后, number = 99
+修改后, 再次通过 *p_number 访问值: 99</code></pre>
+
+        <h2>5. 总结</h2>
+        <ul>
+            <li><strong>指针变量定义</strong>：使用 <code>data_type *pointer_name;</code> 来声明一个指针，它用于存储内存地址。指针的类型很重要。</li>
+            <li><strong>取地址运算符 <code class="operator">&</code></strong>：用于获取一个变量的内存地址。<code>&variable</code> 得到 <code>variable</code> 的地址。</li>
+            <li><strong>解引用运算符 <code class="operator">*</code></strong>：用于访问指针所指向地址处存储的值。<code>*pointer</code> 得到 <code>pointer</code> 指向的那个变量的值。</li>
+            <li><strong>重要区别</strong>：定义指针时的 <code>*</code> 是类型的一部分；在表达式中使用 <code>*</code> 是解引用操作。</li>
+            <li><strong>初始化</strong>：始终初始化指针（例如，用 <code>NULL</code> 或 <code>nullptr</code>，或者一个有效的地址），以避免使用未初始化的野指针，这是常见的错误来源。</li>
+        </ul>
+
+        <p>掌握这三个基本操作是指针学习的起点。后续可以学习指针算术、指针与数组、指针与函数、指向指针的指针等更高级的概念。</p>
+
+        </div>
+    </div>
+</body>
+</html>

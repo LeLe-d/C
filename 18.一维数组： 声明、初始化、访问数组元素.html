@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - C语言一维数组</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段四：数组与指针 - C语言一维数组</h2>
+
+        <p>数组是 C 语言中一种基础且重要的数据结构，它允许你存储一系列 **相同类型** 的数据项。一维数组可以看作是一个线性的元素序列，这些元素在内存中是 **连续存储** 的。</p>
+
+        <h3>1. 声明一维数组</h3>
+        <p>声明一个一维数组需要指定元素的类型、数组的名称以及数组的大小（即可以存储的元素数量）。</p>
+        <p><strong>语法：</strong></p>
+        <pre>data_type array_name[array_size];</pre>
+        <ul>
+            <li><span class="code-inline">data_type</span>：数组中每个元素的数据类型（如 <span class="code-inline">int</span>, <span class="code-inline">float</span>, <span class="code-inline">char</span> 等）。</li>
+            <li><span class="code-inline">array_name</span>：数组的标识符（名称）。</li>
+            <li><span class="code-inline">array_size</span>：一个正整数常量或常量表达式，指定数组可以容纳的元素个数。<strong>注意：</strong> 在 C99 标准之前，数组大小必须是编译时常量。C99 引入了变长数组 (VLA)，但其支持和行为可能因编译器而异，且不建议在所有场景下使用。</li>
+        </ul>
+
+        <p><strong>示例：</strong></p>
+        <pre>// 声明一个可以存储 10 个整数的数组
+int scores[10];
+
+// 声明一个可以存储 5 个浮点数的数组
+float prices[5];
+
+// 声明一个可以存储 26 个字符的数组
+char alphabet[26];</pre>
+
+        <h3>2. 初始化一维数组</h3>
+        <p>在声明数组的同时可以对其进行初始化，即为数组元素赋初值。有多种初始化方式：</p>
+
+        <h4>2.1 完全初始化</h4>
+        <p>提供与数组大小相同数量的初始值，用花括号 <span class="code-inline">{}</span> 包围，值之间用逗号分隔。</p>
+        <pre>// 声明并初始化一个包含 5 个整数的数组
+int numbers[5] = {10, 20, 30, 40, 50};
+// numbers[0]=10, numbers[1]=20, ..., numbers[4]=50</pre>
+
+        <h4>2.2 部分初始化</h4>
+        <p>如果提供的初始值数量少于数组大小，则剩余的元素会被自动初始化为 **0**（对于数值类型）或 **空字符 '\0'**（对于字符类型）。</p>
+        <pre>// 初始化前两个元素，其余默认为 0
+int data[5] = {1, 2};
+// data[0]=1, data[1]=2, data[2]=0, data[3]=0, data[4]=0
+
+// 初始化前三个字符，其余默认为 '\0'
+char name[10] = {'J', 'o', 'h', 'n'};
+// name[0]='J', name[1]='o', name[2]='h', name[3]='n', name[4]='\0', ... name[9]='\0'</pre>
+        <div class="note">
+            <p><strong>快速将数组所有元素初始化为 0 的方法：</strong></p>
+            <pre>int zeros[100] = {0}; // 只需提供一个 0，编译器会将所有元素初始化为 0</pre>
+        </div>
+
+        <h4>2.3 省略数组大小</h4>
+        <p>如果在声明时进行了初始化，可以省略方括号中的数组大小，编译器会自动根据初始值的数量来确定数组的大小。</p>
+        <pre>// 编译器会自动推断数组大小为 5
+int inferred_size[] = {1, 1, 2, 3, 5};
+
+// 编译器会自动推断数组大小为 6 (包括末尾的 '\0')
+char greeting[] = "Hello"; // 字符串字面量初始化会自动添加 '\0'
+// 等价于: char greeting[6] = {'H', 'e', 'l', 'l', 'o', '\0'};</pre>
+
+        <h3>3. 访问数组元素</h3>
+        <p>可以通过数组名称和 **索引 (Index)**（也称为下标）来访问数组中的单个元素。索引是一个整数，表示元素在数组中的位置。</p>
+        <p><strong>重要：</strong> C 语言中的数组索引是 **从 0 开始** 的。对于一个大小为 <span class="code-inline">N</span> 的数组，其有效索引范围是 <span class="code-inline">0</span> 到 <span class="code-inline">N-1</span>。</p>
+        <p><strong>语法：</strong></p>
+        <pre>array_name[index]</pre>
+
+        <p><strong>示例：</strong></p>
+        <pre>#include <stdio.h>
+
+int main() {
+    int scores[5] = {85, 92, 78, 95, 88};
+    int i;
+
+    // 访问并打印第一个元素 (索引为 0)
+    printf("第一个分数：%d\n", scores[0]); // 输出：第一个分数：85
+
+    // 修改第三个元素 (索引为 2)
+    scores[2] = 80;
+    printf("修改后的第三个分数：%d\n", scores[2]); // 输出：修改后的第三个分数：80
+
+    // 使用循环遍历并打印所有元素
+    printf("所有分数：");
+    for (i = 0; i < 5; i++) { // 索引从 0 到 4
+        printf("%d ", scores[i]);
+    }
+    printf("\n"); // 输出：所有分数：85 92 80 95 88
+
+    return 0;
+}</pre>
+
+        <div class="warning">
+            <p><strong>⚠️ 数组越界 (Array Out of Bounds) 访问：</strong></p>
+            <ul>
+                <li>访问数组时使用的索引 **必须** 在有效范围内（<span class="code-inline">0</span> 到 <span class="code-inline">size - 1</span>）。</li>
+                <li>C 语言 **不会** 自动检查数组索引是否越界。</li>
+                <li>如果访问了数组边界之外的内存（例如，访问 <span class="code-inline">scores[5]</span> 或 <span class="code-inline">scores[-1]</span>），会导致 **未定义行为 (Undefined Behavior)**。这可能导致程序崩溃、数据损坏或难以察觉的逻辑错误，甚至安全漏洞。</li>
+                <li><strong>程序员有责任确保数组访问不越界！</strong></li>
+            </ul>
+            <pre>// 错误示例：访问越界
+int arr[3] = {1, 2, 3};
+// printf("%d\n", arr[3]); // 错误！索引 3 超出范围 [0, 2]
+// arr[-1] = 0;          // 错误！索引 -1 超出范围 [0, 2]</pre>
+        </div>
+
+        <h3>总结</h3>
+        <p>一维数组是 C 语言中用于存储同类型数据集合的基本工具：</p>
+        <ul>
+            <li>通过 <span class="code-inline">data_type array_name[array_size];</span> 进行声明。</li>
+            <li>可以在声明时使用 <span class="code-inline">{}</span> 进行初始化，未初始化的部分默认为 0。</li>
+            <li>使用 <span class="code-inline">array_name[index]</span> 访问元素，索引 **从 0 开始**。</li>
+            <li>元素在内存中 **连续存储**。</li>
+            <li>**必须** 避免数组越界访问，这是 C 语言编程中常见的错误来源。</li>
+        </ul>
+        <p>掌握数组的声明、初始化和访问是 C 语言编程的基础。</p>
+        </div>
+    </div>
+</body>
+</html>

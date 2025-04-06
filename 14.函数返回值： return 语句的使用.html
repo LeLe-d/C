@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - C语言函数返回值：return 语句的使用</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段三：函数 - C语言函数返回值：return 语句的使用</h2>
+
+        <p>函数不仅可以执行任务，还可以将任务的结果（一个值）返回给调用它的代码。这是通过 <span class="code-inline">return</span> 语句实现的。<span class="code-inline">return</span> 语句同时还标志着函数的执行结束。</p>
+
+        <h3>1. return 语句的作用</h3>
+        <p><span class="code-inline">return</span> 语句在函数中有两个主要作用：</p>
+        <ol>
+            <li><strong>返回值：</strong> 将一个特定的值发送回函数的调用者。这个值的类型必须与函数定义时声明的返回类型 (<span class="code-inline">return_type</span>) 兼容。</li>
+            <li><strong>终止函数：</strong> <span class="code-inline">return</span> 语句一旦执行，函数会立即停止执行其后的任何代码，并将控制权交还给调用者。</li>
+        </ol>
+
+        <h3>2. return 语句的语法</h3>
+        <p>根据函数是否需要返回值，<span class="code-inline">return</span> 语句有两种形式：</p>
+        <ul>
+            <li><strong>带表达式（用于非 void 函数）：</strong></li>
+        </ul>
+        <pre>return expression;</pre>
+        <p>这里的 <span class="code-inline">expression</span> 是一个表达式，其计算结果将作为函数的返回值。该结果的类型应与函数的返回类型匹配或可以隐式转换为返回类型。</p>
+        <ul>
+            <li><strong>不带表达式（主要用于 void 函数）：</strong></li>
+        </ul>
+        <pre>return;</pre>
+        <p>这种形式仅用于提前终止 <span class="code-inline">void</span> 函数的执行。它不返回任何值。</p>
+
+        <h3>3. 在非 void 函数中使用 return</h3>
+        <p>如果函数定义时指定了非 <span class="code-inline">void</span> 的返回类型（如 <span class="code-inline">int</span>, <span class="code-inline">float</span>, <span class="code-inline">char*</span>, 结构体等），那么该函数<strong>必须</strong>使用 <span class="code-inline">return expression;</span> 的形式返回一个值。</p>
+
+        <p><strong>示例：返回两个整数中的较大值</strong></p>
+        <pre>#include <stdio.h>
+
+// 函数定义：返回两个整数中的较大值
+int findMax(int a, int b) {
+    if (a > b) {
+        return a; // 如果 a 更大，返回 a
+    } else {
+        return b; // 否则，返回 b
+    }
+    // 注意：一旦执行了 return，函数就结束了
+}
+
+int main() {
+    int x = 10, y = 20;
+    int max_val;
+
+    // 调用函数，并将返回值存储在 max_val 中
+    max_val = findMax(x, y);
+
+    printf("%d 和 %d 中的较大值是：%d\n", x, y, max_val); // 输出：10 和 20 中的较大值是：20
+
+    // 也可以直接使用返回值
+    printf("5 和 3 中的较大值是：%d\n", findMax(5, 3));   // 输出：5 和 3 中的较大值是：5
+
+    return 0; // main 函数通常返回 0 表示成功
+}</pre>
+        <p>在这个例子中，<span class="code-inline">findMax</span> 函数声明返回 <span class="code-inline">int</span> 类型。根据比较结果，它通过 <span class="code-inline">return a;</span> 或 <span class="code-inline">return b;</span> 返回相应的整数值。调用者（<span class="code-inline">main</span> 函数）接收这个返回值并可以对其进行使用。</p>
+
+        <h3>4. 在 void 函数中使用 return</h3>
+        <p>返回类型为 <span class="code-inline">void</span> 的函数不返回值。但是，你仍然可以在 <span class="code-inline">void</span> 函数中使用不带表达式的 <span class="code-inline">return;</span> 语句来提前结束函数的执行。</p>
+        <p>这通常用于在满足某个条件时退出函数，避免执行后续的代码。</p>
+
+        <p><strong>示例：如果数字为负则提前退出</strong></p>
+        <pre>#include <stdio.h>
+
+// 函数定义：如果数字是正数则打印，否则提前退出
+void printIfPositive(int num) {
+    if (num < 0) {
+        printf("输入的数字是负数，不打印。\n");
+        return; // 提前终止函数执行
+    }
+
+    // 只有当 num >= 0 时，才会执行到这里
+    printf("输入的正数或零是：%d\n", num);
+}
+
+int main() {
+    printIfPositive(5);  // 输出：输入的正数或零是：5
+    printIfPositive(-3); // 输出：输入的数字是负数，不打印。
+    printIfPositive(0);  // 输出：输入的正数或零是：0
+
+    return 0;
+}</pre>
+        <p>当 <span class="code-inline">printIfPositive(-3)</span> 被调用时，<span class="code-inline">if</span> 条件为真，打印提示信息后执行 <span class="code-inline">return;</span>，函数立即结束，后面的 <span class="code-inline">printf</span> 语句不会被执行。</p>
+
+        <h3>5. return 语句立即终止函数</h3>
+        <p>需要强调的是，一旦函数执行到任何形式的 <span class="code-inline">return</span> 语句，函数的执行就会<strong>立即停止</strong>。同一执行路径上位于 <span class="code-inline">return</span> 语句之后的任何代码都不会被执行。</p>
+        <pre>// 示例
+int exampleFunction() {
+    printf("执行到这里...\n");
+    return 10; // 函数在此处终止并返回值 10
+    printf("这段代码永远不会执行。\n"); // Unreachable code
+}</pre>
+
+        <div class="note">
+            <p><strong>main 函数的返回值：</strong></p>
+            <p><span class="code-inline">main</span> 函数通常被定义为返回 <span class="code-inline">int</span> 类型。按照惯例：</p>
+            <ul>
+                <li><span class="code-inline">return 0;</span> 表示程序成功执行。</li>
+                <li>返回非零值（如 <span class="code-inline">return 1;</span>）通常表示程序遇到了某种错误或异常情况。</li>
+            </ul>
+            <p>在 C99 及之后的标准中，如果 <span class="code-inline">main</span> 函数执行到最后没有显式的 <span class="code-inline">return</span> 语句，编译器会自动添加一个隐含的 <span class="code-inline">return 0;</span>。</p>
+        </div>
+
+        <h3>总结</h3>
+        <p><span class="code-inline">return</span> 语句是函数与调用者交互和控制函数流程的关键：</p>
+        <ul>
+            <li>用于从函数向调用者 **返回一个值**（对于非 <span class="code-inline">void</span> 函数）。</li>
+            <li>用于 **立即终止** 函数的执行。</li>
+            <li>在 <span class="code-inline">void</span> 函数中，<span class="code-inline">return;</span> 可用于提前退出。</li>
+            <li>函数返回值的类型必须与函数定义中声明的返回类型兼容。</li>
+            <li><span class="code-inline">main</span> 函数的返回值通常用来指示程序的退出状态。</li>
+        </ul>
+        <p>正确使用 <span class="code-inline">return</span> 语句对于编写功能正确、逻辑清晰的 C 函数至关重要。</p>
+
+        </div>
+    </div>
+</body>
+</html>

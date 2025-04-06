@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>算法基础 - C 语言实现</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.8;
+            margin: 20px;
+            background-color: #f7f9fc; /* Lighter, slightly blue background */
+            color: #34495e; /* Dark blue-gray text */
+        }
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: #ffffff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.07);
+            border: 1px solid #e1e8ed;
+        }
+        h1 {
+            color: #8e44ad; /* Purple */
+            text-align: center;
+            border-bottom: 3px solid #d7bde2; /* Light purple */
+            padding-bottom: 18px;
+            margin-bottom: 40px;
+            font-size: 2.4em;
+        }
+        h2 {
+            color: #9b59b6; /* Lighter Purple */
+            margin-top: 45px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e8daef; /* Very light purple border */
+            font-size: 1.9em;
+        }
+        h3 {
+            color: #16a085; /* Teal */
+            margin-top: 30px;
+            font-weight: 600;
+            font-size: 1.5em;
+        }
+        h4 {
+            color: #3498db; /* Blue */
+            margin-top: 20px;
+            font-weight: normal;
+            font-style: italic;
+            font-size: 1.2em;
+        }
+        code.inline {
+            background-color: #eaf2f8; /* Light blue background */
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            color: #2980b9; /* Blue text */
+            font-size: 0.9em;
+            border: 1px solid #d4e6f1;
+        }
+        pre { /* Using a light theme for code blocks this time */
+            background-color: #f8f9f9;
+            color: #333;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            border: 1px solid #d6dbdf;
+            font-size: 0.95em;
+            margin-top: 15px;
+            margin-bottom: 25px;
+        }
+        pre code.language-c { /* Example for C code highlighting (can be enhanced with JS libs) */
+             color: #2e86c1; /* Blue for keywords */
+             /* Add more rules for comments, strings, etc. if using a highlighter */
+        }
+        pre code { /* Reset styles for code inside pre */
+            background-color: transparent;
+            padding: 0;
+            border-radius: 0;
+            font-size: 1em;
+            border: none;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin-bottom: 12px;
+        }
+        strong, .emphasis {
+            font-weight: 700;
+             color: #c0392b; /* Strong Red for emphasis */
+        }
+        .introduction, .conclusion {
+            background-color: #fdfefe;
+            padding: 20px;
+            border-left: 5px solid #8e44ad; /* Purple border */
+            margin: 25px 0;
+            border-radius: 5px;
+        }
+        .algorithm-section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            background-color: #fdfefe;
+        }
+         .why-implement {
+            background-color: #f6eafc; /* Light purple */
+            border-left: 5px solid #a569bd; /* Medium purple border */
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .complexity-note {
+             font-style: italic;
+             color: #7f8c8d; /* Gray */
+             margin: 10px 0;
+             border-left: 3px solid #bdc3c7;
+             padding-left: 10px;
+        }
+        .key-points {
+            background-color: #e8f8f5; /* Light teal background */
+            padding: 10px 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+            border: 1px dashed #a9dfbf; /* Dashed green border */
+        }
+        .key-points strong { color: #117a65; } /* Darker teal for key point titles */
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>算法基础：C 语言实现</h1>
+
+        <div class="introduction">
+            <p>在掌握了基本的数据结构之后，下一步自然是学习和实现核心的<strong>算法</strong>。算法是解决特定问题的步骤或指令集。与数据结构类似，仅仅<strong class="emphasis">理解</strong>算法的逻辑是不够的，用 C 语言<strong class="emphasis">亲手实现</strong>它们至关重要。</p>
+            <p>C 语言的底层特性让你在实现算法时，必须关注数组索引、指针操作、内存访问模式以及递归的细节。这有助于你深刻理解算法的<strong>时间复杂度</strong>和<strong>空间复杂度</strong>，明白为什么某些算法在特定场景下比其他算法更优越。本页将介绍几种基础且重要的排序和查找算法。</p>
+        </div>
+
+        <!-- ==================== Sorting Algorithms ==================== -->
+        <h2>排序算法 (Sorting Algorithms)</h2>
+        <p>排序是将一组数据（通常是数组）按照特定顺序（升序或降序）排列的过程。不同的排序算法有不同的效率和适用场景。</p>
+
+        <div class="algorithm-section">
+            <h3>冒泡排序 (Bubble Sort)</h3>
+            <h4>基本思想</h4>
+            <p>重复地遍历要排序的数列，一次比较两个相邻的元素，如果它们的顺序错误就把它们交换过来。这个过程就像气泡一样，较小（或较大）的元素会慢慢“浮”到数列的顶端。</p>
+
+            <div class="complexity-note">
+                <p><strong>时间复杂度：</strong> O(n²) (最坏和平均情况), O(n) (最好情况，如果已排序且有优化)。</p>
+                <p><strong>空间复杂度：</strong> O(1) (原地排序)。</p>
+                <p><strong>稳定性：</strong> 稳定。</p>
+            </div>
+
+            <div class="why-implement">
+                <h4>为什么用 C 实现？</h4>
+                <p>冒泡排序逻辑简单，是练习 C 语言<strong>基础循环、数组访问和元素交换</strong>的好起点。你可以轻松地观察到元素是如何通过相邻比较和交换逐步有序的。也可以尝试实现优化版本（当一轮遍历没有发生交换时，说明已排序，可以提前终止）。</p>
+            </div>
+            <div class="key-points">
+                <strong>关键点：</strong> 相邻比较与交换，多轮遍历。简单但效率低。
+            </div>
+        </div>
+
+        <div class="algorithm-section">
+            <h3>选择排序 (Selection Sort)</h3>
+            <h4>基本思想</h4>
+            <p>首先在未排序序列中找到最小（或最大）元素，存放到排序序列的起始位置，然后，再从剩余未排序元素中继续寻找最小（或最大）元素，然后放到已排序序列的末尾。以此类推，直到所有元素均排序完毕。</p>
+
+            <div class="complexity-note">
+                <p><strong>时间复杂度：</strong> O(n²) (所有情况)。</p>
+                <p><strong>空间复杂度：</strong> O(1) (原地排序)。</p>
+                <p><strong>稳定性：</strong> 不稳定 (通常实现)。</p>
+            </div>
+
+             <div class="why-implement">
+                <h4>为什么用 C 实现？</h4>
+                <p>选择排序涉及在数组的未排序部分中<strong>查找最小（或最大）元素的索引</strong>，然后执行交换。这锻炼了你在 C 中管理数组索引和执行特定位置元素交换的能力。其交换次数是固定的 O(n) 次，但比较次数仍是 O(n²)。</p>
+            </div>
+            <div class="key-points">
+                <strong>关键点：</strong> 找到未排序部分的极值，放到已排序部分的末尾。交换次数少，但比较次数多。
+            </div>
+        </div>
+
+        <div class="algorithm-section">
+            <h3>插入排序 (Insertion Sort)</h3>
+            <h4>基本思想</h4>
+            <p>将待排序的元素看作一个有序序列和一个无序序列。开始时，有序序列只包含第一个元素，然后依次将无序序列中的元素插入到有序序列的适当位置，直到无序序列为空。</p>
+
+            <div class="complexity-note">
+                <p><strong>时间复杂度：</strong> O(n²) (最坏和平均情况), O(n) (最好情况，如果已排序)。</p>
+                <p><strong>空间复杂度：</strong> O(1) (原地排序)。</p>
+                <p><strong>稳定性：</strong> 稳定。</p>
+            </div>
+
+             <div class="why-implement">
+                <h4>为什么用 C 实现？</h4>
+                <p>实现插入排序需要你熟练地在 C 语言数组中<strong>移动（或称为“挪动”）元素</strong>来为待插入元素腾出空间。你需要精确控制循环和索引，处理好元素的比较和插入逻辑。它对于<strong class="emphasis">小规模数据或基本有序的数据</strong>非常高效。</p>
+            </div>
+             <div class="key-points">
+                <strong>关键点：</strong> 构建有序子序列，将元素插入正确位置。对小数据或近乎有序数据高效。
+            </div>
+        </div>
+
+        <div class="algorithm-section">
+            <h3>快速排序 (Quick Sort)</h3>
+            <h4>基本思想</h4>
+            <p>快速排序是一种采用<strong>分治策略 (Divide and Conquer)</strong> 的高效排序算法。基本步骤是：</p>
+            <ol>
+                <li><strong>选择基准元 (Pivot):</strong> 从数列中挑出一个元素作为基准。</li>
+                <li><strong>分区 (Partition):</strong> 重新排序数列，所有比基准值小的元素摆放在基准前面，所有比基准值大的元素摆在基准后面（相同的数可以到任一边）。分区结束后，该基准就处于数列的最终排序位置。</li>
+                <li><strong>递归排序:</strong> 递归地对基准左边和右边的子数列进行快速排序。</li>
+            </ol>
+
+            <div class="complexity-note">
+                <p><strong>时间复杂度：</strong> O(n log n) (平均和最好情况), O(n²) (最坏情况，如选取的基准总是最大或最小元素，或数据已排序/逆序)。</p>
+                <p><strong>空间复杂度：</strong> O(log n) (平均情况，递归调用栈), O(n) (最坏情况)。</p>
+                <p><strong>稳定性：</strong> 不稳定。</p>
+             </div>
+
+            <div class="why-implement">
+                <h4>为什么用 C 实现？</h4>
+                <p>快速排序是 C 语言实践的<strong class="emphasis">极好案例</strong>，因为它涉及到：</p>
+                <ul>
+                    <li><strong>递归函数</strong>的编写和理解。</li>
+                    <li><strong>指针或数组索引</strong>的复杂操作（在分区步骤中）。</li>
+                    <li><strong>分治思想</strong>的体现。</li>
+                    <li>(可选) 对基准元选择策略（如三数取中法）的实现以优化性能，避免最坏情况。</li>
+                </ul>
+                <p>掌握快排的 C 实现能显著提升你的 C 编程能力和算法理解深度。这也是标准库 <code class="inline">qsort</code> 函数背后的核心思想。</p>
+            </div>
+            <div class="key-points">
+                <strong>关键点：</strong> 分治法，选择基准，分区操作，递归。平均速度快，但有最坏情况。
+            </div>
+             <pre><code class="language-c">// 快速排序核心的 Partition 函数伪代码 (Lomuto partition scheme)
+function partition(array, low, high):
+    pivot = array[high] // 选择最后一个元素作为基准
+    i = low - 1         // i 指向小于 pivot 的区域的最后一个元素
+
+    for j from low to high - 1:
+        if array[j] <= pivot:
+            i = i + 1
+            swap array[i] with array[j] // 将小于等于 pivot 的元素放到左边
+
+    swap array[i + 1] with array[high] // 将 pivot 放到正确的位置
+    return i + 1 // 返回 pivot 的最终索引
+
+function quickSort(array, low, high):
+    if low < high:
+        pivotIndex = partition(array, low, high)
+        quickSort(array, low, pivotIndex - 1)  // 递归排序左子数组
+        quickSort(array, pivotIndex + 1, high) // 递归排序右子数组
+</code></pre>
+        </div>
+
+        <!-- ==================== Searching Algorithms ==================== -->
+        <h2>查找算法 (Searching Algorithms)</h2>
+        <p>查找是在数据集合中寻找特定元素（或满足特定条件的元素）的过程。</p>
+
+        <div class="algorithm-section">
+            <h3>顺序查找 (Sequential Search / Linear Search)</h3>
+            <h4>基本思想</h4>
+            <p>从数据集合的第一个元素开始，逐个检查，直到找到目标元素或检查完所有元素。</p>
+
+            <div class="complexity-note">
+                <p><strong>时间复杂度：</strong> O(n) (最坏和平均情况), O(1) (最好情况，第一个元素就是)。</p>
+                <p><strong>空间复杂度：</strong> O(1)。</p>
+            </div>
+
+             <div class="why-implement">
+                <h4>为什么用 C 实现？</h4>
+                <p>这是最简单的查找算法，主要练习 C 语言的<strong>基本循环和数组（或链表）遍历</strong>。适用于无序数据或数据量很小的情况。</p>
+            </div>
+             <div class="key-points">
+                <strong>关键点：</strong> 逐个比较。简单，适用于无序数据，但效率低。
+            </div>
+        </div>
+
+        <div class="algorithm-section">
+            <h3>二分查找 (Binary Search)</h3>
+            <h4>基本思想</h4>
+            <p>二分查找要求数据集合<strong>必须是有序的</strong>。它通过比较目标值与数据集合中间元素的值，将搜索范围缩小一半。如果目标值等于中间元素，查找成功；如果目标值小于中间元素，则在左半部分继续查找；如果目标值大于中间元素，则在右半部分继续查找。重复此过程，直到找到目标或搜索范围为空。</p>
+
+            <div class="complexity-note">
+                <p><strong>时间复杂度：</strong> O(log n)。</p>
+                <p><strong>空间复杂度：</strong> O(1) (迭代实现), O(log n) (递归实现，调用栈)。</p>
+            </div>
+
+            <div class="why-implement">
+                <h4>为什么用 C 实现？</h4>
+                <p>二分查找是<strong>效率极高</strong>的查找算法，实现它需要你：</p>
+                <ul>
+                    <li>理解<strong>分治思想</strong>在查找中的应用。</li>
+                    <li>精确地管理搜索区间的<strong>边界索引</strong> (<code class="inline">low</code>, <code class="inline">high</code>)。</li>
+                    <li>正确计算<strong>中间索引</strong> <code class="inline">mid</code> (注意防止整数溢出：使用 <code class="inline">low + (high - low) / 2</code> 而不是 <code class="inline">(low + high) / 2</code>)。</li>
+                    <li>可以练习<strong>迭代</strong>或<strong>递归</strong>两种实现方式。</li>
+                 </ul>
+                 <p>这是面试中非常常见的算法题，也是 C 标准库 <code class="inline">bsearch</code> 函数的基础。</p>
+            </div>
+            <div class="key-points">
+                <strong>关键点：</strong> <strong>数据必须有序！</strong> 分治法，每次排除一半搜索空间。效率极高。
+            </div>
+             <pre><code class="language-c">// 二分查找伪代码 (迭代版本)
+function binarySearch(sortedArray, target):
+    low = 0
+    high = length(sortedArray) - 1
+
+    while low <= high:
+        mid = low + (high - low) / 2 // 防止溢出
+        
+        if sortedArray[mid] == target:
+            return mid // 找到目标，返回索引
+        else if sortedArray[mid] < target:
+            low = mid + 1 // 目标在右半部分
+        else: // sortedArray[mid] > target
+            high = mid - 1 // 目标在左半部分
+            
+    return -1 // 未找到目标
+</code></pre>
+        </div>
+
+
+        <!-- ==================== Conclusion ==================== -->
+        <div class="conclusion">
+            <h2>实践是检验真理的唯一标准</h2>
+            <p>学习排序和查找算法是算法入门的基础。用 C 语言实现它们，你不仅能掌握算法本身的逻辑，更能深入理解其在底层是如何操作数据和内存的。</p>
+            <p>建议的实践路径：</p>
+            <ol>
+                <li>从<strong>冒泡、选择、插入排序</strong>开始，理解 O(n²) 算法的基本原理。</li>
+                <li>实现<strong>顺序查找</strong>，这是最直观的查找方式。</li>
+                <li>重点掌握<strong>快速排序</strong>，理解分治和递归，并尝试不同的分区方案。</li>
+                <li>实现<strong>二分查找</strong>（迭代和递归版本），体会 O(log n) 的效率优势，并牢记其前提条件。</li>
+                <li>动手编写测试代码，验证算法的正确性，并可以尝试用不同规模的数据测试其性能。</li>
+                <li>之后可以继续学习更高级的排序算法（如归并排序、堆排序）和查找技术（如哈希查找）。</li>
+             </ol>
+            <p>通过不断的编码、调试和测试，你对算法复杂度和 C 语言底层操作的理解将达到新的高度。</p>
+        </div>
+
+    </div>
+</body>
+</html>

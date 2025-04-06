@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - C语言函数参数：值传递 (Pass by Value)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段三：函数 - C语言函数参数：值传递 (Pass by Value)</h2>
+
+        <p>在 C 语言中，函数参数的传递默认采用 **值传递 (Pass by Value)** 的方式。理解值传递是掌握函数如何与数据交互的基础。</p>
+
+        <h3>什么是值传递？</h3>
+        <p>值传递意味着当调用函数并将参数（arguments）传递给它时，实际上传递的是这些参数值的 **副本 (copy)**。函数内部的参数（parameters）是独立于原始参数的局部变量，它们在函数调用时被创建，并用传递进来的值进行初始化。</p>
+        <p>可以将其想象为：你给了函数一张你的文档的复印件，而不是原件。函数可以在复印件上做任何修改，但你的原始文档不会受到任何影响。</p>
+
+        <h3>值传递的工作机制</h3>
+        <ol>
+            <li>当函数被调用时，系统为函数的形参（parameters）在栈上分配内存空间。</li>
+            <li>将实参（arguments，即调用时提供的值）的 **值** 复制到对应的形参内存空间中。</li>
+            <li>函数在执行期间使用的是这些形参的 **副本**。</li>
+            <li>对函数内部形参的任何修改都只影响这个副本，**不会** 影响到函数调用者作用域中的原始实参变量。</li>
+            <li>当函数执行完毕返回时，这些形参占用的内存空间被释放，它们的值（包括所做的修改）也就消失了。</li>
+        </ol>
+
+        <h3>示例代码</h3>
+        <p>下面的代码演示了值传递的效果：</p>
+        <pre>#include <stdio.h>
+
+// 定义一个函数，尝试修改传入的参数值
+void modifyValue(int num) {
+    printf("函数内部 (接收前)：num = %d\n", num);
+    num = num + 100; // 修改的是 num 这个局部副本的值
+    printf("函数内部 (修改后)：num = %d\n", num);
+}
+
+int main() {
+    int originalValue = 10;
+
+    printf("调用函数前：originalValue = %d\n", originalValue);
+
+    // 调用函数，将 originalValue 的 *值* 传递给 modifyValue 函数的 num 参数
+    modifyValue(originalValue);
+
+    printf("调用函数后：originalValue = %d\n", originalValue); // originalValue 的值并未改变
+
+    return 0;
+}</pre>
+
+        <p><strong>代码解释：</strong></p>
+        <ul>
+            <li>在 <span class="code-inline">main</span> 函数中，变量 <span class="code-inline">originalValue</span> 被初始化为 10。</li>
+            <li>调用 <span class="code-inline">modifyValue(originalValue)</span> 时，<span class="code-inline">originalValue</span> 的值 10 被复制给了 <span class="code-inline">modifyValue</span> 函数的参数 <span class="code-inline">num</span>。此时，<span class="code-inline">num</span> 是 <span class="code-inline">modifyValue</span> 函数内部的一个局部变量，它的初始值也是 10。</li>
+            <li>在 <span class="code-inline">modifyValue</span> 函数内部，<span class="code-inline">num</span> 的值被修改为 110。这个修改只影响了函数内部的这个 <span class="code-inline">num</span> 副本。</li>
+            <li>当 <span class="code-inline">modifyValue</span> 函数执行完毕返回到 <span class="code-inline">main</span> 函数后，<span class="code-inline">main</span> 函数中的 <span class="code-inline">originalValue</span> 变量的值 **仍然是 10**，因为它没有受到函数内部对副本 <span class="code-inline">num</span> 修改的影响。</li>
+        </ul>
+
+        <p><strong>预期输出：</strong></p>
+        <pre>调用函数前：originalValue = 10
+函数内部 (接收前)：num = 10
+函数内部 (修改后)：num = 110
+调用函数后：originalValue = 10</pre>
+
+        <div class="note">
+            <p><strong>关键点：</strong> 值传递保护了原始数据。函数无法直接修改调用者传递过来的基本数据类型变量的值。</p>
+            <p>这适用于所有基本数据类型（如 <span class="code-inline">int</span>, <span class="code-inline">float</span>, <span class="code-inline">double</span>, <span class="code-inline">char</span>）以及直接传递的结构体（struct）等。</p>
+        </div>
+
+        <h3>总结</h3>
+        <p>C 语言默认的函数参数传递方式是 **值传递 (Pass by Value)**。</p>
+        <ul>
+            <li>传递的是参数值的 **副本**。</li>
+            <li>函数内部对参数的修改 **不会** 影响原始的实参变量。</li>
+            <li>这种机制有助于保护函数外部的数据不被意外修改。</li>
+        </ul>
+        <p>如果需要在函数内部修改原始变量的值，需要使用其他技术，例如传递指针（模拟“引用传递”），但这属于另一个主题。</p>
+
+        </div>
+    </div>
+</body>
+</html>

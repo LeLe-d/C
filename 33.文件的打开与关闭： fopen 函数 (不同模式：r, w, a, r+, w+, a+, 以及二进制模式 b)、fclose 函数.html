@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - 文件的打开与关闭：fopen 与 fclose</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段六：文件操作 - 文件的打开与关闭：<code>fopen</code> 与 <code>fclose</code></h2>
+
+        <p>在 C 语言中，对文件进行读写操作之前，必须先“打开”文件；操作完成后，必须“关闭”文件以确保存储在缓冲区的数据被写入文件并释放相关资源。这两个核心操作分别由 <code>fopen</code> 和 <code>fclose</code> 函数完成。</p>
+
+        <h3><code>fopen</code> 函数</h3> <!-- 修改：h2 -> h3 -->
+        <p><code>fopen</code> 函数用于打开一个指定的文件，并返回一个指向 <code>FILE</code> 结构的指针（文件指针），该指针用于后续的文件操作。如果文件打开失败，则返回 <code>NULL</code>。</p>
+
+        <h4>函数原型</h4> <!-- 注意：如果希望保持层级结构，之前的 h3 可能需要变成 h4 -->
+        <pre><code class="language-c">#include <stdio.h>
+
+FILE *fopen(const char *filename, const char *mode);</code></pre>
+
+        <h4>参数说明</h4> <!-- 注意：如果希望保持层级结构，之前的 h3 可能需要变成 h4 -->
+        <ul>
+            <li><code>filename</code>: 一个字符串，包含要打开的文件的名称（可以包含路径）。</li>
+            <li><code>mode</code>: 一个字符串，指定文件的打开模式，决定了可以对文件执行哪些操作（读、写、追加等）以及文件不存在或已存在时的行为。</li>
+        </ul>
+
+        <h4>文件打开模式 (<code>mode</code>)</h4> <!-- 注意：如果希望保持层级结构，之前的 h3 可能需要变成 h4 -->
+        <p><code>mode</code> 参数是理解 <code>fopen</code> 的关键。以下是常用的文件打开模式：</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>模式</th>
+                    <th>描述</th>
+                    <th>文件不存在时</th>
+                    <th>文件存在时</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>"r"</code></td>
+                    <td><strong>只读 (Read)</strong>：打开一个已存在的文本文件，允许读取文件。</td>
+                    <td>打开失败 (返回 <code>NULL</code>)</td>
+                    <td>文件指针定位在文件开头。</td>
+                </tr>
+                <tr>
+                    <td><code>"w"</code></td>
+                    <td><strong>只写 (Write)</strong>：打开一个文本文件，允许写入文件。</td>
+                    <td>创建新文件。</td>
+                    <td><strong>清空 (Truncate)</strong> 文件内容，文件指针定位在文件开头。</td>
+                </tr>
+                <tr>
+                    <td><code>"a"</code></td>
+                    <td><strong>追加 (Append)</strong>：打开一个文本文件，允许在文件末尾写入数据。</td>
+                    <td>创建新文件。</td>
+                    <td>文件指针定位在文件末尾。写入的数据会添加到现有内容之后。</td>
+                </tr>
+                <tr>
+                    <td><code>"r+"</code></td>
+                    <td><strong>读写 (Read/Update)</strong>：打开一个已存在的文本文件，允许读和写。</td>
+                    <td>打开失败 (返回 <code>NULL</code>)</td>
+                    <td>文件指针定位在文件开头。可以读取和覆盖现有内容。</td>
+                </tr>
+                <tr>
+                    <td><code>"w+"</code></td>
+                    <td><strong>读写 (Write/Update)</strong>：打开一个文本文件，允许读和写。</td>
+                    <td>创建新文件。</td>
+                    <td><strong>清空 (Truncate)</strong> 文件内容，文件指针定位在文件开头。</td>
+                </tr>
+                <tr>
+                    <td><code>"a+"</code></td>
+                    <td><strong>读写追加 (Append/Update)</strong>：打开一个文本文件，允许读和追加写入。</td>
+                    <td>创建新文件。</td>
+                    <td>初始读取位置在文件开头，但写入总是发生在文件末尾。</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="warning">
+            <strong>注意：</strong> 使用 <code>"w"</code> 或 <code>"w+"</code> 模式打开已存在的文件会<strong>立即删除其所有内容</strong>，请谨慎使用！
+        </div>
+
+        <h4>二进制模式 (<code>b</code>)</h4> <!-- 注意：如果希望保持层级结构，之前的 h3 可能需要变成 h4 -->
+        <p>除了上述基本模式，还可以在模式字符串中追加字母 <code>'b'</code> 来指定以<strong>二进制模式</strong>而不是默认的<strong>文本模式</strong>打开文件。</p>
+        <ul>
+            <li><strong>文本模式</strong>：在某些操作系统（如 Windows）上，文本模式会对行尾符进行转换（例如，将 C 的换行符 <code>\n</code> 转换为操作系统的行尾序列，如 Windows 的 <code>\r\n</code>，反之亦然）。</li>
+            <li><strong>二进制模式</strong>：不对文件内容进行任何转换，按字节原样读写。这对于处理非文本文件（如图像、音频、可执行文件）或需要精确控制字节内容的情况至关重要。</li>
+        </ul>
+        <p>将 <code>'b'</code> 添加到基本模式后面即可，例如：</p>
+        <ul>
+            <li><code>"rb"</code>: 只读二进制</li>
+            <li><code>"wb"</code>: 只写二进制 (创建/清空)</li>
+            <li><code>"ab"</code>: 追加二进制</li>
+            <li><code>"rb+"</code> / <code>"r+b"</code>: 读写二进制 (文件需存在)</li>
+            <li><code>"wb+"</code> / <code>"w+b"</code>: 读写二进制 (创建/清空)</li>
+            <li><code>"ab+"</code> / <code>"a+b"</code>: 读写追加二进制</li>
+        </ul>
+        <p>在类 Unix 系统（如 Linux, macOS）上，文本模式和二进制模式通常没有区别。</p>
+
+        <h3><code>fclose</code> 函数</h3> <!-- 修改：h2 -> h3 -->
+        <p><code>fclose</code> 函数用于关闭一个之前由 <code>fopen</code> 打开的文件。关闭文件会执行以下操作：</p>
+        <ul>
+            <li>将文件缓冲区中剩余的数据写入物理文件（刷新缓冲区）。</li>
+            <li>释放与文件指针关联的系统资源。</li>
+            <li>断开文件与程序的连接。</li>
+        </ul>
+
+        <h4>函数原型</h4> <!-- 注意：如果希望保持层级结构，之前的 h3 可能需要变成 h4 -->
+        <pre><code class="language-c">#include <stdio.h>
+
+int fclose(FILE *stream);</code></pre>
+
+        <h4>参数说明</h4> <!-- 注意：如果希望保持层级结构，之前的 h3 可能需要变成 h4 -->
+        <ul>
+            <li><code>stream</code>: 指向要关闭的文件的 <code>FILE</code> 结构指针（即 <code>fopen</code> 返回的指针）。</li>
+        </ul>
+
+        <h4>返回值</h4> <!-- 注意：如果希望保持层级结构，之前的 h3 可能需要变成 h4 -->
+        <ul>
+            <li>如果文件成功关闭，返回 <code>0</code>。</li>
+            <li>如果发生错误（例如，写入缓冲区数据时出错），返回 <code>EOF</code>（通常是 -1）。</li>
+        </ul>
+
+        <div class="note">
+            <strong>重要：</strong> 必须总是检查 <code>fopen</code> 的返回值是否为 <code>NULL</code>，以处理文件打开失败的情况。并且，在程序结束前或不再需要访问文件时，<strong>务必调用 <code>fclose</code> 关闭所有已打开的文件</strong>，以避免数据丢失和资源泄漏。
+        </div>
+
+        <h3>示例代码</h3> <!-- 修改：h2 -> h3 -->
+
+        <h4>1. 读取文件 (<code>"r"</code> 模式)</h4> <!-- 注意：如果希望保持层级结构，之前的 h3 可能需要变成 h4 -->
+        <pre><code class="language-c">#include <stdio.h>
+
+int main() {
+    FILE *fp = NULL;
+    char buffer[256];
+
+    // 尝试以只读模式打开文件
+    fp = fopen("mydata.txt", "r");
+    if (fp == NULL) {
+        perror("Error opening file mydata.txt"); // 打印详细错误信息
+        return 1; // 返回错误码
+    }
+
+    printf("File 'mydata.txt' opened successfully for reading.\n");
+
+    // 读取文件内容 (示例：读取一行)
+    if (fgets(buffer, sizeof(buffer), fp) != NULL) {
+        printf("Read line: %s", buffer);
+    } else {
+        printf("Could not read from file or file is empty.\n");
+    }
+
+    // 关闭文件
+    if (fclose(fp) == 0) {
+        printf("File closed successfully.\n");
+    } else {
+        perror("Error closing file");
+    }
+
+    return 0;
+}</code></pre>
+
+        <h4>2. 写入文件 (<code>"w"</code> 模式 - 会覆盖)</h4> <!-- 注意：如果希望保持层级结构，之前的 h3 可能需要变成 h4 -->
+        <pre><code class="language-c">#include <stdio.h>
+
+int main() {
+    FILE *fp = NULL;
+
+    // 尝试以写入模式打开文件 (如果存在则清空，不存在则创建)
+    fp = fopen("output.txt", "w");
+    if (fp == NULL) {
+        perror("Error opening file output.txt for writing");
+        return 1;
+    }
+
+    printf("File 'output.txt' opened successfully for writing.\n");
+
+    // 写入数据
+    fprintf(fp, "Hello, World!\n");
+    fputs("This is a second line.\n", fp);
+
+    // 关闭文件 (确保数据写入)
+    if (fclose(fp) == 0) {
+        printf("File closed successfully. Data written.\n");
+    } else {
+        perror("Error closing file");
+    }
+
+    return 0;
+}</code></pre>
+
+         <h4>3. 追加文件 (<code>"a"</code> 模式)</h4> <!-- 注意：如果希望保持层级结构，之前的 h3 可能需要变成 h4 -->
+        <pre><code class="language-c">#include <stdio.h>
+
+int main() {
+    FILE *fp = NULL;
+
+    // 尝试以追加模式打开文件 (不存在则创建)
+    fp = fopen("log.txt", "a");
+    if (fp == NULL) {
+        perror("Error opening file log.txt for appending");
+        return 1;
+    }
+
+    printf("File 'log.txt' opened successfully for appending.\n");
+
+    // 追加数据
+    fprintf(fp, "Log entry: Operation completed.\n");
+
+    // 关闭文件
+    if (fclose(fp) == 0) {
+        printf("File closed successfully. Data appended.\n");
+    } else {
+        perror("Error closing file");
+    }
+
+    return 0;
+}</code></pre>
+
+        <h4>4. 读取二进制文件 (<code>"rb"</code> 模式)</h4> <!-- 注意：如果希望保持层级结构，之前的 h3 可能需要变成 h4 -->
+        <pre><code class="language-c">#include <stdio.h>
+
+int main() {
+    FILE *fp = NULL;
+    unsigned char byte_data;
+    size_t bytes_read;
+
+    // 尝试以只读二进制模式打开文件
+    fp = fopen("image.bin", "rb"); // 假设存在一个二进制文件
+    if (fp == NULL) {
+        perror("Error opening binary file image.bin");
+        return 1;
+    }
+
+    printf("Binary file 'image.bin' opened successfully for reading.\n");
+
+    // 读取一个字节
+    bytes_read = fread(&byte_data, 1, 1, fp); // 读取 1 个元素，每个元素 1 字节
+    if (bytes_read == 1) {
+        printf("Read first byte: 0x%02X\n", byte_data);
+    } else {
+         if (feof(fp)) {
+             printf("Reached end of file or file is empty.\n");
+         } else if (ferror(fp)) {
+             perror("Error reading from binary file");
+         }
+    }
+
+    // 关闭文件
+    if (fclose(fp) == 0) {
+        printf("Binary file closed successfully.\n");
+    } else {
+        perror("Error closing binary file");
+    }
+
+    return 0;
+}</code></pre>
+
+
+        <h3>总结</h3> <!-- 修改：h2 -> h3 -->
+        <ul>
+            <li>使用 <code>fopen</code> 打开文件，根据需要选择正确的模式（<code>r, w, a, r+, w+, a+</code>）和是否添加 <code>b</code>（二进制）。</li>
+            <li>永远检查 <code>fopen</code> 的返回值是否为 <code>NULL</code>，以进行错误处理。</li>
+            <li>文件操作完成后，务必使用 <code>fclose</code> 关闭文件，以保存数据并释放资源。</li>
+            <li>理解不同模式对文件存在与否及文件内容的初始影响（特别是 <code>w</code> 和 <code>w+</code> 的清空行为）。</li>
+            <li>处理非文本数据时，使用二进制模式（<code>b</code>）。</li>
+        </ul>
+        </div>
+    </div>
+</body>
+</html>

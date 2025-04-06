@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - C/C++ 结构体 (Struct) 详解</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段五：结构体、联合体与枚举 - C/C++ 结构体 (Struct) 详解</h2>
+
+        <p>结构体 (Struct) 是一种用户自定义的数据类型，允许将不同数据类型的项组合成一个单一的类型。</p>
+
+        <h3>1. 结构体的定义</h3>
+        <p>使用 <code>struct</code> 关键字来定义一个结构体。定义描述了结构体的名称和其成员（或字段）。</p>
+        <pre><code class="language-c">
+// 定义一个表示“点”的结构体
+struct Point {
+    int x;
+    float y;
+};
+
+// 定义一个表示“学生”的结构体
+struct Student {
+    int id;
+    char name[50];
+    float gpa;
+};
+
+// C++ 中，可以在定义后省略 struct 关键字
+// typedef struct Student { ... } Student; // C 语言常用方式，C++ 非必需
+        </code></pre>
+
+        <h3>2. 声明结构体变量</h3>
+        <p>定义了结构体类型后，就可以像声明基本数据类型变量一样声明结构体变量。</p>
+        <pre><code class="language-c">
+#include <string.h> // 用于 strcpy
+
+// 使用上面定义的结构体
+struct Point p1;        // 声明一个 Point 类型的变量 p1
+struct Student s1;    // 声明一个 Student 类型的变量 s1
+
+// C++ 中可以省略 struct 关键字
+// Point p2;
+// Student s2;
+
+// 声明时初始化
+struct Point p3 = {10, 20.5}; // 初始化 p3.x = 10, p3.y = 20.5
+struct Student s2 = {101, "Alice", 3.8}; // 初始化 s2.id, s2.name, s2.gpa
+
+// C99/C++ 指定初始化器 (Designated Initializers)
+struct Point p4 = {.x = 5, .y = -2.3};
+struct Student s3 = {.name = "Bob", .id = 102, .gpa = 3.5};
+        </code></pre>
+
+        <h3>3. 访问结构体成员</h3>
+        <p>访问结构体成员使用成员访问运算符。</p>
+        {/* 注意：原先这里的子标题也是 h3，现在它们和父标题是同一级别 */}
+        <h3>3.1 使用点运算符 (<code>.</code>)</h3>
+        <p>当直接使用结构体变量时，使用点运算符 (<code>.</code>) 来访问其成员。</p>
+        <pre><code class="language-c">
+#include <stdio.h>
+#include <string.h>
+
+struct Student {
+    int id;
+    char name[50];
+    float gpa;
+};
+
+int main() {
+    struct Student s1;
+
+    // 访问并赋值
+    s1.id = 101;
+    strcpy(s1.name, "Charlie"); // 字符串赋值需要使用 strcpy
+    s1.gpa = 3.9;
+
+    // 访问并打印
+    printf("学生 ID: %d\n", s1.id);
+    printf("学生姓名: %s\n", s1.name);
+    printf("学生 GPA: %.2f\n", s1.gpa);
+
+    return 0;
+}
+        </code></pre>
+
+        <h3>3.2 使用箭头运算符 (<code>-></code>)</h3>
+        <p>当通过指向结构体的指针访问成员时，使用箭头运算符 (<code>-></code>)。它等价于先解引用指针再使用点运算符 (<code>(*ptr).member</code>)。</p>
+        <pre><code class="language-c">
+#include <stdio.h>
+#include <stdlib.h> // for malloc
+#include <string.h>
+
+struct Student {
+    int id;
+    char name[50];
+    float gpa;
+};
+
+int main() {
+    struct Student s1 = {102, "David", 3.7};
+    struct Student *ptr_s; // 声明一个指向 Student 结构体的指针
+
+    ptr_s = &s1; // 指针指向 s1 的地址
+
+    // 使用箭头运算符访问成员
+    printf("--- 使用箭头运算符 -> ---\n");
+    printf("学生 ID: %d\n", ptr_s->id);
+    printf("学生姓名: %s\n", ptr_s->name);
+    printf("学生 GPA: %.2f\n", ptr_s->gpa);
+
+    // 这等价于使用解引用和点运算符
+    printf("--- 使用 (*ptr).member ---\n");
+    printf("学生 ID: %d\n", (*ptr_s).id);
+    printf("学生姓名: %s\n", (*ptr_s).name);
+    printf("学生 GPA: %.2f\n", (*ptr_s).gpa);
+
+    // 动态分配内存给结构体指针
+    struct Student *ptr_s2 = (struct Student*)malloc(sizeof(struct Student));
+    if (ptr_s2 != NULL) {
+        ptr_s2->id = 103;
+        strcpy(ptr_s2->name, "Eve");
+        ptr_s2->gpa = 4.0;
+
+        printf("\n--- 动态分配内存 ---\n");
+        printf("学生 ID: %d\n", ptr_s2->id);
+        printf("学生姓名: %s\n", ptr_s2->name);
+        printf("学生 GPA: %.2f\n", ptr_s2->gpa);
+
+        free(ptr_s2); // 释放动态分配的内存
+        ptr_s2 = NULL;
+    }
+
+    return 0;
+}
+        </code></pre>
+
+        <h3>4. 结构体数组</h3>
+        <p>可以创建结构体数组，数组的每个元素都是一个结构体变量。</p>
+        <pre><code class="language-c">
+#include <stdio.h>
+
+struct Point {
+    int x;
+    int y;
+};
+
+#define NUM_POINTS 3
+
+int main() {
+    // 声明一个包含3个 Point 结构体的数组
+    struct Point points[NUM_POINTS];
+
+    // 初始化数组元素
+    points[0].x = 1; points[0].y = 2;
+    points[1].x = 3; points[1].y = 4;
+    points[2].x = 5; points[2].y = 6;
+
+    // 声明并初始化
+    struct Point more_points[2] = {{10, 20}, {30, 40}};
+
+    // 访问数组元素
+    printf("--- 结构体数组 ---\n");
+    for (int i = 0; i < NUM_POINTS; ++i) {
+        printf("点 %d: (%d, %d)\n", i, points[i].x, points[i].y);
+    }
+
+    printf("第二个点 (more_points): (%d, %d)\n", more_points[1].x, more_points[1].y);
+
+    return 0;
+}
+        </code></pre>
+
+        <h3>5. 指向结构体的指针</h3>
+        <p>可以声明指向结构体类型的指针。这在动态内存分配和函数参数传递中非常有用（避免复制整个结构体）。</p>
+        <pre><code class="language-c">
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Rectangle {
+    int width;
+    int height;
+};
+
+// 函数接收结构体指针作为参数
+void printRectangle(struct Rectangle *rect_ptr) {
+    if (rect_ptr != NULL) {
+        printf("矩形: 宽=%d, 高=%d\n", rect_ptr->width, rect_ptr->height);
+        // 使用箭头运算符访问
+    }
+}
+
+int main() {
+    struct Rectangle r1 = {10, 5};
+    struct Rectangle *ptr_r1 = &r1; // 指针指向 r1
+
+    // 通过指针访问
+    printf("通过指针 ptr_r1 访问:\n");
+    printRectangle(ptr_r1);
+
+    // 动态创建结构体
+    struct Rectangle *ptr_r2 = (struct Rectangle*)malloc(sizeof(struct Rectangle));
+    if (ptr_r2 != NULL) {
+        ptr_r2->width = 20;
+        ptr_r2->height = 8;
+
+        printf("动态创建的矩形:\n");
+        printRectangle(ptr_r2);
+
+        free(ptr_r2); // 释放内存
+        ptr_r2 = NULL;
+    }
+
+    return 0;
+}
+        </code></pre>
+        <p><strong>注意：</strong> 当将结构体传递给函数时，通常建议传递结构体的指针（或引用，在 C++ 中），而不是直接传递结构体本身。这样可以避免复制整个结构体数据，提高效率，特别是对于较大的结构体。</p>
+
+
+        <h3>6. 结构体嵌套</h3>
+        <p>一个结构体可以包含其他结构体作为其成员，这称为结构体嵌套。</p>
+        <pre><code class="language-c">
+#include <stdio.h>
+#include <string.h>
+
+// 定义日期结构体
+struct Date {
+    int day;
+    int month;
+    int year;
+};
+
+// 定义包含 Date 结构体的员工结构体
+struct Employee {
+    int id;
+    char name[50];
+    struct Date birthDate; // 嵌套的 Date 结构体
+    float salary;
+};
+
+int main() {
+    // 声明并初始化嵌套结构体
+    struct Employee emp1 = {
+        201,
+        "Frank",
+        {15, 6, 1995}, // 初始化嵌套的 birthDate 成员
+        55000.0
+    };
+
+    // 访问嵌套结构体的成员
+    printf("--- 嵌套结构体 ---\n");
+    printf("员工 ID: %d\n", emp1.id);
+    printf("员工姓名: %s\n", emp1.name);
+    // 访问嵌套成员需要连续使用点运算符
+    printf("出生日期: %d-%d-%d\n", emp1.birthDate.day, emp1.birthDate.month, emp1.birthDate.year);
+    printf("薪水: %.2f\n", emp1.salary);
+
+    // 使用指针访问嵌套结构体
+    struct Employee *ptr_emp = &emp1;
+    printf("\n--- 通过指针访问嵌套结构体 ---\n");
+    printf("员工姓名: %s\n", ptr_emp->name);
+    // 使用箭头运算符访问外层，点运算符访问内层
+    printf("出生年份: %d\n", ptr_emp->birthDate.year);
+    // 或者完全使用指针和箭头 (如果 birthDate 也是指针，则需要 ->)
+    // printf("出生月份: %d\n", (*ptr_emp).birthDate.month); // 另一种写法
+
+
+    return 0;
+}
+        </code></pre>
+        <p>访问嵌套结构体的成员时，需要链式使用成员访问运算符 (<code>.</code> 或 <code>-></code>)。</p>
+        </div>
+    </div>
+</body>
+</html>

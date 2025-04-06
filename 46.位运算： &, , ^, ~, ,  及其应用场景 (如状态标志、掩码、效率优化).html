@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C/C++ 位运算</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.7;
+            margin: 20px;
+            background-color: #f8f9fa; /* Light gray background */
+            color: #343a40; /* Dark gray text */
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #dee2e6; /* Subtle border */
+        }
+        h1 {
+            color: #007bff; /* Primary blue */
+            text-align: center;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 15px;
+            margin-bottom: 35px;
+        }
+        h2 {
+            color: #17a2b8; /* Info cyan */
+            margin-top: 35px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #a6e3ec; /* Lighter cyan border */
+        }
+        h3 {
+            color: #28a745; /* Success green */
+            margin-top: 25px;
+            font-weight: 600;
+        }
+        .operator-title {
+             font-family: monospace;
+             font-weight: bold;
+             font-size: 1.3em;
+             color: #fd7e14; /* Orange for operators */
+        }
+        code {
+            background-color: #e9ecef; /* Light gray background for code */
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            color: #dc3545; /* Danger red text for code */
+            font-size: 0.9em;
+            border: 1px solid #e0e5ea;
+        }
+        pre {
+            background-color: #212529; /* Dark background */
+            color: #f8f9fa;          /* Light text */
+            padding: 18px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            border: 1px solid #495057;
+            font-size: 0.9em;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+        pre code { /* Reset styles for code inside pre */
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+            font-size: 1em;
+            border: none;
+        }
+        table {
+            border-collapse: collapse;
+            margin: 15px 0;
+            width: auto;
+            border: 1px solid #ccc;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        .operator-section, .application-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed #ced4da; /* Dashed divider */
+        }
+        .operator-section:last-of-type {
+             border-bottom: 2px solid #17a2b8; /* Solid divider before applications */
+             padding-bottom: 30px;
+        }
+        .application-section:last-of-type {
+             border-bottom: none;
+        }
+        strong {
+             color: #0056b3; /* Darker blue for emphasis */
+        }
+        .note {
+            background-color: #fff3cd; /* Warning yellow background */
+            border-left: 5px solid #ffc107; /* Warning yellow border */
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .example {
+             background-color: #f0f9f4; /* Light green for examples */
+             padding: 15px;
+             border: 1px solid #cfeae4;
+             border-radius: 5px;
+             margin-top: 15px;
+        }
+        .example h4 {
+            margin-top: 0;
+            color: #1a6e41; /* Darker green */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>C/C++ 位运算</h1>
+
+        <p>位运算是在数字的二进制表示的<strong>单个位 (bit)</strong> 上执行的操作。它们直接操作内存中的数据，速度非常快，常用于底层编程、性能优化、硬件交互以及实现某些特定算法。</p>
+        <p>以下是 C/C++ 中主要的位运算符：</p>
+
+        <h2>位运算符详解</h2>
+
+        <div class="operator-section">
+            <h3 class="operator-title">& (按位与 - AND)</h3>
+            <p>如果两个相应的二进制位<strong>都</strong>为 1，则结果位为 1，否则为 0。</p>
+            <table>
+                <thead><tr><th>A</th><th>B</th><th>A & B</th></tr></thead>
+                <tbody>
+                    <tr><td>0</td><td>0</td><td>0</td></tr>
+                    <tr><td>0</td><td>1</td><td>0</td></tr>
+                    <tr><td>1</td><td>0</td><td>0</td></tr>
+                    <tr><td>1</td><td>1</td><td>1</td></tr>
+                </tbody>
+            </table>
+            <div class="example">
+                <h4>示例:</h4>
+                <pre><code class="language-c">unsigned char a = 5;  // 二进制: 00000101
+unsigned char b = 3;  // 二进制: 00000011
+unsigned char result = a & b; // 00000101 & 00000011 = 00000001
+// result 的值为 1
+printf("5 & 3 = %d\n", result); // 输出: 5 & 3 = 1</code></pre>
+                 <p><strong>应用：</strong> 常用于<strong>清零</strong>特定位（与一个该位为0、其余位为1的数进行AND）或<strong>检查</strong>某位是否为1（与一个只有该位为1、其余位为0的数进行AND）。见下方应用场景。</p>
+            </div>
+        </div>
+
+        <div class="operator-section">
+            <h3 class="operator-title">| (按位或 - OR)</h3>
+            <p>如果两个相应的二进制位<strong>至少有一个</strong>为 1，则结果位为 1，否则为 0。</p>
+             <table>
+                <thead><tr><th>A</th><th>B</th><th>A | B</th></tr></thead>
+                <tbody>
+                    <tr><td>0</td><td>0</td><td>0</td></tr>
+                    <tr><td>0</td><td>1</td><td>1</td></tr>
+                    <tr><td>1</td><td>0</td><td>1</td></tr>
+                    <tr><td>1</td><td>1</td><td>1</td></tr>
+                </tbody>
+            </table>
+             <div class="example">
+                <h4>示例:</h4>
+                <pre><code class="language-c">unsigned char a = 5;  // 二进制: 00000101
+unsigned char b = 3;  // 二进制: 00000011
+unsigned char result = a | b; // 00000101 | 00000011 = 00000111
+// result 的值为 7
+printf("5 | 3 = %d\n", result); // 输出: 5 | 3 = 7</code></pre>
+                <p><strong>应用：</strong> 常用于<strong>设置</strong>特定位为 1（与一个该位为1、其余位为0的数进行OR）。见下方应用场景。</p>
+            </div>
+        </div>
+
+        <div class="operator-section">
+            <h3 class="operator-title">^ (按位异或 - XOR)</h3>
+            <p>如果两个相应的二进制位<strong>不同</strong>，则结果位为 1，否则为 0。</p>
+             <table>
+                <thead><tr><th>A</th><th>B</th><th>A ^ B</th></tr></thead>
+                <tbody>
+                    <tr><td>0</td><td>0</td><td>0</td></tr>
+                    <tr><td>0</td><td>1</td><td>1</td></tr>
+                    <tr><td>1</td><td>0</td><td>1</td></tr>
+                    <tr><td>1</td><td>1</td><td>0</td></tr>
+                </tbody>
+            </table>
+             <div class="example">
+                 <h4>示例:</h4>
+                <pre><code class="language-c">unsigned char a = 5;  // 二进制: 00000101
+unsigned char b = 3;  // 二进制: 00000011
+unsigned char result = a ^ b; // 00000101 ^ 00000011 = 00000110
+// result 的值为 6
+printf("5 ^ 3 = %d\n", result); // 输出: 5 ^ 3 = 6</code></pre>
+                 <p><strong>应用：</strong> 常用于<strong>翻转</strong>特定位（与一个该位为1、其余位为0的数进行XOR）、不使用临时变量交换两个变量的值、简单的加密、校验等。</p>
+            </div>
+        </div>
+
+        <div class="operator-section">
+            <h3 class="operator-title">~ (按位取反 - NOT)</h3>
+            <p>将操作数的所有二进制位反转（0 变为 1，1 变为 0）。这是一个<strong>一元</strong>运算符。</p>
+             <div class="example">
+                 <h4>示例:</h4>
+                <pre><code class="language-c">// 假设 unsigned char 是 8 位
+unsigned char a = 5;      // 二进制: 00000101
+unsigned char result = ~a;  // 二进制: 11111010 
+// result 的值为 250 (对于 unsigned char)
+printf("~5 (unsigned char) = %d\n", result); 
+
+// 对于 signed 类型，结果通常与负数表示有关 (例如: 二补数)
+signed char sa = 5;        // 二进制: 00000101
+signed char sresult = ~sa; // 二进制: 11111010 
+// 在二补数表示中，11111010 代表 -6
+printf("~5 (signed char) = %d\n", sresult); // 可能输出: ~5 (signed char) = -6
+</code></pre>
+                 <p><strong>注意：</strong> 对有符号整数使用 <code>~</code> 的结果依赖于负数的表示方式（通常是二补数）。<code>~x</code> 在二补数系统中通常等于 <code>-x - 1</code>。</p>
+                 <p><strong>应用：</strong> 创建掩码（例如，要清除某位，可以使用 <code>& ~mask</code>）。</p>
+            </div>
+        </div>
+
+        <div class="operator-section">
+            <h3 class="operator-title">&lt;&lt; (左移 - Left Shift)</h3>
+            <p>将操作数的所有位向左移动指定的位数。右边空出的位用 0 填充。左移 N 位相当于<strong>乘以 2<sup>N</sup></strong>。</p>
+             <div class="example">
+                <h4>示例:</h4>
+                <pre><code class="language-c">unsigned char a = 5;      // 二进制: 00000101
+unsigned char result = a << 2; // 左移 2 位: 00010100
+// result 的值为 20 (5 * 2^2 = 5 * 4 = 20)
+printf("5 << 2 = %d\n", result); // 输出: 5 << 2 = 20
+
+// 注意移位可能导致溢出 (高位被丢弃)
+unsigned char high = 192; // 二进制: 11000000
+unsigned char shifted_high = high << 2; // 11000000 << 2 = (11)00000000 -> 00000000
+printf("192 << 2 = %d\n", shifted_high); // 输出: 192 << 2 = 0 (溢出)
+</code></pre>
+                 <p><strong>应用：</strong> 快速乘以 2 的幂次方、设置掩码中的位。</p>
+            </div>
+        </div>
+
+         <div class="operator-section">
+            <h3 class="operator-title">&gt;&gt; (右移 - Right Shift)</h3>
+            <p>将操作数的所有位向右移动指定的位数。</p>
+            <ul>
+                <li>对于 <strong>无符号 (unsigned)</strong> 类型：左边空出的位<strong>总是用 0 填充</strong> (逻辑右移)。</li>
+                <li>对于 <strong>有符号 (signed)</strong> 类型：左边空出的位的填充方式是<strong>实现定义的 (implementation-defined)</strong>，但通常是：
+                    <ul>
+                        <li><strong>算术右移：</strong> 用<strong>符号位</strong>填充（保持数的正负性）。这是最常见的行为。</li>
+                        <li><strong>逻辑右移：</strong> 用 0 填充（可能改变负数的符号）。</li>
+                    </ul>
+                </li>
+            </ul>
+            <p>右移 N 位相当于<strong>除以 2<sup>N</sup></strong>（整数除法，舍弃余数）。</p>
+             <div class="example">
+                <h4>示例:</h4>
+                <pre><code class="language-c">unsigned int a = 20;      // 二进制 (假设32位): ...00010100
+unsigned int result_u = a >> 2; // 右移 2 位: ...00000101
+// result_u 的值为 5 (20 / 2^2 = 20 / 4 = 5)
+printf("20u >> 2 = %u\n", result_u); // 输出: 20u >> 2 = 5
+
+signed int b = -20;       // 二进制 (二补数, 假设32位): ...11101100
+// 假设算术右移
+signed int result_s = b >> 2; // 右移 2 位 (符号位 1 填充): ...11111011
+// result_s 的值为 -5 (-20 / 4 = -5)
+printf("-20 >> 2 = %d\n", result_s); // 通常输出: -20 >> 2 = -5 
+</code></pre>
+                 <p><strong>应用：</strong> 快速除以 2 的幂次方、提取数字中的某些位。</p>
+                 <div class="note">
+                     <strong>警告：</strong> 对负的有符号整数进行右移操作的行为是实现定义的，虽然算术右移很常见，但不应在需要严格可移植性的代码中依赖它。尽量对无符号整数进行位运算。
+                 </div>
+            </div>
+        </div>
+
+        <h2>应用场景</h2>
+
+        <div class="application-section">
+            <h3>状态标志 (Flags)</h3>
+            <p>使用整数的单个位来表示多个独立的布尔状态（开/关）。这比使用多个布尔变量更节省空间。</p>
+            <div class="example">
+                <h4>示例：</h4>
+                <pre><code class="language-c">#include &lt;stdio.h&gt;
+
+// 定义状态标志常量 (通常是 2 的幂)
+#define OPTION_A (1 &lt;&lt; 0) // 00000001 (1)
+#define OPTION_B (1 &lt;&lt; 1) // 00000010 (2)
+#define OPTION_C (1 &lt;&lt; 2) // 00000100 (4)
+#define OPTION_D (1 &lt;&lt; 3) // 00001000 (8)
+
+int main() {
+    unsigned char options = 0; // 开始时所有选项都关闭
+
+    // 1. 设置选项 B 和 D
+    options |= OPTION_B;     // options = 00000010
+    options |= OPTION_D;     // options = 00001010 (10)
+    printf("Options after setting B & D: %d\n", options);
+
+    // 2. 检查选项 C 是否设置
+    if (options & OPTION_C) {
+        printf("Option C is set.\n");
+    } else {
+        printf("Option C is NOT set.\n");
+    }
+
+    // 3. 检查选项 B 是否设置
+    if (options & OPTION_B) {
+        printf("Option B is set.\n");
+    } else {
+        printf("Option B is NOT set.\n");
+    }
+
+    // 4. 清除选项 B
+    options &= ~OPTION_B;    // ~OPTION_B is 11111101
+                             // 00001010 & 11111101 = 00001000 (8)
+    printf("Options after clearing B: %d\n", options);
+
+    // 5. 切换选项 D 的状态 (如果已设置则清除，如果未设置则设置)
+    options ^= OPTION_D;     // 00001000 ^ 00001000 = 00000000 (0)
+    printf("Options after toggling D (was set): %d\n", options);
+    options ^= OPTION_D;     // 00000000 ^ 00001000 = 00001000 (8)
+    printf("Options after toggling D (was clear): %d\n", options);
+
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="application-section">
+            <h3>掩码 (Masking)</h3>
+            <p>使用位运算来选择性地读取、设置或清除一个整数中的特定位，而不影响其他位。</p>
+             <div class="example">
+                 <h4>示例：提取和设置颜色分量 (假设 16 位颜色 RGB565)</h4>
+                 <pre><code class="language-c">#include &lt;stdio.h&gt;
+
+// RGB565 格式: RRRRR GGGGGG BBBBB (R 5位, G 6位, B 5位)
+// 掩码定义
+#define RED_MASK   0xF800 // 11111000 00000000
+#define GREEN_MASK 0x07E0 // 00000111 11100000
+#define BLUE_MASK  0x001F // 00000000 00011111
+
+int main() {
+    unsigned short color = 0x1E3F; // 示例颜色: 00011 110001 11111
+
+    // 1. 提取红色分量 (需要右移)
+    unsigned char red = (color & RED_MASK) >> 11; // (00011000 00000000) >> 11 = 00011 (3)
+    printf("Red: %d (0x%X)\n", red, red);
+
+    // 2. 提取绿色分量 (需要右移)
+    unsigned char green = (color & GREEN_MASK) >> 5; // (00000110 00100000) >> 5 = 110001 (49)
+    printf("Green: %d (0x%X)\n", green, green);
+
+    // 3. 提取蓝色分量 (无需右移)
+    unsigned char blue = color & BLUE_MASK; // (00000000 00011111) = 11111 (31)
+    printf("Blue: %d (0x%X)\n", blue, blue);
+
+    // 4. 创建一个新颜色 (例如：纯绿色)
+    unsigned char new_green = 63; // 最大绿色值 111111
+    unsigned short new_color = (new_green << 5) & GREEN_MASK; // 确保只设置绿色位
+    printf("New pure green color: 0x%X\n", new_color); // 输出: New pure green color: 0x7E0
+
+    // 5. 修改现有颜色的蓝色分量为 0
+    color &= ~BLUE_MASK; // ~BLUE_MASK = 11111111 11100000
+                         // color = color & 11111111 11100000
+    printf("Color after clearing blue: 0x%X\n", color); 
+
+    return 0;
+}</code></pre>
+             </div>
+        </div>
+
+        <div class="application-section">
+            <h3>效率优化</h3>
+            <p>在某些情况下，位运算（特别是移位）可以比等效的算术运算（乘除法）更快，尤其是在没有硬件乘除法指令的简单处理器上或编译器优化有限时。</p>
+            <ul>
+                <li><code>x << n</code> 等效于 <code>x * 2<sup>n</sup></code></li>
+                <li><code>x >> n</code> 等效于 <code>x / 2<sup>n</sup></code> (对于无符号数或正有符号数)</li>
+            </ul>
+             <div class="example">
+                 <h4>示例：</h4>
+                 <pre><code class="language-c">int x = 10;
+
+// 乘以 8 (2^3)
+int mul_result = x << 3; // 比 x * 8 可能更快
+printf("10 * 8 = %d (using << 3)\n", mul_result); // 输出: 80
+
+// 除以 4 (2^2) - 使用无符号类型更安全
+unsigned int ux = 40;
+unsigned int div_result = ux >> 2; // 比 ux / 4 可能更快
+printf("40 / 4 = %u (using >> 2)\n", div_result); // 输出: 10
+</code></pre>
+                 <div class="note">
+                    <strong>现代编译器优化：</strong> 现代编译器通常非常智能，能够自动将乘以或除以 2 的幂的运算优化为移位操作。因此，<strong>优先考虑代码的可读性</strong>，除非性能分析（Profiling）明确指出这里是瓶颈，否则直接使用 <code>*</code> 和 <code>/</code> 通常更好。
+                 </div>
+             </div>
+        </div>
+
+         <div class="application-section">
+            <h3>其他应用</h3>
+             <ul>
+                 <li><strong>交换变量（无临时变量）：</strong> 使用 XOR 可以实现。
+                     <pre><code class="language-c">int a = 5, b = 10;
+a = a ^ b;
+b = a ^ b; // b becomes original a
+a = a ^ b; // a becomes original b
+// 现在 a = 10, b = 5</code></pre>
+                 </li>
+                 <li><strong>判断奇偶：</strong> 检查最低位。<code>if (x & 1) { /* 奇数 */ } else { /* 偶数 */ }</code></li>
+                 <li><strong>计算绝对值（特定技巧）：</strong> 对某些整数类型有效。</li>
+                 <li><strong>集合运算：</strong> 将整数的位看作集合元素，用位运算实现交集(<code>&</code>)、并集(<code>|</code>)等。</li>
+                 <li><strong>位图 (Bitmap)：</strong> 用位来表示大量对象的存在与否状态。</li>
+             </ul>
+         </div>
+
+        <h2>总结</h2>
+        <p>位运算是 C/C++ 中强大而高效的工具，虽然初看起来有些神秘，但理解它们的工作原理和常见应用模式（如状态标志、掩码、效率优化）对于编写高性能和内存效率高的代码非常有价值，尤其是在系统编程、嵌入式开发、图形处理等领域。</p>
+
+    </div>
+</body>
+</html>

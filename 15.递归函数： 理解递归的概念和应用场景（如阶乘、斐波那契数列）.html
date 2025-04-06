@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - C语言递归函数</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段三：函数 - C语言递归函数</h2>
+
+        <p>递归是编程中一种强大的技术，指一个函数在其定义中直接或间接地调用自身的过程。通过递归，可以将复杂的问题分解为规模更小、结构相似的子问题来解决。</p>
+
+        <h3>1. 递归的概念</h3>
+        <p>一个函数调用它自己，就称为递归调用。实现递归需要满足两个基本条件：</p>
+        <ul>
+            <li><strong>基本情况 (Base Case):</strong> 必须存在一个或多个不再进行递归调用的终止条件。当满足基本情况时，递归结束，函数开始逐层返回。<strong>这是防止无限递归的关键。</strong></li>
+            <li><strong>递归步骤 (Recursive Step):</strong> 函数必须能够调用自身，并且每次调用时，问题的规模必须朝着基本情况缩小。</li>
+        </ul>
+        <p>可以把递归想象成一组嵌套的镜子或俄罗斯套娃：每一层都包含一个更小的、相似的自身，直到达到最小的核心（基本情况）。</p>
+
+        <div class="note">
+            <p><strong>递归与栈：</strong> 每次函数调用（包括递归调用）都会在程序的调用栈 (Call Stack) 上创建一个新的栈帧 (Stack Frame)。这个栈帧存储了函数的局部变量、参数和返回地址。当递归层层深入时，栈会增长；当函数从基本情况开始返回时，栈会逐层收缩。</p>
+        </div>
+
+        <h3>2. 递归的优点与缺点</h3>
+        <p><strong>优点：</strong></p>
+        <ul>
+            <li>对于某些问题（特别是那些自然定义就是递归的问题，如树的遍历、分治算法），递归可以使代码<strong>更简洁、更易于理解</strong>，更贴近问题的数学定义。</li>
+            <li>可以优雅地处理嵌套结构。</li>
+        </ul>
+        <p><strong>缺点：</strong></p>
+        <ul>
+            <li>递归调用通常比迭代（循环）有<strong>更高的开销</strong>，因为每次函数调用都需要创建栈帧、传递参数、保存状态等。</li>
+            <li>如果递归深度过大（没有正确设置基本情况或问题规模太大），可能会导致<strong>栈溢出 (Stack Overflow)</strong> 错误，程序崩溃。</li>
+            <li>某些递归实现可能效率低下，例如存在大量重复计算（如下面的斐波那契数列示例）。</li>
+            <li>调试递归函数可能比调试迭代函数更困难。</li>
+        </ul>
+        <div class="warning">
+            <p><strong>警告：</strong> 务必确保递归函数有明确的、可达到的基本情况，否则会导致无限递归和栈溢出！</p>
+        </div>
+
+        <h3>3. 递归的应用场景</h3>
+        <p>递归常用于以下场景：</p>
+        <ul>
+            <li>数学计算：阶乘、斐波那契数列、最大公约数等。</li>
+            <li>数据结构操作：树的遍历（前序、中序、后序）、图的深度优先搜索 (DFS)。</li>
+            <li>排序算法：归并排序、快速排序等分治算法的核心思想。</li>
+            <li>文件系统遍历等。</li>
+        </ul>
+
+        <h4>示例 1：计算阶乘 (Factorial)</h4>
+        <p>n 的阶乘定义为：<span class="code-inline">n! = n * (n-1) * (n-2) * ... * 1</span>。其中 <span class="code-inline">0! = 1</span>。</p>
+        <p>递归定义：</p>
+        <ul>
+            <li>基本情况：<span class="code-inline">factorial(0) = 1</span></li>
+            <li>递归步骤：<span class="code-inline">factorial(n) = n * factorial(n-1)</span>  (对于 n > 0)</li>
+        </ul>
+        <pre>#include <stdio.h>
+
+// 递归函数计算阶乘
+long long factorial(int n) {
+    // 基本情况 (Base Case)
+    if (n < 0) {
+        printf("错误：阶乘不支持负数！\n");
+        return -1; // 或者其他错误指示
+    } else if (n == 0) {
+        return 1;
+    }
+    // 递归步骤 (Recursive Step)
+    else {
+        return (long long)n * factorial(n - 1); // 注意类型转换防止溢出
+    }
+}
+
+int main() {
+    int num = 5;
+    long long result = factorial(num);
+
+    if (result != -1) {
+        printf("%d 的阶乘是：%lld\n", num, result); // 输出：5 的阶乘是：120
+    }
+
+    num = 10;
+    result = factorial(num);
+    if (result != -1) {
+        printf("%d 的阶乘是：%lld\n", num, result); // 输出：10 的阶乘是：3628800
+    }
+
+    return 0;
+}</pre>
+        <p><strong>执行过程 (以 factorial(3) 为例):</strong></p>
+        <ol>
+            <li><span class="code-inline">factorial(3)</span> 调用 <span class="code-inline">factorial(2)</span>，等待结果。</li>
+            <li><span class="code-inline">factorial(2)</span> 调用 <span class="code-inline">factorial(1)</span>，等待结果。</li>
+            <li><span class="code-inline">factorial(1)</span> 调用 <span class="code-inline">factorial(0)</span>，等待结果。</li>
+            <li><span class="code-inline">factorial(0)</span> 遇到基本情况，返回 1。</li>
+            <li><span class="code-inline">factorial(1)</span> 收到 1，计算 <span class="code-inline">1 * 1</span>，返回 1。</li>
+            <li><span class="code-inline">factorial(2)</span> 收到 1，计算 <span class="code-inline">2 * 1</span>，返回 2。</li>
+            <li><span class="code-inline">factorial(3)</span> 收到 2，计算 <span class="code-inline">3 * 2</span>，返回 6。</li>
+        </ol>
+
+        <h4>示例 2：计算斐波那契数列 (Fibonacci Sequence)</h4>
+        <p>斐波那契数列定义为：F(0) = 0, F(1) = 1, F(n) = F(n-1) + F(n-2) (对于 n > 1)。</p>
+        <p>递归定义：</p>
+        <ul>
+            <li>基本情况：<span class="code-inline">fibonacci(0) = 0</span>, <span class="code-inline">fibonacci(1) = 1</span></li>
+            <li>递归步骤：<span class="code-inline">fibonacci(n) = fibonacci(n-1) + fibonacci(n-2)</span> (对于 n > 1)</li>
+        </ul>
+        <pre>#include <stdio.h>
+
+// 递归函数计算斐波那契数 (注意：效率较低)
+int fibonacci(int n) {
+    // 基本情况
+    if (n <= 0) {
+        return 0;
+    } else if (n == 1) {
+        return 1;
+    }
+    // 递归步骤
+    else {
+        return fibonacci(n - 1) + fibonacci(n - 2);
+    }
+}
+
+int main() {
+    int n = 10;
+    printf("斐波那契数列第 %d 项是：%d\n", n, fibonacci(n)); // 输出：斐波那契数列第 10 项是：55
+
+    return 0;
+}</pre>
+        <div class="note">
+            <p><strong>效率问题：</strong> 上述递归计算斐波那契数列的方法非常<strong>低效</strong>。例如，计算 <span class="code-inline">fibonacci(5)</span> 会分别计算 <span class="code-inline">fibonacci(4)</span> 和 <span class="code-inline">fibonacci(3)</span>。而计算 <span class="code-inline">fibonacci(4)</span> 又会计算 <span class="code-inline">fibonacci(3)</span> 和 <span class="code-inline">fibonacci(2)</span>。可以看到 <span class="code-inline">fibonacci(3)</span> 被重复计算了多次。这种问题称为<strong>重叠子问题</strong>。对于较大的 n，计算量会呈指数级增长。</p>
+            <p>对于斐波那契数列，使用迭代（循环）或动态规划的方法效率要高得多。</p>
+        </div>
+
+        <h3>总结</h3>
+        <p>递归是一种强大的编程范式，能够将复杂问题分解为简单的、自我相似的子问题。</p>
+        <ul>
+            <li>核心在于 **基本情况** 和 **递归步骤**。</li>
+            <li>优点是代码可能更简洁、易懂（特别是对于递归定义的问题）。</li>
+            <li>缺点是可能带来性能开销、栈溢出风险和调试困难。</li>
+            <li>在选择使用递归时，要仔细评估其效率和潜在风险，考虑是否有更优的迭代或其他解法。</li>
+        </ul>
+        <p>理解递归的工作原理（特别是基本情况的重要性）是掌握它的关键。</p>
+
+        </div>
+    </div>
+</body>
+</html>

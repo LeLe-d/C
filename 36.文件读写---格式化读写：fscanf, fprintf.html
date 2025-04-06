@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - 文件格式化读写：fscanf 与 fprintf</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段六：文件操作 - 文件格式化读写：<code>fscanf</code> 与 <code>fprintf</code></h2>
+
+
+        <p>除了字符和字符串读写，C 语言还提供了强大的格式化 I/O 函数 <code>fscanf</code> 和 <code>fprintf</code>，它们允许我们按照指定的格式从文件中读取数据或将数据写入文件。这对于处理结构化数据（如包含数字、字符串等的记录）非常有用。它们的工作方式分别类似于标准输入/输出函数 <code>scanf</code> 和 <code>printf</code>。</p>
+
+        <h3><code>fprintf</code> 函数 (格式化写入文件)</h3>
+        <p><code>fprintf</code> 函数将数据按照指定的格式写入到文件流中。</p>
+
+        <h4>函数原型</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+int fprintf(FILE *<span class="code-arg">stream</span>, const char *<span class="code-arg">format</span>, ...);</code></pre>
+
+        <h4>参数说明</h4>
+        <ul>
+            <li><code>stream</code>: 指向要写入的文件的 <code>FILE</code> 结构指针（由 <code>fopen</code> 以写入或追加模式打开）。</li>
+            <li><code>format</code>: 一个格式控制字符串，与 <code>printf</code> 中的格式字符串类似，包含了普通字符和格式说明符（如 <code>%d</code>, <code>%f</code>, <code>%s</code>, <code>%c</code> 等）。</li>
+            <li><code>...</code> (可变参数): 根据 <code>format</code> 字符串中格式说明符的数量和类型，提供相应数量和类型的值（<span class="highlight">不是指针</span>）。</li>
+        </ul>
+
+        <h4>行为</h4>
+        <ul>
+            <li><code>fprintf</code> 根据 <code>format</code> 字符串解释后续参数，并将结果格式化为字符串写入到 `stream` 指定的文件中。</li>
+            <li>普通字符按原样写入。</li>
+            <li>格式说明符会被替换为对应参数的值。</li>
+        </ul>
+
+        <h4>返回值</h4>
+        <ul>
+            <li>成功时，返回<span class="highlight">实际写入的字符数</span>。</li>
+            <li>如果发生写入错误，返回一个<span class="highlight">负值</span>，并设置文件流的错误指示器。</li>
+        </ul>
+
+        <h4>使用示例</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+typedef struct {
+    char name[50];
+    int age;
+    float score;
+} Student;
+
+int main() {
+    FILE *fp = NULL;
+    Student s1 = {"Alice", 20, 85.5f};
+    Student s2 = {"Bob", 22, 92.0f};
+    int chars_written;
+
+    fp = fopen("students.txt", "w"); // 写入模式，文件存在则清空
+    if (fp == NULL) {
+        perror("Error opening students.txt for writing");
+        return 1;
+    }
+
+    printf("Writing student data to students.txt...\n");
+
+    // 写入第一个学生的信息，每项之间用空格隔开，末尾加换行符
+    chars_written = fprintf(fp, "%s %d %.2f\n", s1.name, s1.age, s1.score);
+    if (chars_written < 0) {
+        perror("Error writing student 1 data");
+        fclose(fp);
+        return 1;
+    }
+    printf("Wrote %d characters for student 1.\n", chars_written);
+
+    // 写入第二个学生的信息
+    chars_written = fprintf(fp, "%s %d %.2f\n", s2.name, s2.age, s2.score);
+     if (chars_written < 0) {
+        perror("Error writing student 2 data");
+        fclose(fp);
+        return 1;
+    }
+    printf("Wrote %d characters for student 2.\n", chars_written);
+
+    printf("Finished writing.\n");
+
+    // 关闭文件
+    if (fclose(fp) != 0) {
+        perror("Error closing file");
+    } else {
+        printf("File closed successfully.\n");
+    }
+
+    return 0;
+}</code></pre>
+
+
+        <h3><code>fscanf</code> 函数 (格式化读取文件)</h3>
+        <p><code>fscanf</code> 函数根据指定的格式从文件流中读取数据，并将读取到的数据存储到指定的变量中。</p>
+
+        <h4>函数原型</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+int fscanf(FILE *<span class="code-arg">stream</span>, const char *<span class="code-arg">format</span>, ...);</code></pre>
+
+        <h4>参数说明</h4>
+        <ul>
+            <li><code>stream</code>: 指向要读取的文件的 <code>FILE</code> 结构指针（由 <code>fopen</code> 以读取模式打开）。</li>
+            <li><code>format</code>: 一个格式控制字符串，与 <code>scanf</code> 中的格式字符串类似，定义了期望从文件中读取的数据的类型和顺序。</li>
+            <li><code>...</code> (可变参数): 根据 <code>format</code> 字符串中格式说明符的数量和类型，提供对应数量和类型的 <span class="highlight">变量的地址 (指针)</span>，用于存储读取到的数据。</li>
+        </ul>
+
+        <div class="warning">
+            <strong>注意：</strong> <code>fscanf</code> 的可变参数部分必须传递 <span class="highlight">变量的地址（指针）</span>，而不是变量本身！例如，要读取一个整数到变量 `num` 中，应传递 <code>&num</code>。这是初学者常见的错误。
+        </div>
+
+        <h4>行为</h4>
+        <ul>
+            <li><code>fscanf</code> 从 `stream` 读取输入，尝试根据 <code>format</code> 字符串进行匹配。</li>
+            <li><span class="highlight">空白字符处理：</span> 格式字符串中的空白字符（空格、制表符、换行符）会匹配输入流中任意数量的空白字符（包括零个）。大多数格式说明符（如 <code>%d</code>, <code>%f</code>, <code>%s</code>）会自动跳过输入流中前面的空白字符。但 <code>%c</code> 和 <code>%[...]</code> (扫描集) 不会跳过空白字符。</li>
+            <li>当遇到与格式说明符不匹配的输入时，或者读取到文件末尾时，<code>fscanf</code> 会停止读取。</li>
+        </ul>
+
+         <div class="warning">
+            <strong>缓冲区安全：</strong> 使用 <code>%s</code> 读取字符串时，如果不指定最大宽度，可能会导致缓冲区溢出。建议总是指定宽度，例如 <code>%49s</code> (如果缓冲区大小是 50)，以确保最多读取 49 个字符并留下空间给 <code>\0</code>。
+        </div>
+
+
+        <h4>返回值</h4>
+        <ul>
+            <li>成功时，返回<span class="highlight">成功匹配并赋值的输入项的数量</span>。这个数量可能小于格式说明符的数量（如果中途匹配失败或遇到 EOF）。</li>
+            <li>如果在第一次尝试匹配或转换之前就遇到了文件末尾 (EOF)，则返回 <code>EOF</code>。</li>
+            <li>如果在第一次尝试匹配或转换之前发生读取错误，也返回 <code>EOF</code>，并设置文件流的错误指示器。</li>
+        </ul>
+
+         <div class="note">
+            <strong>检查返回值非常重要！</strong> 你应该检查 <code>fscanf</code> 的返回值是否等于你期望读取的项数。如果不等于，说明读取可能不完整或失败。如果返回 <code>EOF</code>，可以使用 <code>feof(stream)</code> 和 <code>ferror(stream)</code> 来区分是文件结束还是读取错误。
+        </div>
+
+        <h4>使用示例</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+typedef struct {
+    char name[50];
+    int age;
+    float score;
+} Student;
+
+int main() {
+    FILE *fp = NULL;
+    Student s_read;
+    int items_read;
+
+    fp = fopen("students.txt", "r"); // 读取模式，文件必须存在
+    if (fp == NULL) {
+        perror("Error opening students.txt for reading");
+        return 1;
+    }
+
+    printf("Reading student data from students.txt:\n");
+
+    // 循环读取文件中的学生数据，直到 fscanf 返回值不为 3 或为 EOF
+    // 假设每行格式为: 字符串(无空格) 整数 浮点数
+    while ((items_read = fscanf(fp, "%49s %d %f", s_read.name, &s_read.age, &s_read.score)) == 3) {
+        // 注意: %49s 防止 name 缓冲区溢出
+        // 注意: 传递的是变量的地址 &s_read.age, &s_read.score
+        printf("Read Student: Name=%s, Age=%d, Score=%.2f\n",
+               s_read.name, s_read.age, s_read.score);
+    }
+
+    // 检查循环结束的原因
+    if (feof(fp)) {
+        printf("\nFinished reading file (reached EOF).\n");
+    } else if (ferror(fp)) {
+        perror("Error reading from file");
+    } else {
+        // 如果 items_read != 3 且不是 EOF 或错误，说明格式不匹配
+        printf("\nStopped reading due to format mismatch or incomplete line.\n");
+        // 可以尝试读取并丢弃该行剩余部分，以便继续处理下一行（如果需要）
+    }
+
+    // 关闭文件
+    if (fclose(fp) != 0) {
+        perror("Error closing file");
+    } else {
+        printf("File closed successfully.\n");
+    }
+
+    return 0;
+}</code></pre>
+
+        <h3>总结</h3>
+        <ul>
+            <li><code>fprintf</code> 用于将数据<span class="highlight">格式化写入</span>文件，类似于 <code>printf</code>。参数是 <span class="highlight">值</span>。返回写入的字符数或负值。</li>
+            <li><code>fscanf</code> 用于从文件<span class="highlight">按格式读取</span>数据，类似于 <code>scanf</code>。参数必须是<span class="highlight">变量的地址（指针）</span>。</li>
+            <li><code>fscanf</code> 返回成功<span class="highlight">赋值的项数</span>或 <code>EOF</code>。检查返回值对于判断读取是否成功至关重要。</li>
+            <li>使用 <code>fscanf</code> 时要注意<span class="highlight">空白字符</span>的处理规则，并使用<span class="highlight">宽度限制</span>（如 <code>%Ns</code>）来防止字符串读取时的缓冲区溢出。</li>
+            <li>这两个函数都依赖于格式字符串来控制数据的转换。</li>
+            <li>同样，使用前需要 <code>fopen</code> 打开文件，使用后需要 <code>fclose</code> 关闭文件。</li>
+        </ul>
+        </div>
+    </div>
+</body>
+</html>

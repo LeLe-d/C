@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - 动态内存分配：malloc, calloc, realloc, free</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段四：数组与指针 - 动态内存分配：malloc, calloc, realloc, free</h2>
+
+        <p>在 C/C++ 编程中，内存管理是一个核心概念。除了程序自动管理的栈内存（用于局部变量、函数参数等），我们还经常需要在程序运行时根据需要动态地申请和释放内存。这种在程序执行期间分配和释放内存的方式称为<strong>动态内存分配</strong>，主要操作发生在称为<strong>堆 (Heap)</strong> 的内存区域。</p>
+        <p>动态内存分配赋予了程序极大的灵活性，允许我们处理大小在编译时未知或运行时可变的数据结构。C 语言标准库提供了一组函数来实现动态内存管理，它们都声明在头文件 <code><stdlib.h></code> (C) 或 <code><cstdlib></code> (C++) 中。</p>
+
+        <h3>1. 堆内存 (Heap) vs. 栈内存 (Stack)</h3>
+        <p>理解堆和栈的区别对于掌握动态内存分配至关重要：</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>特性</th>
+                    <th>栈内存 (Stack)</th>
+                    <th>堆内存 (Heap)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>分配/释放</strong></td>
+                    <td><strong class="highlight">自动</strong> (编译器管理)</td>
+                    <td><strong class="highlight">手动</strong> (程序员通过函数调用管理: `malloc`, `free` 等)</td>
+                </tr>
+                <tr>
+                    <td><strong>生命周期/作用域</strong></td>
+                    <td>与函数调用/代码块绑定，函数返回/代码块结束时自动释放</td>
+                    <td>从手动分配 (`malloc`/`calloc`/`realloc`) 到手动释放 (`free`)，<strong>跨函数边界</strong></td>
+                </tr>
+                 <tr>
+                    <td><strong>大小限制</strong></td>
+                    <td>相对较小，固定大小 (通常几 MB)</td>
+                    <td>相对较大，受限于可用系统内存</td>
+                </tr>
+                 <tr>
+                    <td><strong>分配效率</strong></td>
+                    <td>非常快 (通常只需移动栈顶指针)</td>
+                    <td>相对较慢 (需要查找合适的空闲块，可能涉及更复杂的算法)</td>
+                </tr>
+                 <tr>
+                    <td><strong>内存管理</strong></td>
+                    <td>简单，不易出错 (编译器负责)</td>
+                    <td>复杂，<strong class="highlight">程序员必须负责</strong>，容易出错 (内存泄漏、悬挂指针等)</td>
+                </tr>
+                <tr>
+                    <td><strong>碎片</strong></td>
+                    <td>无明显碎片问题</td>
+                    <td>容易产生内存碎片 (频繁分配释放小块内存导致不连续)</td>
+                </tr>
+                <tr>
+                    <td><strong>示例</strong></td>
+                    <td>局部变量, 函数参数</td>
+                    <td>`malloc`/`calloc`/`realloc` 分配的内存</td>
+                </tr>
+            </tbody>
+        </table>
+        <p><strong>核心思想：</strong>栈内存用于管理函数调用的上下文，生命周期短暂且自动；堆内存用于管理程序运行时按需申请、生命周期由程序员控制的数据。</p>
+
+        <h3>2. 动态内存分配函数 (<code><stdlib.h></code> / <code><cstdlib></code>)</h3>
+
+        <h4>a) <code>malloc</code> (Memory Allocation)</h4>
+        <p><code>malloc</code> 用于分配指定字节数的<strong>未初始化</strong>内存块。</p>
+        <p><strong>语法：</strong></p>
+        <pre><code class="syntax">void* malloc(size_t size);</code></pre>
+        <ul>
+            <li><code>size</code>: 需要分配的内存字节数 (<code>size_t</code> 是一个无符号整数类型)。</li>
+            <li><strong>返回值：</strong>
+                <ul>
+                    <li>成功：返回一个指向分配内存块起始位置的 <code class="syntax">void*</code> (无类型) 指针。需要在使用前将其<strong class="highlight">强制类型转换</strong>为所需类型的指针。</li>
+                    <li>失败：返回 <code>NULL</code> (例如，内存不足时)。<strong>必须检查返回值是否为 <code>NULL</code>！</strong></li>
+                </ul>
+            </li>
+        </ul>
+        <p><strong>示例：</strong></p>
+        <pre><code class="language-c">#include <stdio.h>
+#include <stdlib.h> // 必须包含
+
+int main() {
+    int *p_int = NULL;
+    int n = 5; // 假设需要存储 5 个整数
+
+    // 分配足够存储 5 个 int 的内存
+    p_int = (int*)malloc(n * sizeof(int));
+
+    // !!! 检查 malloc 是否成功 !!!
+    if (p_int == NULL) {
+        fprintf(stderr, "Memory allocation failed!\n");
+        return 1; // 异常退出
+    }
+
+    printf("Memory allocated successfully at address: %p\n", (void*)p_int);
+
+    // 使用分配的内存 (注意：malloc 不会初始化内存)
+    for (int i = 0; i < n; i++) {
+        p_int[i] = i * 10; // 赋值
+        printf("p_int[%d] = %d\n", i, p_int[i]);
+    }
+
+    // ... 使用完毕后需要释放 ...
+    free(p_int); // 释放内存
+    p_int = NULL; // 好习惯：避免悬挂指针
+
+    return 0;
+}</code></pre>
+
+        <h4>b) <code>calloc</code> (Contiguous Allocation)</h4>
+        <p><code>calloc</code> 用于分配指定数量、指定大小的元素的内存块，并将所有位<strong class="highlight">初始化为零</strong>。</p>
+        <p><strong>语法：</strong></p>
+        <pre><code class="syntax">void* calloc(size_t num, size_t size);</code></pre>
+        <ul>
+            <li><code>num</code>: 要分配的元素数量。</li>
+            <li><code>size</code>: 每个元素的大小（字节）。</li>
+            <li>总分配字节数是 <code>num * size</code>。</li>
+            <li><strong>返回值：</strong> 与 <code>malloc</code> 类似，成功返回指向已初始化为零的内存块的 <code>void*</code> 指针，失败返回 <code>NULL</code>。<strong>同样必须检查 <code>NULL</code>！</strong></li>
+        </ul>
+         <p><strong>示例：</strong></p>
+        <pre><code class="language-c">#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    double *p_double = NULL;
+    int count = 3;
+
+    // 分配 3 个 double 的内存，并初始化为 0.0
+    p_double = (double*)calloc(count, sizeof(double));
+
+    if (p_double == NULL) {
+        fprintf(stderr, "Calloc failed!\n");
+        return 1;
+    }
+
+    printf("Memory allocated by calloc at: %p\n", (void*)p_double);
+    for (int i = 0; i < count; i++) {
+        // calloc 保证了初始值为 0 (对于数值类型)
+        printf("p_double[%d] = %f\n", i, p_double[i]);
+    }
+
+    free(p_double); // 释放
+    p_double = NULL;
+
+    return 0;
+}</code></pre>
+
+        <h4>c) <code>realloc</code> (Re-allocation)</h4>
+        <p><code>realloc</code> 用于<strong class="highlight">调整</strong>先前由 <code>malloc</code>、<code>calloc</code> 或 <code>realloc</code> 分配的内存块的大小。</p>
+        <p><strong>语法：</strong></p>
+        <pre><code class="syntax">void* realloc(void* ptr, size_t new_size);</code></pre>
+        <ul>
+            <li><code>ptr</code>: 指向先前分配的内存块的指针。
+                <ul>
+                    <li>如果 <code>ptr</code> 是 <code>NULL</code>，<code>realloc</code> 的行为等同于 <code>malloc(new_size)</code>。</li>
+                    <li>如果 <code>ptr</code> 是无效指针（非动态分配的或已释放的），行为是未定义的。</li>
+                </ul>
+            </li>
+            <li><code>new_size</code>: 新的内存块大小（字节）。
+                <ul>
+                    <li>如果 <code>new_size</code> 为 0，且 <code>ptr</code> 非 <code>NULL</code>，行为可能等同于 <code>free(ptr)</code> 并返回 <code>NULL</code>（取决于实现，不建议依赖此行为进行释放）。</li>
+                </ul>
+            </li>
+            <li><strong>返回值：</strong>
+                <ul>
+                    <li>成功：返回指向<strong class="highlight">可能移动位置后</strong>的、调整了大小的内存块的 <code>void*</code> 指针。
+                        <ul>
+                            <li>如果新大小 < 旧大小，内存块被截断。</li>
+                            <li>如果新大小 > 旧大小，增加的部分<strong class="highlight">内容未定义</strong>（不会自动初始化）。</li>
+                            <li>如果内存块被移动到新地址，原 <code>ptr</code> 指向的内存会被释放，原 <code>ptr</code> 变为<strong class="highlight">无效（悬挂）指针</strong>。</li>
+                            <li>如果能在原地扩展/收缩，可能返回与原 <code>ptr</code> 相同的地址。</li>
+                        </ul>
+                     </li>
+                    <li>失败：返回 <code>NULL</code>。<strong>重要：</strong>如果失败，<strong class="highlight">原 <code>ptr</code> 指向的内存块仍然有效且未被释放！</strong></li>
+                </ul>
+            </li>
+        </ul>
+        <div class="warning">
+            <strong>使用 <code>realloc</code> 的关键注意点：</strong>
+            <ol>
+                <li><strong>必须使用临时指针接收返回值！</strong> 因为如果 <code>realloc</code> 失败返回 <code>NULL</code>，直接赋给原指针会丢失对原始内存块的引用，导致内存泄漏。</li>
+                <li>调整大小后，<strong class="highlight">原指针可能失效</strong>，应始终使用 <code>realloc</code> 返回的新指针（如果非 <code>NULL</code>）。</li>
+            </ol>
+        </div>
+        <p><strong>示例：</strong></p>
+        <pre><code class="language-c">#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int *arr = NULL;
+    int initial_size = 3;
+    int new_size = 6;
+
+    // 初始分配
+    arr = (int*)malloc(initial_size * sizeof(int));
+    if (arr == NULL) return 1;
+    printf("Initial allocation (size %d) at: %p\n", initial_size, (void*)arr);
+    for(int i=0; i<initial_size; ++i) arr[i] = i;
+
+    // --- 正确使用 realloc 的模式 ---
+    int *temp_arr = NULL;
+    // 尝试重新分配为 new_size 个 int
+    temp_arr = (int*)realloc(arr, new_size * sizeof(int));
+
+    // 检查 realloc 是否成功
+    if (temp_arr == NULL) {
+        fprintf(stderr, "Realloc failed! Original block still valid.\n");
+        // 此处 arr 仍然指向原始的 3 个 int 的内存块
+        // 可以选择继续使用 arr 或在这里释放它并处理错误
+        free(arr); // 如果不再需要，释放原始块
+        return 1;
+    } else {
+        // realloc 成功，将新指针赋给 arr
+        arr = temp_arr;
+        printf("Reallocated (size %d) potentially at new address: %p\n", new_size, (void*)arr);
+    }
+    // --- 结束 realloc 模式 ---
+
+    // 使用扩展后的内存 (新部分未初始化)
+    printf("Old values: ");
+    for(int i=0; i<initial_size; ++i) printf("%d ", arr[i]);
+    printf("\nInitializing new part:\n");
+    for(int i=initial_size; i<new_size; ++i) {
+        arr[i] = i * 100;
+        printf("arr[%d] = %d\n", i, arr[i]);
+    }
+
+    free(arr); // 释放最终的内存块
+    arr = NULL;
+
+    return 0;
+}</code></pre>
+
+        <h4>d) <code>free</code></h4>
+        <p><code>free</code> 用于<strong class="highlight">释放</strong>先前由 <code>malloc</code>, <code>calloc</code> 或 <code>realloc</code> 分配的内存块，将其归还给系统（或 C 运行时库的内存管理器）。</p>
+        <p><strong>语法：</strong></p>
+        <pre><code class="syntax">void free(void* ptr);</code></pre>
+        <ul>
+            <li><code>ptr</code>: 指向要释放的内存块的指针。
+                <ul>
+                    <li>该指针<strong class="highlight">必须</strong>是通过 <code>malloc</code>, <code>calloc</code>, <code>realloc</code> 获得的，或者是 <code>NULL</code>。</li>
+                    <li>如果 <code>ptr</code> 是 <code>NULL</code>，<code>free</code> 不执行任何操作，是安全的。</li>
+                    <li>向 <code>free</code> 传递无效指针（如栈地址、已释放的地址、未初始化的指针）是<strong class="highlight">严重的未定义行为</strong>，通常导致程序崩溃。</li>
+                </ul>
+             </li>
+        </ul>
+        <div class="warning">
+            <strong>使用 <code>free</code> 的关键规则：</strong>
+            <ul>
+                <li><strong>必须释放：</strong> 每次动态分配的内存，在不再需要时都必须显式调用 <code>free</code> 释放，否则会造成<strong class="highlight">内存泄漏 (Memory Leak)</strong>。</li>
+                <li><strong>禁止重复释放：</strong> 对同一块内存调用两次 <code>free</code> (Double Free) 是未定义行为，非常危险。</li>
+                <li><strong>禁止使用已释放内存：</strong> 调用 <code>free</code> 后，原指针变为<strong class="highlight">悬挂指针 (Dangling Pointer)</strong>，指向的内存不再有效。继续通过该指针读写是未定义行为。<strong>最佳实践：</strong>在 <code>free</code> 后立即将指针设为 <code>NULL</code>。 <code>free(ptr); ptr = NULL;</code></li>
+            </ul>
+        </div>
+
+        <h3>3. 常见陷阱与最佳实践</h3>
+        <ul>
+            <li><strong>内存泄漏：</strong> 忘记调用 <code>free</code>。长时间运行的程序会逐渐耗尽内存。</li>
+            <li><strong>悬挂指针：</strong> 使用已 <code>free</code> 的指针。</li>
+            <li><strong>重复释放：</strong> 对同一内存块调用多次 <code>free</code>。</li>
+            <li><strong>野指针：</strong> 使用未初始化的指针进行 <code>free</code> 或访问。</li>
+            <li><strong>忘记检查分配函数的返回值 (<code>NULL</code>)：</strong> 在分配失败时继续使用 <code>NULL</code> 指针导致程序崩溃。</li>
+            <li><strong><code>realloc</code> 错误用法：</strong> 未使用临时指针，导致失败时丢失原内存。</li>
+            <li><strong>缓冲区溢出/越界访问：</strong> 读写超出了动态分配内存块的边界。虽然不是动态分配本身的问题，但在使用动态内存时需格外小心。</li>
+            <li><strong>指针算术错误：</strong> 计算偏移量错误导致访问无效内存。</li>
+        </ul>
+        <p><strong>最佳实践：</strong></p>
+        <ul>
+            <li>始终检查 <code>malloc</code>, <code>calloc</code>, <code>realloc</code> 的返回值是否为 <code>NULL</code>。</li>
+            <li>动态分配的内存，用完后<strong class="highlight">立即</strong>或在适当的作用域结束前 <code>free</code>。</li>
+            <li><code>free</code> 后，将指针设为 <code>NULL</code>。</li>
+            <li>对于 <code>realloc</code>，始终使用临时指针接收返回值。</li>
+            <li>明确内存的所有权，确保每块动态分配的内存只被释放一次。</li>
+            <li>使用工具（如 Valgrind）检测内存错误。</li>
+        </ul>
+
+        <h3>4. 总结</h3>
+        <p>动态内存分配是 C/C++ 编程中一项强大但需要谨慎使用的技术。理解堆与栈的区别，熟练掌握 <code>malloc</code>, <code>calloc</code>, <code>realloc</code>, <code>free</code> 函数的用法及其注意事项，是编写健壮、高效程序的基础。务必养成良好的内存管理习惯，避免常见的内存错误。</p>
+        </div>
+    </div>
+</body>
+</html>

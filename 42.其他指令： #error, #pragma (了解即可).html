@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C 预处理指令 - 其他指令</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+        .container {
+            max-width: 850px;
+            margin: auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            border: 1px solid #dee2e6;
+        }
+        h1 {
+            color: #6f42c1; /* Bootstrap purple */
+            text-align: center;
+            border-bottom: 2px solid #6f42c1;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #6f42c1; /* Bootstrap purple */
+            margin-top: 35px;
+            border-left: 4px solid #6f42c1;
+            padding-left: 10px;
+        }
+        code {
+            background-color: #e9ecef;
+            padding: 3px 7px;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            color: #c7254e;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #343a40;
+            color: #f8f9fa;
+            padding: 18px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            border: 1px solid #495057;
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+            font-size: 1em;
+        }
+        p, ul {
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .directive-section {
+            margin-bottom: 40px;
+            padding-bottom: 25px;
+            border-bottom: 1px dashed #adb5bd;
+        }
+        .directive-section:last-child {
+            border-bottom: none;
+        }
+        strong.highlight {
+            color: #dc3545; /* Bootstrap danger red */
+        }
+        .note {
+            background-color: #fff3cd; /* Bootstrap warning background */
+            border-left: 5px solid #ffc107; /* Bootstrap warning border */
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+        }
+        .note strong {
+             color: #856404; /* Darker text for warning */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>C 预处理指令 - 其他指令</h1>
+
+        <p>除了包含文件、宏定义和条件编译外，C 预处理器还支持其他一些指令，用于错误报告和与编译器进行特定交互。</p>
+
+        <div class="directive-section">
+            <h2>#error</h2>
+            <p><code>#error</code> 指令指示预处理器（通常导致编译器）停止编译过程，并输出指定的错误消息。</p>
+            <p>这通常用在条件编译块中，用于在检测到无效或不受支持的编译配置时，<strong class="highlight">强制性地终止编译</strong>，并向用户显示明确的错误信息。</p>
+            <p>语法：<code>#error 错误消息文本</code></p>
+            <p>错误消息文本不需要用引号括起来（但也可以），它会作为编译错误的一部分显示出来。</p>
+
+            <h3>示例：</h3>
+            <pre><code class="language-c">#include &lt;stdio.h&gt;
+
+// 假设我们要求必须定义 PLATFORM 宏，并且其值为 1 或 2
+#ifndef PLATFORM
+    #error 请定义 PLATFORM 宏！(例如：-DPLATFORM=1) 
+#endif
+
+#if PLATFORM != 1 && PLATFORM != 2
+    #error 不支持的 PLATFORM 值。请设置为 1 或 2。
+#endif
+
+// 如果 PLATFORM 宏正确定义，编译会继续
+#if PLATFORM == 1
+    // 平台 1 的特定代码
+    const char* platform_name = "Platform One";
+#else // PLATFORM == 2
+    // 平台 2 的特定代码
+    const char* platform_name = "Platform Two";
+#endif
+
+int main() {
+    printf("正在为 %s 编译...\n", platform_name);
+    // ... 其他代码 ...
+    printf("编译配置检查通过。\n");
+    return 0;
+}</code></pre>
+            <p><strong>如何测试：</strong></p>
+            <ul>
+                <li>不定义 <code>PLATFORM</code> 编译 (<code>gcc code.c</code>) → 会看到第一个 <code>#error</code> 消息。</li>
+                <li>定义 <code>PLATFORM</code> 为 3 (<code>gcc -DPLATFORM=3 code.c</code>) → 会看到第二个 <code>#error</code> 消息。</li>
+                <li>定义 <code>PLATFORM</code> 为 1 或 2 (<code>gcc -DPLATFORM=1 code.c</code>) → 编译成功。</li>
+            </ul>
+        </div>
+
+        <div class="directive-section">
+            <h2>#pragma (了解即可)</h2>
+            <p><code>#pragma</code> 指令是 C 和 C++ 中一个特殊的预处理指令，用于向编译器发出特定的、<strong class="highlight">依赖于具体实现（编译器相关）</strong>的指令或信息。</p>
+            <p>这意味着同一个 <code>#pragma</code> 指令在不同的编译器上可能有不同的行为，或者在某些编译器上根本不起作用。因此，它的使用会<strong class="highlight">降低代码的可移植性</strong>。</p>
+            <p>虽然 C 标准定义了 <code>#pragma</code> 指令本身，但它没有规定任何具体的 `pragma` 参数。编译器可以自由地定义它们支持的 `pragma`。</p>
+
+            <h3>常见（但非标准）的 Pragma 示例：</h3>
+            <ul>
+                <li>
+                    <code>#pragma once</code>:
+                    这是一个广泛被现代编译器（如 GCC, Clang, MSVC）支持的非标准指令，用于替代传统的 Include Guards (<code>#ifndef/#define/#endif</code>) 来防止头文件被多次包含。它通常更简洁，但不是 C 标准的一部分。
+                    <pre><code class="language-c">// --- my_header.h ---
+#pragma once 
+
+// --- 头文件内容 ---
+struct Data { int value; };
+// ...</code></pre>
+                </li>
+                <li>
+                    <code>#pragma warning(...)</code>:
+                    常用于 Microsoft Visual C++ (MSVC) 编译器，用来控制特定警告消息的启用、禁用或级别。
+                    <pre><code class="language-c">// 示例：在 MSVC 中禁用某个特定警告
+#pragma warning(disable : 4996) 
+// ... 可能产生 4996 警告的代码 ...
+#pragma warning(default : 4996) // 恢复警告的默认行为</code></pre>
+                </li>
+                 <li>
+                    <code>#pragma pack(...)</code>:
+                    用于控制结构体成员的内存对齐方式。这在需要精确控制内存布局（例如，与硬件交互或处理特定文件格式）时可能用到。
+                    <pre><code class="language-c">// 示例：设置结构体按 1 字节对齐
+#pragma pack(push, 1) 
+struct PixelData {
+    unsigned char red;
+    unsigned char green;
+    unsigned char blue;
+    unsigned char alpha;
+};
+#pragma pack(pop) // 恢复之前的对齐设置</code></pre>
+                </li>
+                 <li>
+                    <code>#pragma omp ...</code>:
+                    用于 OpenMP (Open Multi-Processing) API，指示编译器生成并行代码。
+                     <pre><code class="language-c">#include &lt;omp.h&gt;
+
+void parallel_task() {
+    #pragma omp parallel for
+    for (int i = 0; i < 100; ++i) {
+        // 这个循环会被并行执行（如果编译器支持 OpenMP 且已启用）
+        // ... 
+    }
+}</code></pre>
+                </li>
+            </ul>
+
+            <div class="note">
+                <strong>重要提示：</strong> 由于 <code>#pragma</code> 的行为是编译器特定的，在使用它之前，<strong class="highlight">务必查阅你所使用的编译器的官方文档</strong>，了解特定 `pragma` 的确切含义、语法和支持情况。过度或不恰当地使用 <code>#pragma</code> 会损害代码的可维护性和跨平台兼容性。
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

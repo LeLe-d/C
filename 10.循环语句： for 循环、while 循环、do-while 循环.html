@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - C语言循环语句</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段二：流程控制 - C语言循环语句</h2>
+
+        <p>循环语句允许程序重复执行某段代码块，直到满足特定的退出条件。这对于处理重复性任务非常有用，例如遍历数组、处理文件内容或执行计算直到达到某个目标。C 语言主要提供三种循环语句：<code>for</code>、<code>while</code> 和 <code>do-while</code>。</p>
+
+        <h3>1. for 循环</h3>
+        <p><code>for</code> 循环通常用于已知循环次数或需要一个清晰的计数器（初始化、条件检查、更新都在一起）的情况。</p>
+        <p><strong>基本语法：</strong></p>
+        <pre>for (initialization; condition; update) {
+    // 循环体：如果 condition 为真 (非零)，执行这里的语句
+}</pre>
+        <ul>
+            <li><strong>initialization</strong>：循环开始前执行一次的表达式，通常用于初始化循环控制变量。</li>
+            <li><strong>condition</strong>：每次循环迭代开始前评估的表达式。如果为真（非零），执行循环体；如果为假（零），循环终止。</li>
+            <li><strong>update</strong>：每次循环体执行完毕后执行的表达式，通常用于更新循环控制变量。</li>
+        </ul>
+        <p>执行流程：① 执行 initialization -> ② 检查 condition -> ③ (如果为真) 执行循环体 -> ④ 执行 update -> 回到 ②。</p>
+
+        <p><strong>示例代码：</strong> 打印 0 到 4 的数字</p>
+        <pre>#include <stdio.h>
+
+int main() {
+    int i;
+
+    // 初始化 i=0; 条件 i < 5; 每次循环后 i 增加 1
+    for (i = 0; i < 5; i++) {
+        printf("i = %d\n", i);
+    }
+
+    printf("循环结束。\n");
+    return 0;
+}</pre>
+        <p>这个例子中，<code>i</code> 从 0 开始，每次循环打印 <code>i</code> 的值并将其加 1，直到 <code>i</code> 不再小于 5 时循环结束。</p>
+
+        <h3>2. while 循环</h3>
+        <p><code>while</code> 循环在每次迭代开始之前检查条件。只要条件为真，循环体就会一直执行。它适用于循环次数未知，但知道循环继续的条件的情况。</p>
+        <p><strong>基本语法：</strong></p>
+        <pre>while (condition) {
+    // 循环体：如果 condition 为真 (非零)，执行这里的语句
+    // 必须确保循环体内部有代码能最终使 condition 变为假，否则会造成无限循环
+}</pre>
+        <p>执行流程：① 检查 condition -> ② (如果为真) 执行循环体 -> 回到 ①。</p>
+        <p><strong>重要：</strong> 必须在循环体内包含能够改变 <code>condition</code> 最终使其变为假的逻辑，否则会导致无限循环。</p>
+
+        <p><strong>示例代码：</strong> 计算 1 到 10 的和</p>
+        <pre>#include <stdio.h>
+
+int main() {
+    int sum = 0;
+    int i = 1; // 初始化
+
+    // 当 i 小于等于 10 时，继续循环
+    while (i <= 10) {
+        sum += i; // 累加 i 到 sum
+        i++;      // 更新 i，使其最终不满足条件
+    }
+
+    printf("1 到 10 的和是：%d\n", sum);
+    return 0;
+}</pre>
+        <p>这里，循环持续进行，直到 <code>i</code> 增加到 11，此时 <code>i <= 10</code> 条件为假，循环停止。</p>
+
+        <h3>3. do-while 循环</h3>
+        <p><code>do-while</code> 循环与 <code>while</code> 类似，但它<strong>先执行一次循环体，然后再检查条件</strong>。这意味着无论条件初始是否为真，循环体至少会执行一次。</p>
+        <p><strong>基本语法：</strong></p>
+        <pre>do {
+    // 循环体：先执行这里的语句
+    // 同样需要确保循环体能最终影响 condition
+} while (condition); // 注意这里必须有分号</pre>
+        <p>执行流程：① 执行循环体 -> ② 检查 condition -> ③ (如果为真) 回到 ①。</p>
+        <p><code>do-while</code> 循环适用于那些至少需要执行一次操作的场景，比如菜单选择或输入验证。</p>
+
+        <p><strong>示例代码：</strong> 要求用户输入正数</p>
+        <pre>#include <stdio.h>
+
+int main() {
+    int number;
+
+    do {
+        printf("请输入一个正数：");
+        scanf("%d", &number);
+        if (number <= 0) {
+            printf("输入无效，请重新输入。\n");
+        }
+    } while (number <= 0); // 如果输入的数小于等于0，则继续循环
+
+    printf("你输入的正数是：%d\n", number);
+    return 0;
+}</pre>
+        <p>此代码会先提示用户输入，然后检查输入是否小于等于 0。如果是，则再次提示输入；如果不是（即输入了正数），循环条件为假，循环结束。</p>
+
+        <div class="note">
+            <p><strong>循环控制语句：</strong></p>
+            <ul>
+                <li><code>break</code>：立即终止当前所在的<strong>整个循环</strong>（<code>for</code>、<code>while</code>、<code>do-while</code> 或 <code>switch</code>），程序跳转到循环体之后的下一条语句。</li>
+                <li><code>continue</code>：跳过当前循环迭代中<strong>剩余的语句</strong>，直接开始下一次迭代的条件检查（对于 <code>for</code> 循环，会先执行更新部分）。</li>
+            </ul>
+            <p>例如，在循环中找到特定项后可以使用 <code>break</code> 退出，或者在某些条件下跳过当前项的处理使用 <code>continue</code>。</p>
+        </div>
+
+        <h3>总结</h3>
+        <p>选择哪种循环取决于具体的需求：</p>
+        <ul>
+            <li>当循环次数已知或需要明确的初始化、条件和更新步骤时，<code>for</code> 循环通常是最佳选择，代码结构清晰。</li>
+            <li>当循环次数未知，需要在每次迭代前检查条件时，使用 <code>while</code> 循环。</li>
+            <li>当需要确保循环体至少执行一次，然后再根据条件决定是否继续时，使用 <code>do-while</code> 循环。</li>
+        </ul>
+        <p>熟练掌握这三种循环结构以及 <code>break</code> 和 <code>continue</code> 控制语句，是编写高效、灵活 C 程序的关键。</p>
+        </div>
+    </div>
+</body>
+</html>

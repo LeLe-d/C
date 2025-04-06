@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - 文件定位：fseek, ftell, rewind</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段六：文件操作 - 文件定位：<code>fseek</code>, <code>ftell</code>, <code>rewind</code></h2>
+
+        <p>除了顺序地读写文件，C 语言还允许我们控制文件内部的读写位置，这被称为“文件定位”或“随机访问”。这对于需要跳过文件某些部分、回到之前的位置或直接访问特定记录的场景非常重要。主要通过 <code>fseek</code>, <code>ftell</code>, 和 <code>rewind</code> 函数实现。</p>
+        <p>这些操作依赖于与每个打开的文件流关联的<span class="highlight">文件位置指示器 (file position indicator)</span>，它记录了下一次读写操作将在文件中的哪个字节位置发生。</p>
+
+        <h3><code>ftell</code> 函数 (获取当前位置)</h3>
+        <p><code>ftell</code> 函数返回文件位置指示器的当前值（相对于文件开头的字节偏移量）。</p>
+
+        <h4>函数原型</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+long int ftell(FILE *<span class="code-arg">stream</span>);</code></pre>
+
+        <h4>参数说明</h4>
+        <ul>
+            <li><code>stream</code>: 指向目标文件的 <code>FILE</code> 结构指针。</li>
+        </ul>
+
+        <h4>返回值</h4>
+        <ul>
+            <li>成功时，返回<span class="highlight">当前文件位置指示器的值</span> (<code>long int</code> 类型)。对于二进制文件，这通常是从文件开始的字节数。</li>
+            <li>如果发生错误（例如，流不支持定位），返回 <code>-1L</code>，并设置全局变量 <code>errno</code>。</li>
+        </ul>
+
+        <h4>使用场景</h4>
+        <ul>
+            <li>记录当前位置，以便稍后使用 <code>fseek</code> 返回。</li>
+            <li>计算文件大小（结合 <code>fseek</code> 移动到文件末尾）。</li>
+            <li>了解在进行了一系列读写操作后当前的位置。</li>
+        </ul>
+
+        <h4>使用示例</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+int main() {
+    FILE *fp = NULL;
+    long position;
+
+    fp = fopen("sample.txt", "w+"); // 打开用于读写，不存在则创建
+    if (fp == NULL) {
+        perror("Error opening file");
+        return 1;
+    }
+
+    fprintf(fp, "Hello"); // 写入 5 个字符
+    position = ftell(fp); // 获取当前位置
+    if (position == -1L) {
+        perror("ftell error");
+    } else {
+        printf("Current position after writing 'Hello': %ld\n", position); // 应输出 5
+    }
+
+    fprintf(fp, ", World!"); // 再写入 8 个字符
+    position = ftell(fp);
+     if (position == -1L) {
+        perror("ftell error");
+    } else {
+        printf("Current position after writing ', World!': %ld\n", position); // 应输出 13 (5 + 8)
+    }
+
+    fclose(fp);
+    return 0;
+}</code></pre>
+
+
+        <h3><code>fseek</code> 函数 (设置文件位置)</h3>
+        <p><code>fseek</code> 函数用于移动文件位置指示器到文件中的指定位置。</p>
+
+        <h4>函数原型</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+int fseek(FILE *<span class="code-arg">stream</span>, long int <span class="code-arg">offset</span>, int <span class="code-arg">whence</span>);</code></pre>
+
+        <h4>参数说明</h4>
+        <ul>
+            <li><code>stream</code>: 指向目标文件的 <code>FILE</code> 结构指针。</li>
+            <li><code>offset</code>: 一个 <code>long int</code> 类型的值，表示相对于 <code>whence</code> 指定位置的<span class="highlight">字节偏移量</span>。可以是正数（向文件末尾移动）、负数（向文件开头移动）或零。</li>
+            <li><code>whence</code>: 一个整数，指定 <code>offset</code> 的<span class="highlight">起始参考点</span>。必须是以下三个宏之一：
+                <table>
+                    <thead>
+                        <tr><th>宏 (定义于 stdio.h)</th><th>含义</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>SEEK_SET</code></td><td>从文件<span class="highlight">开头</span>开始计算偏移。<code>offset</code> 必须为非负数。</td></tr>
+                        <tr><td><code>SEEK_CUR</code></td><td>从<span class="highlight">当前位置</span>开始计算偏移。<code>offset</code> 可以是正数或负数。</td></tr>
+                        <tr><td><code>SEEK_END</code></td><td>从文件<span class="highlight">末尾</span>开始计算偏移。<code>offset</code> 通常为负数或零。</td></tr>
+                    </tbody>
+                </table>
+            </li>
+        </ul>
+
+        <h4>返回值</h4>
+        <ul>
+            <li>成功时，返回 <code>0</code>。</li>
+            <li>如果发生错误（例如，请求的位置无效，或流不支持定位），返回<span class="highlight">非零值</span>。</li>
+        </ul>
+
+        <div class="warning">
+            <strong>文本流与二进制流：</strong>
+            <ul>
+                <li>对于<span class="highlight">二进制流</span> (以 <code>'b'</code> 模式打开)，<code>fseek</code> 的行为是明确且可移植的，可以直接定位到任何字节偏移。</li>
+                <li>对于<span class="highlight">文本流</span>，<code>fseek</code> 的行为可能<span class="highlight">不可移植</span>，尤其是在有行尾符转换的系统上。标准只保证以下两种 <code>fseek</code> 调用在文本流上可靠：
+                    <ul>
+                        <li><code>fseek(stream, 0L, SEEK_SET)</code>: 移动到文件开头。</li>
+                        <li><code>fseek(stream, 0L, SEEK_END)</code>: 移动到文件末尾。</li>
+                        <li><code>fseek(stream, offset, SEEK_SET)</code>: 其中 `offset` 是之前调用 <code>ftell</code> 在<span class="highlight">同一个流</span>上返回的值。</li>
+                    </ul>
+                   因此，进行复杂的随机访问时，强烈建议使用<span class="highlight">二进制模式</span>。
+            </ul>
+            成功调用 <code>fseek</code> 会清除流的<span class="highlight">文件结束 (EOF) 标志</span>。如果在读写模式下（如 "r+", "w+", "a+"）进行了 `fseek` 或 `rewind` 操作，并且在输入和输出操作之间切换，建议在切换前调用一次 `fseek`、`fsetpos`、`rewind` 或 `fflush`。
+        </div>
+
+
+        <h4>使用示例</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+int main() {
+    FILE *fp = NULL;
+    char buffer[10];
+
+    // 假设 data.bin 是之前 fwrite 示例创建的文件
+    fp = fopen("data.bin", "rb"); // 二进制读模式
+    if (fp == NULL) {
+        perror("Error opening data.bin");
+        return 1;
+    }
+
+    // 1. 移动到文件末尾计算大小
+    if (fseek(fp, 0L, SEEK_END) != 0) {
+        perror("fseek to end error");
+        fclose(fp); return 1;
+    }
+    long file_size = ftell(fp);
+    if (file_size == -1L) {
+        perror("ftell at end error");
+        fclose(fp); return 1;
+    }
+    printf("File size of data.bin: %ld bytes\n", file_size);
+
+    // 2. 移动到文件开头 (SEEK_SET)
+    if (fseek(fp, 0L, SEEK_SET) != 0) {
+        perror("fseek to beginning error");
+        fclose(fp); return 1;
+    }
+    printf("Moved to beginning (position %ld)\n", ftell(fp));
+
+    // 3. 从当前位置向前移动 5 个字节 (SEEK_CUR)
+    if (fseek(fp, 5L, SEEK_CUR) != 0) {
+         perror("fseek forward error");
+        fclose(fp); return 1;
+    }
+    printf("Moved forward 5 bytes (position %ld)\n", ftell(fp));
+
+    // 4. 从文件末尾向后移动 10 个字节 (SEEK_END, 通常用于读取最后N字节)
+    if (fseek(fp, -10L, SEEK_END) != 0) {
+         perror("fseek backward from end error");
+         fclose(fp); return 1;
+    }
+     printf("Moved to 10 bytes before end (position %ld)\n", ftell(fp));
+
+    // 5. 读取当前位置的数据 (示例)
+     if (fread(buffer, 1, 5, fp) == 5) { // 尝试读 5 字节
+         printf("Read 5 bytes starting from position %ld\n", ftell(fp) - 5);
+         // ... 处理 buffer ...
+     } else {
+         fprintf(stderr, "Error reading or EOF reached after seek\n");
+     }
+
+
+    fclose(fp);
+    return 0;
+}</code></pre>
+
+
+        <h3><code>rewind</code> 函数 (回到文件开头)</h3>
+        <p><code>rewind</code> 函数是一个简化的操作，用于将文件位置指示器重置到文件的开头。</p>
+
+        <h4>函数原型</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+void rewind(FILE *<span class="code-arg">stream</span>);</code></pre>
+
+        <h4>参数说明</h4>
+        <ul>
+            <li><code>stream</code>: 指向目标文件的 <code>FILE</code> 结构指针。</li>
+        </ul>
+
+        <h4>行为</h4>
+        <ul>
+            <li>将文件位置指示器设置到文件流的<span class="highlight">起始位置</span>。</li>
+            <li>清除文件流的<span class="highlight">错误指示器</span> (<code>ferror</code>) 和<span class="highlight">文件结束指示器</span> (<code>feof</code>)。</li>
+            <li>它等效于 <code>(void)fseek(stream, 0L, SEEK_SET)</code>，但额外的好处是<span class="highlight">清除了错误和 EOF 标志</span>，并且没有返回值（不报告错误）。</li>
+        </ul>
+
+         <h4>返回值</h4>
+         <ul>
+             <li>无 (<code>void</code>)。</li>
+         </ul>
+
+        <h4>使用示例</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+int main() {
+    FILE *fp = NULL;
+    char line[100];
+
+    fp = fopen("sample.txt", "r"); // 假设 sample.txt 存在
+     if (fp == NULL) {
+        perror("Error opening file");
+        return 1;
+    }
+
+    // 读取第一行
+    if (fgets(line, sizeof(line), fp) != NULL) {
+        printf("First read: %s", line);
+    }
+
+    // 回到文件开头
+    rewind(fp);
+    printf("After rewind, position is: %ld\n", ftell(fp)); // 应为 0
+
+    // 再次读取第一行
+     if (fgets(line, sizeof(line), fp) != NULL) {
+        printf("Second read (after rewind): %s", line);
+    }
+
+    fclose(fp);
+    return 0;
+}</code></pre>
+
+        <h3>总结</h3>
+        <ul>
+            <li><code>ftell</code>: 获取当前文件位置（字节偏移量）。返回 <code>long int</code> 或 <code>-1L</code> (错误)。</li>
+            <li><code>fseek</code>: 移动文件位置到指定偏移量，相对于开头 (<code>SEEK_SET</code>)、当前位置 (<code>SEEK_CUR</code>) 或末尾 (<code>SEEK_END</code>)。返回 <code>0</code> (成功) 或非零 (错误)。</li>
+            <li><code>rewind</code>: 快速移动到文件开头，并清除错误和 EOF 标志。无返回值。</li>
+            <li>这些函数是实现文件<span class="highlight">随机访问</span>的基础。</li>
+            <li>对于复杂的定位操作，推荐使用<span class="highlight">二进制模式</span>打开文件，以获得可移植和可预测的行为。</li>
+            <li>成功调用 <code>fseek</code> 或 <code>rewind</code> 会清除 EOF 标志。</li>
+        </ul>
+        </div>
+    </div>
+</body>
+</html>

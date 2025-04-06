@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - 指针与数组：数组名、指针算术与元素访问</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段四：数组与指针 - 指针与数组：数组名、指针算术与元素访问</h2>
+
+        <p>在 C/C++ 中，指针和数组有着非常密切的关系。理解这种关系对于高效地操作内存和数据集合至关重要。本篇将探讨数组名如何作为指针使用、指针的算术运算规则以及如何通过指针来访问数组中的元素。</p>
+
+        <h3>1. 数组名作为指针</h3>
+        <p>在大多数表达式中，数组名会<strong>自动转换（decay）</strong>为其第一个元素的地址（即指向数组首元素的指针）。</p>
+        <p>例如，如果我们有一个数组：</p>
+        <pre><code>int numbers[5] = {10, 20, 30, 40, 50};</code></pre>
+        <p>在很多情况下，使用数组名 <code>numbers</code> 就等同于使用 <code>&numbers[0]</code>。</p>
+        <pre><code class="language-c">int *p;
+p = numbers; // 合法，p 现在指向 numbers[0] 的地址
+// 上一行等价于:
+p = &numbers[0];</code></pre>
+        <p>因此，数组名 <code>numbers</code> 可以被当作一个指向 <code>int</code> 类型的指针常量（更准确地说，是一个右值指针表达式）。它的值是数组第一个元素的内存地址。</p>
+
+        <p><strong>重要区别和例外：</strong></p>
+        <ul>
+            <li><strong><code>sizeof</code> 运算符：</strong> 当数组名用于 <code>sizeof</code> 运算符时，它表示整个数组所占用的总字节数，而不是指针的大小。
+                <pre><code>sizeof(numbers); // 结果是 5 * sizeof(int) (例如，在 32 位 int 系统上是 20)</code></pre>
+                <pre><code>int *p = numbers; sizeof(p); // 结果是指针变量自身的大小 (例如 4 或 8 字节)</code></pre>
+            </li>
+            <li><strong>取地址运算符 <code>&</code>：</strong> 当对数组名使用取地址运算符 <code>&</code> 时（例如 <code>&numbers</code>），它得到的是指向整个数组的指针，其类型是 <code>int (*)[5]</code>（一个指向包含5个整数的数组的指针），而不是指向单个元素的指针 <code>int *</code>。虽然 <code>&numbers</code> 和 <code>numbers</code> (或 <code>&numbers[0]</code>) 的地址值相同，但它们的类型不同，这在指针算术中会体现出来。
+                <pre><code>printf("%p\n", (void*)numbers);     // 输出数组首元素地址
+printf("%p\n", (void*)&numbers[0]); // 输出数组首元素地址 (与上面相同)
+printf("%p\n", (void*)&numbers);    // 输出整个数组的起始地址 (值与上面相同，但类型不同)</code></pre>
+            </li>
+        </ul>
+
+        <h3>2. 指针算术运算 (Pointer Arithmetic)</h3>
+        <p>指针算术是针对指针变量进行的加法和减法运算。这些运算是根据指针所指向的数据类型的大小自动进行的。</p>
+        <ul>
+            <li><strong>指针加整数 (<code>ptr + n</code>)：</strong> 结果是一个新的指针，指向从 <code>ptr</code> 当前指向的位置向前移动 <code>n</code> 个<strong>元素</strong>的位置。实际地址增加量是 <code>n * sizeof(数据类型)</code>。</li>
+            <li><strong>指针减整数 (<code>ptr - n</code>)：</strong> 结果是一个新的指针，指向从 <code>ptr</code> 当前指向的位置向后移动 <code>n</code> 个<strong>元素</strong>的位置。实际地址减少量是 <code>n * sizeof(数据类型)</code>。</li>
+            <li><strong>指针自增 (<code>ptr++</code> 或 <code>++ptr</code>)：</strong> 指针向前移动一个元素的位置。</li>
+            <li><strong>指针自减 (<code>ptr--</code> 或 <code>--ptr</code>)：</strong> 指针向后移动一个元素的位置。</li>
+            <li><strong>两个指针相减 (<code>ptr2 - ptr1</code>)：</strong> 如果两个指针指向<strong>同一个数组</strong>中的元素（或一个指向数组末尾之后的位置），它们相减的结果是两个指针之间相隔的<strong>元素数量</strong>（类型通常是 <code>ptrdiff_t</code>）。</li>
+        </ul>
+        <p><strong>示例：</strong></p>
+        <pre><code class="language-c">int numbers[5] = {10, 20, 30, 40, 50};
+int *p = numbers; // p 指向 numbers[0] (地址假设为 0x1000, int 占 4 字节)
+
+printf("p points to address: %p, value: %d\n", (void*)p, *p); // 0x1000, 10
+
+p++; // 指针向前移动一个 int 的大小 (4 字节)
+printf("After p++, p points to address: %p, value: %d\n", (void*)p, *p); // 0x1004, 20
+
+int *p2 = p + 2; // p2 指向 p 当前位置再向前 2 个 int 的位置 (p 指向 numbers[1], p2 指向 numbers[3])
+printf("p2 = p + 2, p2 points to address: %p, value: %d\n", (void*)p2, *p2); // 0x100C, 40
+
+ptrdiff_t diff = p2 - numbers; // p2 指向 numbers[3], numbers 指向 numbers[0]
+printf("Difference between p2 and numbers: %td elements\n", diff); // 3
+</code></pre>
+        <p><strong>注意：</strong>指针算术运算必须谨慎使用，确保指针始终指向有效的内存区域（通常是数组内部或刚好超过数组末尾一个元素的位置）。越界访问是未定义行为。</p>
+
+        <h3>3. 通过指针访问数组元素</h3>
+        <p>结合指针算术和解引用运算符 <code>*</code>，我们可以通过指针来访问数组的任何元素。</p>
+        <p>C/C++ 中，数组的下标访问 <code>array[i]</code> 本质上就是通过指针算术和解引用实现的。它被编译器解释为 <code class="highlight">*(array + i)</code>。</p>
+        <p>因此，以下访问数组元素的方式是等价的：</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>方式</th>
+                    <th>示例 (设 <code>int arr[5]; int *p = arr;</code>)</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>数组下标 (Array Subscript)</td>
+                    <td><code>arr[i]</code></td>
+                    <td>最常见、最直观的方式。</td>
+                </tr>
+                <tr>
+                    <td>指针+偏移量+解引用 (Pointer + Offset + Dereference)</td>
+                    <td><code>*(arr + i)</code></td>
+                    <td>数组名 <code>arr</code> 视为指向首元素的指针，加上偏移量 <code>i</code>，然后解引用。</td>
+                </tr>
+                <tr>
+                    <td>指针变量+下标 (Pointer Variable + Subscript)</td>
+                    <td><code>p[i]</code></td>
+                    <td>指针变量也可以使用下标运算符，等价于 <code>*(p + i)</code>。</td>
+                </tr>
+                 <tr>
+                    <td>指针变量+偏移量+解引用 (Pointer Variable + Offset + Dereference)</td>
+                    <td><code>*(p + i)</code></td>
+                    <td>指针变量 <code>p</code> 加上偏移量 <code>i</code>，然后解引用。</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p><strong>示例代码：</strong> 使用不同方式遍历数组</p>
+        <pre><code class="language-c">#include <stdio.h>
+
+int main() {
+    int numbers[5] = {10, 20, 30, 40, 50};
+    int *p = numbers; // p 指向 numbers[0]
+    int i;
+
+    printf("Using array subscript arr[i]:\n");
+    for (i = 0; i < 5; i++) {
+        printf("numbers[%d] = %d\n", i, numbers[i]);
+    }
+
+    printf("\nUsing pointer arithmetic *(arr + i):\n");
+    for (i = 0; i < 5; i++) {
+        // numbers 在这里自动转换为指向首元素的指针
+        printf("*(numbers + %d) = %d\n", i, *(numbers + i));
+    }
+
+    printf("\nUsing pointer variable with subscript p[i]:\n");
+    for (i = 0; i < 5; i++) {
+        printf("p[%d] = %d\n", i, p[i]); // p[i] 等价于 *(p+i)
+    }
+
+    printf("\nUsing pointer variable with arithmetic *(p + i):\n");
+    for (i = 0; i < 5; i++) {
+        printf("*(p + %d) = %d\n", i, *(p + i));
+    }
+
+    printf("\nUsing pointer variable incrementing p:\n");
+    p = numbers; // 重置指针 p 指向数组开头
+    for (i = 0; i < 5; i++) {
+        printf("Value at address %p is %d\n", (void*)p, *p);
+        p++; // 移动指针到下一个元素
+    }
+    // 注意：循环结束后，p 指向数组末尾之后的位置
+
+    return 0;
+}</code></pre>
+
+        <h3>4. 总结</h3>
+        <ul>
+            <li>数组名在大多数情况下可以看作指向数组<strong>首元素</strong>的常量指针（地址值）。</li>
+            <li>例外情况包括 <code>sizeof(array_name)</code> 和 <code>&array_name</code>。</li>
+            <li>指针算术（加减整数）是以<strong>元素大小</strong>为单位进行的。<code>ptr + n</code> 移动 <code>n * sizeof(*ptr)</code> 字节。</li>
+            <li><code>array[i]</code> 是 <code>*(array + i)</code> 的语法糖。</li>
+            <li>如果指针 <code>p</code> 指向数组元素，那么 <code>p[i]</code> 等价于 <code>*(p + i)</code>。</li>
+            <li>可以通过递增指针变量本身来遍历数组，但要注意指针最终的位置。</li>
+        </ul>
+        <p>熟练掌握指针与数组的关系以及指针算术，对于编写高效、灵活的 C/C++ 代码，尤其是在处理字符串、动态内存分配以及数据结构时，是非常重要的基础。</p>
+        </div>
+    </div>
+</body>
+</html>

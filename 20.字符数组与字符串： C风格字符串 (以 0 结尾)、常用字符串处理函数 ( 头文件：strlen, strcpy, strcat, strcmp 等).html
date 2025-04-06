@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - C语言字符数组与字符串</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段四：数组与指针 - C语言字符数组与字符串</h2>
+
+        <p>在 C 语言中，并没有内置的字符串类型。字符串通常是通过 **字符数组 (Character Array)** 来实现的，并且遵循一个特殊的约定：以 **空字符 (Null Terminator)** <span class="code-inline">'\0'</span> 作为字符串的结束标记。这种以 <span class="code-inline">'\0'</span> 结尾的字符数组被称为 **C 风格字符串**。</p>
+
+        <h3>1. 声明和初始化字符数组 (字符串)</h3>
+        <p>声明字符数组与声明其他类型数组类似，但初始化有特殊方式。</p>
+
+        <h4>1.1 基本声明</h4>
+        <pre>// 声明一个可以存储最多 9 个字符 + 1 个 '\0' 的字符串
+char myString[10];
+
+// 声明一个大小足以存储 "Hello" + '\0' 的数组
+char greeting[6];</pre>
+        <p>注意：数组大小需要足够容纳字符串内容以及末尾的 <span class="code-inline">'\0'</span>。</p>
+
+        <h4>1.2 使用字符列表初始化</h4>
+        <p>可以像普通数组一样用字符列表初始化，但<strong>必须手动添加 <span class="code-inline">'\0'</span></strong>。</p>
+        <pre>// 初始化为 "Hi"
+char str1[] = {'H', 'i', '\0'}; // 大小为 3
+char str2[5] = {'H', 'i', '\0'}; // 大小为 5，剩余为 '\0'</pre>
+
+        <h4>1.3 使用字符串字面量初始化 (常用且推荐)</h4>
+        <p>这是最常见、最方便的方式。使用双引号括起来的字符串字面量会自动在末尾添加 <span class="code-inline">'\0'</span>。</p>
+        <pre>// 初始化为 "Hello"
+char str3[] = "Hello"; // 编译器自动推断大小为 6 ('H','e','l','l','o','\0')
+char str4[10] = "Hello"; // 大小为 10，存储 "Hello\0"，剩余空间未定义或为零（取决于上下文）</pre>
+        <div class="note">
+            <p><strong>注意区分：</strong></p>
+            <ul>
+                <li><span class="code-inline">char c = 'A';</span> // 单个字符变量</li>
+                <li><span class="code-inline">char s[] = "A";</span> // 字符串（字符数组），包含 'A' 和 '\0'，大小为 2</li>
+            </ul>
+        </div>
+
+        <h3>2. 空字符 ('\0') 的重要性</h3>
+        <p>空字符 <span class="code-inline">'\0'</span>（其 ASCII 值为 0）在 C 字符串中扮演着 **终结者** 的角色。所有标准的 C 字符串处理函数（如 <span class="code-inline">strlen</span>, <span class="code-inline">strcpy</span>, <span class="code-inline">printf("%s", ...)</span> 等）都依赖 <span class="code-inline">'\0'</span> 来确定字符串的结束位置。</p>
+        <p><strong>如果一个字符数组没有以 <span class="code-inline">'\0'</span> 结尾，它就不是一个有效的 C 字符串</strong>，标准库函数在处理它时可能会读取到数组边界之外的内存，导致未定义行为。</p>
+
+        <h3>3. 访问字符串中的字符</h3>
+        <p>可以像访问普通数组元素一样，通过索引访问字符串中的单个字符。</p>
+        <pre>#include <stdio.h>
+
+int main() {
+    char message[] = "World"; // {'W', 'o', 'r', 'l', 'd', '\0'}
+
+    printf("第一个字符：%c\n", message[0]); // 输出：W
+    printf("第三个字符：%c\n", message[2]); // 输出：r
+
+    message[4] = '!'; // 修改第五个字符
+    printf("修改后的字符串：%s\n", message); // 输出：Worl!
+
+    return 0;
+}</pre>
+
+        <h3>4. 常用字符串处理函数 (<span class="code-inline"><string.h></span>)</h3>
+        <p>C 标准库提供了一个头文件 <span class="code-inline"><string.h></span>，其中包含许多用于处理 C 风格字符串的函数。使用这些函数前需要包含该头文件：<span class="code-inline">#include <string.h></span>。</p>
+        <p>以下是一些最常用的函数：</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>函数</th>
+                    <th>原型概要</th>
+                    <th>功能描述</th>
+                    <th>示例</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>strlen</strong></td>
+                    <td><span class="code-inline">size_t strlen(const char *str);</span></td>
+                    <td>计算字符串的 **长度**（不包括末尾的 <span class="code-inline">'\0'</span>）。返回类型 <span class="code-inline">size_t</span> 通常是无符号整数。</td>
+                    <td><pre>char s[] = "Hello";
+size_t len = strlen(s); // len = 5</pre></td>
+                </tr>
+                <tr>
+                    <td><strong>strcpy</strong></td>
+                    <td><span class="code-inline">char *strcpy(char *dest, const char *src);</span></td>
+                    <td>将源字符串 <span class="code-inline">src</span>（包括 <span class="code-inline">'\0'</span>）**复制** 到目标字符数组 <span class="code-inline">dest</span>。<strong>⚠️ 极易发生缓冲区溢出！</strong> 目标数组必须足够大。返回 <span class="code-inline">dest</span> 指针。</td>
+                    <td><pre>char src[] = "Copy";
+char dest[10];
+strcpy(dest, src);
+// dest 现在是 "Copy\0"</pre></td>
+                </tr>
+                 <tr>
+                    <td><strong>strncpy</strong></td>
+                    <td><span class="code-inline">char *strncpy(char *dest, const char *src, size_t n);</span></td>
+                    <td>最多从 <span class="code-inline">src</span> 复制 <span class="code-inline">n</span> 个字符到 <span class="code-inline">dest</span>。<strong>更安全</strong>，但行为有些微妙：如果 <span class="code-inline">src</span> 长度小于 <span class="code-inline">n</span>，则用 <span class="code-inline">'\0'</span> 填充 <span class="code-inline">dest</span> 直到写入 <span class="code-inline">n</span> 个字符；如果 <span class="code-inline">src</span> 长度大于等于 <span class="code-inline">n</span>，则结果 **可能不会** 以 <span class="code-inline">'\0'</span> 结尾！需要手动添加。</td>
+                    <td><pre>char src[] = "LongString";
+char dest[5];
+strncpy(dest, src, 4);
+dest[4] = '\0'; // 手动确保 null 结尾
+// dest 现在是 "Long\0"</pre></td>
+                </tr>
+                <tr>
+                    <td><strong>strcat</strong></td>
+                    <td><span class="code-inline">char *strcat(char *dest, const char *src);</span></td>
+                    <td>将源字符串 <span class="code-inline">src</span> **追加 (连接)** 到目标字符串 <span class="code-inline">dest</span> 的末尾。它会覆盖 <span class="code-inline">dest</span> 原来的 <span class="code-inline">'\0'</span>，并在新结尾添加 <span class="code-inline">'\0'</span>。<strong>⚠️ 极易发生缓冲区溢出！</strong> 目标数组必须足够大以容纳结果。返回 <span class="code-inline">dest</span> 指针。</td>
+                    <td><pre>char dest[20] = "Hello ";
+char src[] = "World!";
+strcat(dest, src);
+// dest 现在是 "Hello World!\0"</pre></td>
+                </tr>
+                 <tr>
+                    <td><strong>strncat</strong></td>
+                    <td><span class="code-inline">char *strncat(char *dest, const char *src, size_t n);</span></td>
+                    <td>最多从 <span class="code-inline">src</span> 追加 <span class="code-inline">n</span> 个字符到 <span class="code-inline">dest</span> 末尾，并始终添加一个 <span class="code-inline">'\0'</span>。<strong>更安全</strong>。目标数组大小需为 <span class="code-inline">strlen(dest) + n + 1</span>。</td>
+                    <td><pre>char dest[10] = "Hi "; // len=3, size=10
+char src[] = "There";
+strncat(dest, src, 5); // 最多追加5个
+// dest 现在是 "Hi There\0" (3+5+1=9 <= 10)
+</pre></td>
+                </tr>
+                <tr>
+                    <td><strong>strcmp</strong></td>
+                    <td><span class="code-inline">int strcmp(const char *s1, const char *s2);</span></td>
+                    <td>按字典顺序 **比较** 两个字符串 <span class="code-inline">s1</span> 和 <span class="code-inline">s2</span>。返回值：<br/> - 等于 0: <span class="code-inline">s1 == s2</span><br/> - 小于 0: <span class="code-inline">s1 < s2</span><br/> - 大于 0: <span class="code-inline">s1 > s2</span></td>
+                    <td><pre>int cmp = strcmp("apple", "apply"); // cmp > 0
+cmp = strcmp("test", "test");   // cmp == 0
+cmp = strcmp("abc", "abd");     // cmp < 0</pre></td>
+                </tr>
+                <tr>
+                    <td><strong>strncmp</strong></td>
+                    <td><span class="code-inline">int strncmp(const char *s1, const char *s2, size_t n);</span></td>
+                    <td>比较两个字符串的前 <span class="code-inline">n</span> 个字符。返回值同 <span class="code-inline">strcmp</span>。</td>
+                    <td><pre>int cmp = strncmp("apple", "apply", 3); // 比较"app", cmp == 0</pre></td>
+                </tr>
+            </tbody>
+        </table>
+        <p>还有其他很多有用的函数，如 <span class="code-inline">strchr</span> (查找字符)、<span class="code-inline">strstr</span> (查找子串)、<span class="code-inline">sprintf</span> (格式化输出到字符串) 等。</p>
+
+        <h3>5. 字符串的输入与输出</h3>
+        <ul>
+            <li><strong>输出:</strong> 使用 <span class="code-inline">printf</span> 的 <span class="code-inline">%s</span> 格式说明符。</li>
+            <pre>char name[] = "Alice";
+printf("名字：%s\n", name);</pre>
+            <li><strong>输入:</strong>
+                <ul>
+                    <li><span class="code-inline">scanf("%s", str);</span>: <strong>不安全！</strong> 遇到空白符（空格、制表符、换行）停止读取，且无法限制输入长度，极易导致缓冲区溢出。</li>
+                    <li><span class="code-inline">fgets(str, size, stdin);</span>: **推荐使用！** 更安全的方式。它从指定流 (<span class="code-inline">stdin</span> 代表标准输入) 读取最多 <span class="code-inline">size - 1</span> 个字符到 <span class="code-inline">str</span>，并在末尾自动添加 <span class="code-inline">'\0'</span>。它会读取并包含换行符 <span class="code-inline">'\n'</span>（如果空间足够且在输入结束前遇到）。</li>
+                </ul>
+            </li>
+        </ul>
+        <p><strong>使用 fgets 示例：</strong></p>
+        <pre>#include <stdio.h>
+#include <string.h> // 为了 strlen
+
+int main() {
+    char buffer[50];
+    printf("请输入一行文本：");
+    fgets(buffer, sizeof(buffer), stdin); // 安全读取
+
+    // fgets 可能读取了换行符，如果需要可以移除它
+    buffer[strcspn(buffer, "\n")] = '\0'; // 查找第一个换行符并替换为 '\0'
+    // 或者使用 if (buffer[strlen(buffer) - 1] == '\n') buffer[strlen(buffer) - 1] = '\0';
+
+    printf("你输入的是：%s\n", buffer);
+    return 0;
+}</pre>
+
+        <div class="warning">
+            <p><strong>⚠️ 缓冲区溢出风险 (Buffer Overflow)！</strong></p>
+            <ul>
+                <li>使用 <span class="code-inline">strcpy</span>, <span class="code-inline">strcat</span>, <span class="code-inline">sprintf</span>, 以及 <span class="code-inline">scanf("%s", ...)</span> 时，如果源字符串或用户输入的内容长度超过了目标字符数组的容量（减去 <span class="code-inline">'\0'</span> 的空间），就会发生缓冲区溢出。</li>
+                <li>这会覆盖相邻内存，可能导致程序崩溃、数据损坏，甚至严重的安全漏洞（如允许执行恶意代码）。</li>
+                <li><strong>强烈建议使用更安全的替代函数：</strong>
+                    <ul>
+                        <li>用 <span class="code-inline">strncpy</span> 替代 <span class="code-inline">strcpy</span> (注意手动添加 <span class="code-inline">'\0'</span>)</li>
+                        <li>用 <span class="code-inline">strncat</span> 替代 <span class="code-inline">strcat</span></li>
+                        <li>用 <span class="code-inline">snprintf</span> 替代 <span class="code-inline">sprintf</span></li>
+                        <li>用 <span class="code-inline">fgets</span> 替代 <span class="code-inline">scanf("%s", ...)</span> 进行字符串输入</li>
+                    </ul>
+                </li>
+                <li>始终确保目标缓冲区足够大，并明确知道正在操作的字符串的最大可能长度。</li>
+            </ul>
+        </div>
+
+        <h3>总结</h3>
+        <ul>
+            <li>C 风格字符串是以空字符 <span class="code-inline">'\0'</span> 结尾的字符数组。</li>
+            <li><span class="code-inline">'\0'</span> 是字符串结束的标志，对标准库函数至关重要。</li>
+            <li>推荐使用字符串字面量进行初始化。</li>
+            <li><span class="code-inline"><string.h></span> 提供了处理字符串的常用函数 (<span class="code-inline">strlen, strcpy, strcat, strcmp</span> 等)。</li>
+            <li>处理字符串时，必须时刻警惕 **缓冲区溢出** 风险，优先选用大小受限的安全函数。</li>
+        </ul>
+
+        </div>
+    </div>
+</body>
+</html>

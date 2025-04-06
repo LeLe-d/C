@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - C语言存储类 (Storage Classes)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段三：函数 - C语言存储类 (Storage Classes)</h2>
+
+        <p>存储类说明符 (Storage Class Specifiers) 用于定义 C 语言中变量或函数的 **作用域 (Scope)**、**生命周期 (Lifetime)**、**存储位置 (Storage Location)** 以及 **链接属性 (Linkage)**。C 语言提供了四种存储类说明符：<span class="code-inline">auto</span>、<span class="code-inline">register</span>、<span class="code-inline">static</span> 和 <span class="code-inline">extern</span>。</p>
+
+        <h3>1. auto (自动存储类)</h3>
+        <p>这是函数内部局部变量的 **默认** 存储类。关键字 <span class="code-inline">auto</span> 显式声明的用法很少见，因为它是隐式的。</p>
+        <ul>
+            <li><strong>关键字:</strong> <span class="code-inline">auto</span></li>
+            <li><strong>作用域:</strong> 块作用域（声明它的代码块内可见）。</li>
+            <li><strong>生命周期:</strong> 块生命周期（进入代码块时创建，退出时销毁）。</li>
+            <li><strong>存储位置:</strong> 栈 (Stack)。</li>
+            <li><strong>默认初始值:</strong> 未定义（垃圾值）。</li>
+            <li><strong>链接属性:</strong> 无链接 (No Linkage)。</li>
+        </ul>
+        <pre>#include <stdio.h>
+
+int main() {
+    auto int localVar = 10; // auto 是默认的，可以省略
+    // 等价于: int localVar = 10;
+
+    printf("localVar = %d\n", localVar);
+    return 0;
+}</pre>
+
+        <h3>2. register (寄存器存储类)</h3>
+        <p><span class="code-inline">register</span> 存储类建议编译器将变量存储在 CPU 的寄存器中，以加快访问速度。但这仅仅是一个 **建议**，编译器可能会忽略它（例如，如果没有可用的寄存器，或者变量类型不适合寄存器存储）。</p>
+        <ul>
+            <li><strong>关键字:</strong> <span class="code-inline">register</span></li>
+            <li><strong>作用域:</strong> 块作用域。</li>
+            <li><strong>生命周期:</strong> 块生命周期。</li>
+            <li><strong>存储位置:</strong> 理想情况下是 CPU 寄存器，否则同 <span class="code-inline">auto</span>（栈）。</li>
+            <li><strong>默认初始值:</strong> 未定义（垃圾值）。</li>
+            <li><strong>链接属性:</strong> 无链接。</li>
+            <li><strong>重要限制:</strong> 不能对 <span class="code-inline">register</span> 变量使用取地址运算符 <span class="code-inline">&</span>，因为寄存器没有内存地址。</li>
+        </ul>
+        <div class="note">
+            <p>现代编译器优化非常智能，通常能比程序员更好地决定哪些变量放入寄存器。<span class="code-inline">register</span> 关键字的使用已大大减少，有时甚至可能产生负面效果。</p>
+        </div>
+        <pre>#include <stdio.h>
+
+int main() {
+    register int counter; // 建议将 counter 放入寄存器
+
+    for (counter = 0; counter < 5; counter++) {
+        printf("Counter: %d\n", counter);
+    }
+
+    // int* ptr = &counter; // 错误！不能获取 register 变量的地址
+
+    return 0;
+}</pre>
+
+        <h3>3. static (静态存储类)</h3>
+        <p><span class="code-inline">static</span> 关键字有两种主要用途，取决于它是在函数内部还是外部使用。</p>
+
+        <h4>3.1 静态局部变量 (Static Local Variables)</h4>
+        <p>当 <span class="code-inline">static</span> 用于函数内部的局部变量时：</p>
+        <ul>
+            <li><strong>关键字:</strong> <span class="code-inline">static</span> (在函数/块内部)</li>
+            <li><strong>作用域:</strong> 块作用域（同 <span class="code-inline">auto</span>）。</li>
+            <li><strong>生命周期:</strong> **整个程序运行期间**（不同于 <span class="code-inline">auto</span>）。变量只初始化一次，其值在函数调用之间保持不变。</li>
+            <li><strong>存储位置:</strong> 静态/全局数据区。</li>
+            <li><strong>默认初始值:</strong> 0 或 NULL。</li>
+            <li><strong>链接属性:</strong> 无链接。</li>
+        </ul>
+        <pre>#include <stdio.h>
+
+void func() {
+    static int staticCount = 0; // 只初始化一次
+    int autoCount = 0;
+
+    staticCount++;
+    autoCount++;
+    printf("staticCount = %d, autoCount = %d\n", staticCount, autoCount);
+}
+
+int main() {
+    func(); // 输出: staticCount = 1, autoCount = 1
+    func(); // 输出: staticCount = 2, autoCount = 1
+    func(); // 输出: staticCount = 3, autoCount = 1
+    return 0;
+}</pre>
+
+        <h4>3.2 静态全局变量/函数 (Static Global Variables/Functions)</h4>
+        <p>当 <span class="code-inline">static</span> 用于在所有函数外部声明的全局变量或函数时，它会改变其 **链接属性**。</p>
+        <ul>
+            <li><strong>关键字:</strong> <span class="code-inline">static</span> (在所有函数外部)</li>
+            <li><strong>作用域:</strong> 文件作用域（仅在声明它的当前源文件中可见）。</li>
+            <li><strong>生命周期:</strong> 整个程序运行期间。</li>
+            <li><strong>存储位置:</strong> 静态/全局数据区。</li>
+            <li><strong>默认初始值:</strong> 0 或 NULL (对于变量)。</li>
+            <li><strong>链接属性:</strong> **内部链接 (Internal Linkage)**。这意味着该变量或函数不能被其他源文件通过 <span class="code-inline">extern</span> 访问。这有助于隐藏实现细节，避免命名冲突。</li>
+        </ul>
+        <pre>// ---- file1.c ----
+#include <stdio.h>
+
+static int file_secret = 42; // 只能在 file1.c 中访问
+static void internal_helper() { // 只能在 file1.c 中调用
+    printf("Internal helper function called.\n");
+}
+
+void public_function() {
+    printf("Public function using file_secret: %d\n", file_secret);
+    internal_helper();
+}
+
+// ---- file2.c ----
+// extern int file_secret; // 错误！无法链接到 file_secret，因为它是 static 的
+// extern void internal_helper(); // 错误！无法链接
+
+// extern void public_function(); // 可以链接到 public_function (如果 file1.c 编译在一起)
+
+// int main() {
+//    // ... 尝试调用 public_function() ...
+//    return 0;
+// }
+</pre>
+
+        <h3>4. extern (外部存储类)</h3>
+        <p><span class="code-inline">extern</span> 关键字主要用于 **声明** 一个全局变量或函数是在 **其他地方定义** 的（通常是在另一个源文件中）。它告诉编译器：“这个名字存在，但它的定义在别处，链接时再去找。”</p>
+        <ul>
+            <li><strong>关键字:</strong> <span class="code-inline">extern</span></li>
+            <li><strong>用途:</strong>
+                <ul>
+                    <li>声明一个在别处定义的全局变量，使其在本文件中可用。</li>
+                    <li>声明一个在别处定义的函数（虽然函数声明默认就是 extern，但显式写出有时更清晰）。</li>
+                </ul>
+            </li>
+            <li><strong>作用域:</strong> 取决于声明的位置（块或文件作用域），但它引用的是一个具有文件作用域或外部链接的实体。</li>
+            <li><strong>生命周期:</strong> 它引用的变量/函数具有程序生命周期。</li>
+            <li><strong>存储位置:</strong> 它引用的变量位于静态/全局数据区。</li>
+            <li><strong>初始化:</strong> <span class="code-inline">extern</span> 声明 **不能** 进行初始化。初始化必须在变量的 **定义** 处进行。</li>
+            <li><strong>链接属性:</strong> 用于引用具有 **外部链接 (External Linkage)** 的变量或函数。</li>
+        </ul>
+        <div class="note">
+            <p><strong>声明 (Declaration) vs. 定义 (Definition):</strong></p>
+            <ul>
+                <li><strong>定义：</strong> 为变量分配存储空间，并可选地进行初始化 (e.g., <span class="code-inline">int global_var = 10;</span>)。一个变量只能在一个地方定义。</li>
+                <li><strong>声明：</strong> 告诉编译器变量的类型和名称，但不分配空间 (e.g., <span class="code-inline">extern int global_var;</span>)。一个变量可以被声明多次。</li>
+            </ul>
+        </div>
+        <pre>// ---- global_defs.c ----
+#include <stdio.h>
+int shared_counter = 0; // 定义全局变量 (外部链接默认)
+void increment_counter() { // 定义全局函数 (外部链接默认)
+    shared_counter++;
+    printf("Counter incremented to: %d\n", shared_counter);
+}
+
+// ---- main.c ----
+#include <stdio.h>
+
+// 声明在 global_defs.c 中定义的变量和函数
+extern int shared_counter;
+extern void increment_counter(); // extern 对函数是可选的，但清晰
+
+int main() {
+    printf("Initial counter value: %d\n", shared_counter);
+    increment_counter();
+    increment_counter();
+    printf("Final counter value: %d\n", shared_counter);
+    return 0;
+}
+// 编译命令 (示例): gcc main.c global_defs.c -o my_program
+</pre>
+
+        <h3>总结与对比</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>存储类</th>
+                    <th>关键字</th>
+                    <th>作用域</th>
+                    <th>生命周期</th>
+                    <th>存储位置</th>
+                    <th>默认值</th>
+                    <th>链接属性</th>
+                    <th>主要用途</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>自动</td>
+                    <td>auto (默认)</td>
+                    <td>块</td>
+                    <td>块</td>
+                    <td>栈</td>
+                    <td>垃圾值</td>
+                    <td>无</td>
+                    <td>函数内局部变量</td>
+                </tr>
+                <tr>
+                    <td>寄存器</td>
+                    <td>register</td>
+                    <td>块</td>
+                    <td>块</td>
+                    <td>寄存器/栈</td>
+                    <td>垃圾值</td>
+                    <td>无</td>
+                    <td>速度优化建议 (少用)</td>
+                </tr>
+                <tr>
+                    <td>静态 (局部)</td>
+                    <td>static</td>
+                    <td>块</td>
+                    <td>程序</td>
+                    <td>静态/全局区</td>
+                    <td>0 / NULL</td>
+                    <td>无</td>
+                    <td>在函数调用间保持状态</td>
+                </tr>
+                <tr>
+                    <td>静态 (全局/函数)</td>
+                    <td>static</td>
+                    <td>文件</td>
+                    <td>程序</td>
+                    <td>静态/全局区</td>
+                    <td>0 / NULL</td>
+                    <td>内部</td>
+                    <td>限制变量/函数到当前文件</td>
+                </tr>
+                <tr>
+                    <td>外部</td>
+                    <td>extern</td>
+                    <td>文件/块 (声明处)</td>
+                    <td>程序 (引用的)</td>
+                    <td>静态/全局区 (引用的)</td>
+                    <td>N/A (声明)</td>
+                    <td>外部 (引用的)</td>
+                    <td>声明在别处定义的全局变量/函数</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>理解存储类有助于更好地控制变量的可见性、生命期和跨文件共享，是编写模块化和结构良好 C 程序的基础。</p>
+
+        </div>
+    </div>
+</body>
+</html>

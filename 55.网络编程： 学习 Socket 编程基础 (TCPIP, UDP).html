@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C 语言网络编程基础 - Socket</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.8;
+            margin: 20px;
+            background-color: #f7fafc; /* Very light gray-blue */
+            color: #2d3748; /* Dark gray-blue */
+        }
+        .container {
+            max-width: 1050px;
+            margin: auto;
+            background: #ffffff;
+            padding: 35px 45px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(45, 55, 72, 0.09);
+            border: 1px solid #e2e8f0; /* Light border */
+        }
+        h1 {
+            color: #3182ce; /* Standard Blue */
+            text-align: center;
+            border-bottom: 3px solid #90cdf4; /* Lighter blue */
+            padding-bottom: 18px;
+            margin-bottom: 40px;
+            font-size: 2.4em;
+        }
+        h2 {
+            color: #2b6cb0; /* Darker Indigo */
+            margin-top: 45px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #bee3f8; /* Light blue border */
+            font-size: 1.9em;
+        }
+        h3 {
+            color: #2c7a7b; /* Tealish Blue */
+            margin-top: 30px;
+            font-weight: 600;
+            font-size: 1.5em;
+        }
+        h4 {
+            color: #718096; /* Medium Gray */
+            margin-top: 25px;
+            font-weight: normal;
+            font-style: italic;
+            font-size: 1.2em;
+        }
+        code.inline, code.func, code.const {
+            background-color: #ebf8ff; /* Very light blue background */
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            color: #2a4365; /* Dark Indigo text */
+            font-size: 0.9em;
+            border: 1px solid #bee3f8;
+        }
+        code.func { font-weight: bold; }
+        code.const { color: #dd6b20; background-color: #fefcbf; border-color: #fbd38d;} /* Orange for constants */
+
+        pre {
+            background-color: #2d3748; /* Dark gray-blue background */
+            color: #e2e8f0;          /* Light gray text */
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            border: 1px solid #4a5568; /* Medium gray border */
+            font-size: 0.95em;
+            margin-top: 15px;
+            margin-bottom: 25px;
+        }
+        pre code { /* Reset styles for code inside pre */
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+            font-size: 1em;
+            border: none;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin-bottom: 12px;
+        }
+        strong, .emphasis {
+            font-weight: 700;
+             color: #c53030; /* Strong Red for emphasis */
+        }
+        .introduction, .conclusion, .why-c, .getting-started {
+            background-color: #f7fafc;
+            padding: 20px;
+            border-left: 5px solid #63b3ed; /* Medium blue border */
+            margin: 25px 0;
+            border-radius: 5px;
+        }
+        .concept-section, .api-section, .workflow-section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background-color: #fdfefe;
+        }
+        .api-function {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+        .api-function:last-child { border-bottom: none; padding-bottom: 0;}
+
+        .protocol-comparison {
+             display: grid;
+             grid-template-columns: 1fr 1fr;
+             gap: 25px;
+             margin-top: 15px;
+        }
+         .protocol-comparison > div {
+            border: 1px solid #cbd5e0;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #fdfefe;
+        }
+        .protocol-comparison h4 { margin-top: 0; }
+
+        .byte-order-note {
+            background-color: #fffaf0; /* Light orange */
+            border: 1px solid #fbd38d; /* Orange border */
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .byte-order-note strong { color: #b7791f; } /* Darker orange */
+
+        .error-handling-note {
+            background-color: #fff5f5; /* Light red */
+            border-left: 5px solid #fc8181; /* Red border */
+            padding: 15px; margin: 15px 0; border-radius: 5px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>网络编程基础：C 语言 Socket 编程 (TCP/IP & UDP)</h1>
+
+        <div class="introduction">
+            <p>网络编程允许不同的计算机通过网络进行通信和数据交换。在几乎所有的操作系统中，进行网络编程的标准接口是 <strong>Socket API</strong>。C 语言凭借其接近底层、高效灵活的特性，是学习和实现 Socket 编程的理想语言。</p>
+            <p>本页将介绍使用 C 语言进行 Socket 编程的基础知识，重点关注互联网中最核心的两个传输层协议：<strong>TCP (Transmission Control Protocol)</strong> 和 <strong>UDP (User Datagram Protocol)</strong>。</p>
+        </div>
+
+        <!-- ==================== Core Concepts ==================== -->
+        <div class="concept-section">
+            <h2>核心概念</h2>
+            <ul>
+                <li><strong>IP 地址 (IP Address):</strong> 网络中设备的唯一标识符（如 <code class="inline">192.168.1.100</code> (IPv4) 或 <code class="inline">2001:0db8::8a2e:0370:7334</code> (IPv6)）。</li>
+                <li><strong>端口号 (Port Number):</strong> 标识设备上特定应用程序或服务的数字（0-65535）。知名端口（0-1023）通常保留给标准服务（如 HTTP-80, HTTPS-443, FTP-21）。进程通过“IP地址 + 端口号”与其他进程通信。</li>
+                <li><strong>套接字 (Socket):</strong> 网络通信的端点。你可以将其想象成一个“插座”，应用程序通过它来发送和接收数据。Socket 编程就是围绕创建和操作这些套接字进行的。</li>
+                <li><strong>客户端-服务器模型 (Client-Server Model):</strong> 最常见的网络应用模型。服务器监听特定端口等待连接请求，客户端主动发起连接到服务器。</li>
+            </ul>
+
+            <div class="protocol-comparison">
+                <div>
+                    <h4>TCP (传输控制协议)</h4>
+                    <ul>
+                        <li><strong class="emphasis">面向连接 (Connection-Oriented):</strong> 通信前必须建立连接（三次握手）。</li>
+                        <li><strong class="emphasis">可靠传输:</strong> 保证数据按序、无差错、不丢失、不重复地到达（通过确认、重传、流量控制、拥塞控制等机制）。</li>
+                        <li><strong>流式传输 (Stream-Oriented):</strong> 数据像水流一样，没有明确的边界。接收方需要自己处理消息的边界。</li>
+                        <li><strong>开销较大:</strong> 连接建立、维护和可靠性机制带来额外开销。</li>
+                        <li><strong>适用场景:</strong> 文件传输 (FTP), 网页浏览 (HTTP/HTTPS), 邮件 (SMTP/POP3), 远程登录 (SSH) 等要求高可靠性的应用。</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>UDP (用户数据报协议)</h4>
+                    <ul>
+                        <li><strong class="emphasis">无连接 (Connectionless):</strong> 发送数据前无需建立连接。</li>
+                        <li><strong class="emphasis">不可靠传输:</strong> 不保证数据到达、不保证顺序、可能重复。尽最大努力交付。</li>
+                        <li><strong>数据报传输 (Datagram-Oriented):</strong> 发送的数据单元是独立的报文，保留消息边界。</li>
+                        <li><strong>开销小，速度快:</strong> 没有连接管理和复杂的可靠性机制。</li>
+                        <li><strong>适用场景:</strong> 实时音视频传输 (VoIP, 直播), DNS 查询, 在线游戏等对实时性要求高、能容忍少量丢包的应用，或应用层自己实现可靠性。</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="byte-order-note">
+                <h4>字节序 (Byte Order) - 网络字节序 vs 主机字节序</h4>
+                <p>不同的计算机架构存储多字节数据（如整数、端口号）的顺序可能不同：</p>
+                <ul>
+                    <li><strong>大端序 (Big-Endian):</strong> 高位字节存储在低地址（人类阅读顺序）。</li>
+                    <li><strong>小端序 (Little-Endian):</strong> 低位字节存储在低地址（如 x86 架构）。</li>
+                </ul>
+                <p>网络协议规定使用统一的<strong class="emphasis">网络字节序 (Network Byte Order)</strong>，即大端序。</p>
+                <p>在将端口号、IP 地址等数据放入网络相关的结构体或发送到网络前，需要将其从<strong class="emphasis">主机字节序 (Host Byte Order)</strong> 转换到网络字节序；接收到数据后，需要反向转换。常用转换函数（需 <code class="inline">&lt;arpa/inet.h&gt;</code> 或 <code class="inline">&lt;netinet/in.h&gt;</code>）：</p>
+                <ul>
+                    <li><code class="func">htons()</code>: Host to Network Short (16位，如端口号)</li>
+                    <li><code class="func">htonl()</code>: Host to Network Long (32位，如 IPv4 地址)</li>
+                    <li><code class="func">ntohs()</code>: Network to Host Short</li>
+                    <li><code class="func">ntohl()</code>: Network to Host Long</li>
+                </ul>
+                <p><strong class="emphasis">忘记转换字节序是网络编程中非常常见的错误！</strong></p>
+            </div>
+        </div>
+
+        <!-- ==================== Socket API Basics ==================== -->
+        <div class="api-section">
+            <h2>Socket API 基础 (POSIX 风格)</h2>
+            <p>以下是进行 Socket 编程常用的一些核心 POSIX 函数（通常需要包含 <code class="inline">&lt;sys/socket.h&gt;</code>, <code class="inline">&lt;netinet/in.h&gt;</code>, <code class="inline">&lt;arpa/inet.h&gt;</code>, <code class="inline">&lt;unistd.h&gt;</code> 等头文件）：</p>
+
+            <div class="api-function">
+                <h4><code class="func">socket()</code> - 创建套接字</h4>
+                <pre><code class="language-c">int socket(int domain, int type, int protocol);</code></pre>
+                <p>创建一个新的套接字端点。</p>
+                <ul>
+                    <li><code class="inline">domain</code>: 指定协议族，常用 <code class="const">AF_INET</code> (IPv4) 或 <code class="const">AF_INET6</code> (IPv6)。</li>
+                    <li><code class="inline">type</code>: 指定套接字类型，常用 <code class="const">SOCK_STREAM</code> (TCP) 或 <code class="const">SOCK_DGRAM</code> (UDP)。</li>
+                    <li><code class="inline">protocol</code>: 通常设为 0，让系统根据 domain 和 type 自动选择协议。</li>
+                </ul>
+                <p>成功返回一个非负整数（套接字描述符），失败返回 -1 并设置 <code class="inline">errno</code>。</p>
+            </div>
+
+            <div class="api-function">
+                <h4><code class="func">bind()</code> - 绑定地址和端口</h4>
+                <pre><code class="language-c">int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);</code></pre>
+                <p>将一个本地地址（IP 地址和端口号）分配给套接字 <code class="inline">sockfd</code>。服务器端通常需要调用此函数来指定监听哪个地址和端口。</p>
+                <ul>
+                    <li><code class="inline">sockfd</code>: 由 <code class="func">socket()</code> 返回的描述符。</li>
+                    <li><code class="inline">addr</code>: 指向包含地址信息的 <code class="inline">struct sockaddr</code> 结构体的指针（通常传入 <code class="inline">struct sockaddr_in</code> (IPv4) 或 <code class="inline">struct sockaddr_in6</code> (IPv6) 并强制类型转换）。<strong>注意：</strong> 结构体中的端口和地址需要是网络字节序。</li>
+                    <li><code class="inline">addrlen</code>: <code class="inline">addr</code> 结构体的大小。</li>
+                </ul>
+                <p>成功返回 0，失败返回 -1。</p>
+            </div>
+
+            <div class="api-function">
+                <h4><code class="func">listen()</code> - 监听连接请求 (TCP Server)</h4>
+                <pre><code class="language-c">int listen(int sockfd, int backlog);</code></pre>
+                <p>将一个已绑定地址的套接字标记为被动套接字，用于接受传入的连接请求。只用于 TCP 服务器。</p>
+                <ul>
+                    <li><code class="inline">sockfd</code>: 监听套接字。</li>
+                    <li><code class="inline">backlog</code>: 指定等待连接队列的最大长度。</li>
+                </ul>
+                 <p>成功返回 0，失败返回 -1。</p>
+            </div>
+
+             <div class="api-function">
+                <h4><code class="func">accept()</code> - 接受连接 (TCP Server)</h4>
+                <pre><code class="language-c">int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);</code></pre>
+                <p>从已完成连接队列中取出一个挂起的连接请求，创建一个<strong class="emphasis">新的已连接套接字</strong>，并返回其描述符。如果队列为空，<code class="func">accept()</code> 会阻塞（默认情况下）直到有连接到来。</p>
+                 <ul>
+                     <li><code class="inline">sockfd</code>: 监听套接字。</li>
+                     <li><code class="inline">addr</code>: (可选) 用于接收客户端地址信息的结构体指针。</li>
+                     <li><code class="inline">addrlen</code>: (可选) 传入 <code class="inline">addr</code> 的大小，传出实际地址的大小。</li>
+                 </ul>
+                 <p>成功返回新的已连接套接字描述符，失败返回 -1。后续与该客户端的通信都使用这个<strong class="emphasis">新套接字</strong>进行。</p>
+            </div>
+
+             <div class="api-function">
+                <h4><code class="func">connect()</code> - 发起连接 (TCP Client)</h4>
+                <pre><code class="language-c">int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);</code></pre>
+                <p>客户端使用此函数尝试与指定的服务器地址和端口建立 TCP 连接。</p>
+                 <ul>
+                     <li><code class="inline">sockfd</code>: 客户端的套接字。</li>
+                     <li><code class="inline">addr</code>: 指向包含服务器地址信息的结构体指针（端口和地址需为网络字节序）。</li>
+                     <li><code class="inline">addrlen</code>: 服务器地址结构体的大小。</li>
+                 </ul>
+                 <p>成功返回 0，失败返回 -1。连接成功后，客户端即可通过 <code class="inline">sockfd</code> 进行读写。</p>
+            </div>
+
+             <div class="api-function">
+                <h4><code class="func">send()</code> / <code class="func">write()</code> - 发送数据 (TCP)</h4>
+                <pre><code class="language-c">ssize_t send(int sockfd, const void *buf, size_t len, int flags);
+ssize_t write(int fd, const void *buf, size_t count); // 通用写函数</code></pre>
+                <p>通过已连接的 TCP 套接字发送数据。</p>
+                 <ul>
+                     <li><code class="inline">sockfd</code> / <code class="inline">fd</code>: 已连接的套接字描述符。</li>
+                     <li><code class="inline">buf</code>: 指向要发送的数据的缓冲区。</li>
+                     <li><code class="inline">len</code> / <code class="inline">count</code>: 要发送的数据长度（字节）。</li>
+                     <li><code class="inline">flags</code>: (send) 通常设为 0。</li>
+                 </ul>
+                 <p>成功返回实际发送的字节数（可能小于请求的长度），失败返回 -1。需要循环发送以确保所有数据都被发送。</p>
+            </div>
+
+             <div class="api-function">
+                <h4><code class="func">recv()</code> / <code class="func">read()</code> - 接收数据 (TCP)</h4>
+                 <pre><code class="language-c">ssize_t recv(int sockfd, void *buf, size_t len, int flags);
+ssize_t read(int fd, void *buf, size_t count); // 通用读函数</code></pre>
+                 <p>从已连接的 TCP 套接字接收数据。</p>
+                 <ul>
+                     <li><code class="inline">sockfd</code> / <code class="inline">fd</code>: 已连接的套接字描述符。</li>
+                     <li><code class="inline">buf</code>: 指向用于存储接收数据的缓冲区。</li>
+                     <li><code class="inline">len</code> / <code class="inline">count</code>: 缓冲区的最大长度。</li>
+                     <li><code class="inline">flags</code>: (recv) 通常设为 0。</li>
+                 </ul>
+                 <p>成功返回实际接收的字节数。返回 0 表示对端已关闭连接。返回 -1 表示发生错误。需要循环接收直到读到所需数据或连接关闭。</p>
+            </div>
+
+             <div class="api-function">
+                <h4><code class="func">sendto()</code> - 发送数据报 (UDP)</h4>
+                 <pre><code class="language-c">ssize_t sendto(int sockfd, const void *buf, size_t len, int flags,
+                       const struct sockaddr *dest_addr, socklen_t addrlen);</code></pre>
+                 <p>通过 UDP 套接字向指定的目标地址发送数据报。</p>
+                  <ul>
+                     <li><code class="inline">sockfd</code>: UDP 套接字。</li>
+                     <li><code class="inline">buf</code>, <code class="inline">len</code>, <code class="inline">flags</code>: 同 <code class="func">send()</code>。</li>
+                     <li><code class="inline">dest_addr</code>: 指向目标地址信息的结构体指针。</li>
+                     <li><code class="inline">addrlen</code>: 目标地址结构体的大小。</li>
+                 </ul>
+                 <p>成功返回发送的字节数，失败返回 -1。</p>
+            </div>
+
+             <div class="api-function">
+                <h4><code class="func">recvfrom()</code> - 接收数据报 (UDP)</h4>
+                 <pre><code class="language-c">ssize_t recvfrom(int sockfd, void *buf, size_t len, int flags,
+                          struct sockaddr *src_addr, socklen_t *addrlen);</code></pre>
+                 <p>从 UDP 套接字接收数据报，并可选地获取发送方的地址信息。</p>
+                 <ul>
+                     <li><code class="inline">sockfd</code>, <code class="inline">buf</code>, <code class="inline">len</code>, <code class="inline">flags</code>: 同 <code class="func">recv()</code>。</li>
+                     <li><code class="inline">src_addr</code>: (可选) 用于接收发送方地址信息的结构体指针。</li>
+                     <li><code class="inline">addrlen</code>: (可选) 传入 <code class="inline">src_addr</code> 的大小，传出实际地址的大小。</li>
+                 </ul>
+                 <p>成功返回接收的字节数，失败返回 -1。</p>
+            </div>
+
+            <div class="api-function">
+                <h4><code class="func">close()</code> / <code class="func">shutdown()</code> - 关闭套接字</h4>
+                 <pre><code class="language-c">int close(int fd);
+int shutdown(int sockfd, int how);</code></pre>
+                 <ul>
+                     <li><code class="func">close()</code>: 关闭套接字描述符。对于 TCP，如果引用计数为 0，会尝试完成发送队列中的数据并发送 FIN 包。</li>
+                     <li><code class="func">shutdown()</code>: 更精细地关闭连接。<code>how</code> 可以是：
+                         <ul>
+                             <li><code class="const">SHUT_RD</code>: 关闭读端（不能再接收）。</li>
+                             <li><code class="const">SHUT_WR</code>: 关闭写端（不能再发送，会发送 FIN 包）。</li>
+                             <li><code class="const">SHUT_RDWR</code>: 同时关闭读写。</li>
+                         </ul>
+                       <code class="func">shutdown()</code> 不会释放描述符，仍需调用 <code class="func">close()</code>。通常用于半关闭连接。
+                     </li>
+                 </ul>
+            </div>
+             <div class="api-function">
+                <h4><code class="func">inet_pton()</code> / <code class="func">inet_ntop()</code> - 地址转换</h4>
+                 <pre><code class="language-c">int inet_pton(int af, const char *src, void *dst);
+const char *inet_ntop(int af, const void *src, char *dst, socklen_t size);</code></pre>
+                 <p>用于在点分十进制/冒号十六进制（字符串表示）和网络字节序的二进制 IP 地址之间进行转换。</p>
+                 <ul>
+                    <li><code class="inline">af</code>: <code class="const">AF_INET</code> 或 <code class="const">AF_INET6</code>。</li>
+                    <li><code class="inline">pton</code>: "presentation to network" (字符串转二进制)。</li>
+                    <li><code class="inline">ntop</code>: "network to presentation" (二进制转字符串)。</li>
+                 </ul>
+                 <p>这些函数比旧的 <code class="func">inet_addr()</code> / <code class="func">inet_ntoa()</code> 更推荐，因为它们支持 IPv6 且更安全。</p>
+             </div>
+        </div>
+
+
+        <!-- ==================== TCP Workflow ==================== -->
+        <div class="workflow-section">
+            <h2>TCP 编程工作流</h2>
+            <div class="protocol-comparison">
+                 <div>
+                     <h3>TCP 服务器端典型步骤</h3>
+                     <ol>
+                         <li><code class="func">socket()</code>: 创建监听套接字 (<code class="const">SOCK_STREAM</code>)。</li>
+                         <li>(可选) <code class="func">setsockopt()</code>: 设置套接字选项（如 <code class="const">SO_REUSEADDR</code>）。</li>
+                         <li><code class="func">bind()</code>: 绑定服务器地址和端口。</li>
+                         <li><code class="func">listen()</code>: 开始监听连接请求。</li>
+                         <li>循环:
+                             <ul>
+                                 <li><code class="func">accept()</code>: 接受一个客户端连接，返回新的<strong class="emphasis">已连接套接字</strong>。</li>
+                                 <li>(通常) 创建新线程或进程来处理该客户端连接（使用新的已连接套接字）。</li>
+                             </ul>
+                         </li>
+                         <li>在处理线程/进程中:
+                             <ul>
+                                 <li><code class="func">recv()</code> / <code class="func">send()</code> (或 <code class="func">read()</code> / <code class="func">write()</code>): 与客户端进行数据交换。</li>
+                                 <li><code class="func">close()</code>: 关闭<strong class="emphasis">已连接套接字</strong>。</li>
+                             </ul>
+                         </li>
+                         <li><code class="func">close()</code>: (最终) 关闭监听套接字。</li>
+                     </ol>
+                 </div>
+                <div>
+                     <h3>TCP 客户端典型步骤</h3>
+                     <ol>
+                         <li><code class="func">socket()</code>: 创建套接字 (<code class="const">SOCK_STREAM</code>)。</li>
+                         <li>(可选) <code class="func">bind()</code>: 如果需要指定源 IP 或端口。</li>
+                         <li>填充服务器地址结构体 (<code class="inline">struct sockaddr_in</code> / <code class="inline">in6</code>)，注意字节序。</li>
+                         <li><code class="func">connect()</code>: 连接到服务器。</li>
+                         <li><code class="func">send()</code> / <code class="func">recv()</code> (或 <code class="func">write()</code> / <code class="func">read()</code>): 与服务器进行数据交换。</li>
+                         <li><code class="func">close()</code>: 关闭套接字。</li>
+                     </ol>
+                 </div>
+             </div>
+        </div>
+
+        <!-- ==================== UDP Workflow ==================== -->
+        <div class="workflow-section">
+            <h2>UDP 编程工作流</h2>
+             <div class="protocol-comparison">
+                 <div>
+                     <h3>UDP 服务器端典型步骤</h3>
+                     <ol>
+                         <li><code class="func">socket()</code>: 创建套接字 (<code class="const">SOCK_DGRAM</code>)。</li>
+                         <li><code class="func">bind()</code>: 绑定服务器地址和端口。</li>
+                         <li>循环:
+                             <ul>
+                                 <li><code class="func">recvfrom()</code>: 接收数据报，并获取客户端地址。</li>
+                                 <li>处理接收到的数据。</li>
+                                 <li>(可选) <code class="func">sendto()</code>: 向客户端发送响应（使用从 <code class="func">recvfrom</code> 获取的地址）。</li>
+                             </ul>
+                         </li>
+                         <li><code class="func">close()</code>: 关闭套接字。</li>
+                     </ol>
+                 </div>
+                 <div>
+                     <h3>UDP 客户端典型步骤</h3>
+                     <ol>
+                         <li><code class="func">socket()</code>: 创建套接字 (<code class="const">SOCK_DGRAM</code>)。</li>
+                          <li>(可选) <code class="func">bind()</code>: 如果需要指定源 IP 或端口。</li>
+                         <li>填充服务器地址结构体。</li>
+                         <li>循环:
+                              <ul>
+                                 <li><code class="func">sendto()</code>: 向服务器发送数据报。</li>
+                                 <li>(可选) <code class="func">recvfrom()</code>: 接收服务器的响应。</li>
+                              </ul>
+                         </li>
+                         <li><code class="func">close()</code>: 关闭套接字。</li>
+                     </ol>
+                 </div>
+            </div>
+             <p style="margin-top: 15px;">注意：UDP 是无连接的，没有 <code class="func">listen()</code>, <code class="func">accept()</code>, <code class="func">connect()</code> (虽然 UDP 也可以 <code class="func">connect</code> 来指定默认目标地址)。数据收发直接使用 <code class="func">sendto()</code> 和 <code class="func">recvfrom()</code>。</p>
+        </div>
+
+        <!-- ==================== Important Considerations ==================== -->
+        <div class="concept-section">
+            <h2>重要注意事项</h2>
+            <div class="error-handling-note">
+                <h4>错误处理</h4>
+                <p>网络编程中<strong class="emphasis">几乎每个 Socket 调用都可能失败</strong>（网络中断、地址无效、权限不足、连接被拒等）。<strong class="emphasis">必须检查每个关键函数的返回值</strong>，并在失败时使用 <code class="inline">perror()</code> 或 <code class="inline">strerror(errno)</code> 来诊断问题。忽略错误检查是导致网络程序脆弱和不可靠的主要原因。</p>
+            </div>
+            <h4>阻塞与非阻塞 I/O (Blocking vs. Non-blocking)</h4>
+            <p>默认情况下，大多数 Socket I/O 操作（如 <code class="func">accept()</code>, <code class="func">connect()</code>, <code class="func">recv()</code>, <code class="func">send()</code>）是<strong>阻塞</strong>的。这意味着如果操作不能立即完成（例如，没有连接到来、没有数据可读、发送缓冲区满），调用会暂停程序的执行，直到操作可以完成或发生错误。</p>
+            <p>对于需要同时处理多个连接或执行其他任务的服务器，阻塞模式通常不适用。需要使用更高级的技术：</p>
+            <ul>
+                <li><strong>非阻塞套接字 (Non-blocking Sockets):</strong> 使用 <code class="func">fcntl()</code> 或 <code class="func">ioctl()</code> 设置套接字为非阻塞模式。调用会立即返回，如果操作未完成则返回特定错误码（如 <code class="const">EAGAIN</code> 或 <code class="const">EWOULDBLOCK</code>）。程序需要轮询或使用 I/O 多路复用。</li>
+                <li><strong>I/O 多路复用 (I/O Multiplexing):</strong> 如 <code class="func">select()</code>, <code class="func">poll()</code>, <code class="func">epoll()</code> (Linux), <code class="func">kqueue()</code> (*BSD/macOS)。允许程序同时监视多个文件描述符（包括套接字）的状态，看它们是否可读、可写或出错，从而高效地处理大量并发连接。</li>
+                <li><strong>多线程/多进程:</strong> 每个连接由一个独立的线程或进程处理。</li>
+            </ul>
+            <h4>字节序 (Byte Order)</h4>
+            <p>再次强调，务必在网络传输前后正确转换端口号和 IP 地址的字节序 (<code class="func">htons</code>, <code class="func">htonl</code>, <code class="func">ntohs</code>, <code class="func">ntohl</code>)。</p>
+        </div>
+
+        <!-- ==================== Why C? ==================== -->
+        <div class="why-c">
+            <h2>为什么用 C 进行网络编程？</h2>
+            <ul>
+                <li><strong>性能与效率：</strong> C 语言编译的代码运行速度快，内存占用低，非常适合需要处理大量并发连接或高速数据传输的网络应用。</li>
+                <li><strong>底层控制：</strong> C 允许直接调用操作系统提供的 Socket API，对网络协议栈的行为有更精细的控制（如设置套接字选项）。</li>
+                <li><strong>可移植性 (POSIX):</strong> 遵循 POSIX 标准的 Socket 代码可以在多种 Unix-like 系统上编译运行。</li>
+                <li><strong>基础性：</strong> 许多高级语言的网络库底层都是基于 C Socket API 实现的。理解 C Socket 编程有助于深入理解网络通信的原理。</li>
+            </ul>
+        </div>
+
+        <!-- ==================== Getting Started ==================== -->
+         <div class="getting-started">
+             <h2>入门建议</h2>
+             <ol>
+                 <li><strong>理解 TCP/IP 基础：</strong> 先对 IP、TCP、UDP、端口、客户端/服务器模型有基本认识。</li>
+                 <li><strong>学习核心 Socket API：</strong> 熟悉 <code class="func">socket</code>, <code class="func">bind</code>, <code class="func">listen</code>, <code class="func">accept</code>, <code class="func">connect</code>, <code class="func">send</code>/`recv`, <code class="func">sendto</code>/`recvfrom`, <code class="func">close</code> 的基本用法。</li>
+                 <li><strong>关注字节序转换：</strong> 养成处理网络字节序的习惯。</li>
+                 <li><strong>从简单的回显服务器开始：</strong> 编写一个简单的 TCP 或 UDP 服务器，将客户端发来的数据原样返回。这是经典的入门练习。</li>
+                 <li><strong>实践错误处理：</strong> 刻意模拟错误情况（如端口被占用、连接中断），练习检查返回值和使用 <code class="inline">perror</code>/`strerror`。</li>
+                 <li><strong>参考优秀资源：</strong>
+                    <ul>
+                        <li><strong>Beej's Guide to Network Programming:</strong> 非常适合初学者的经典网络编程指南 (搜索 "Beej's Guide")。</li>
+                        <li><strong>《Unix 网络编程》(UNP by W. Richard Stevens):</strong> 网络编程领域的权威著作，内容深入全面。</li>
+                    </ul>
+                 </li>
+                 <li>逐步学习高级主题：非阻塞 I/O、I/O 多路复用、多线程/多进程服务器模型。</li>
+             </ol>
+         </div>
+
+        <!-- ==================== Conclusion ==================== -->
+        <div class="conclusion">
+            <p>Socket 编程是 C 语言强大能力的集中体现，是通往网络世界的大门。虽然涉及的概念和函数较多，且需要细致的错误处理，但掌握它将使你能够开发出各种网络应用程序，从简单的工具到复杂的分布式系统。通过理解核心概念、熟悉 API、并不断实践，你就能逐步精通 C 语言网络编程。</p>
+        </div>
+
+    </div>
+</body>
+</html>

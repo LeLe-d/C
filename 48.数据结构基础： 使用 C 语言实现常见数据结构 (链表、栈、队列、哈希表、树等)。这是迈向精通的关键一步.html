@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据结构基础 - C 语言实现</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.8; /* Increased for readability */
+            margin: 20px;
+            background-color: #f4f8fb; /* Softer background */
+            color: #3a414e; /* Slightly softer black */
+        }
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: #ffffff;
+            padding: 30px 40px; /* More padding */
+            border-radius: 12px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e8edf3;
+        }
+        h1 {
+            color: #1a5276; /* Deeper blue */
+            text-align: center;
+            border-bottom: 3px solid #5dade2; /* Lighter blue */
+            padding-bottom: 18px;
+            margin-bottom: 40px;
+            font-size: 2.4em;
+        }
+        h2 {
+            color: #1f618d; /* Medium blue */
+            margin-top: 45px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #aed6f1; /* Pale blue border */
+            font-size: 1.9em;
+        }
+        h3 {
+            color: #1abc9c; /* Turquoise */
+            margin-top: 30px;
+            font-weight: 600;
+            font-size: 1.5em;
+        }
+        h4 {
+            color: #9b59b6; /* Amethyst */
+            margin-top: 20px;
+            font-weight: normal;
+            font-style: italic;
+            font-size: 1.2em;
+        }
+        code.inline {
+            background-color: #e8f6f3; /* Light turquoise background */
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            color: #117a65; /* Darker turquoise text */
+            font-size: 0.9em;
+            border: 1px solid #d0ece7;
+        }
+        pre {
+            background-color: #2c3e50; /* Dark slate blue */
+            color: #ecf0f1;          /* Light gray text */
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            border: 1px solid #7f8c8d; /* Gray border */
+            font-size: 0.95em;
+            margin-top: 15px;
+            margin-bottom: 25px;
+        }
+        pre code { /* Reset styles for code inside pre */
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+            font-size: 1em;
+            border: none;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin-bottom: 12px;
+        }
+        strong, .emphasis {
+            font-weight: 700; /* Bolder emphasis */
+             color: #e67e22; /* Carrot orange for emphasis */
+        }
+        .introduction, .conclusion {
+            background-color: #fdfefe;
+            padding: 20px;
+            border-left: 5px solid #5dade2; /* Blue border */
+            margin: 25px 0;
+            border-radius: 5px;
+        }
+        .structure-section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 1px solid #e8edf3;
+            border-radius: 8px;
+            background-color: #fdfefe;
+        }
+        .why-implement {
+            background-color: #fcf3cf; /* Light yellow */
+            border-left: 5px solid #f1c40f; /* Yellow border */
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .key-ops {
+            font-style: italic;
+            color: #7f8c8d; /* Gray for operations list intro */
+        }
+        .next-steps {
+             background-color: #eafaf1; /* Light green */
+             border-left: 5px solid #2ecc71; /* Green border */
+             padding: 20px;
+             margin-top: 30px;
+             border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>数据结构基础：C 语言实现之旅</h1>
+
+        <div class="introduction">
+            <p>数据结构是计算机科学的基石，它们是组织、管理和存储数据的方式，以便能够高效地访问和修改数据。对于 C 语言开发者而言，不仅仅是<strong class="emphasis">理解</strong>这些数据结构的概念，更重要的是<strong class="emphasis">亲手用 C 语言实现它们</strong>。这是因为 C 语言不提供内置的高级数据结构（如 C++ 的 STL 或 Python 的 list/dict），它迫使你直接面对内存管理、指针操作和底层细节。</p>
+            <p>通过自己动手实现链表、栈、队列、哈希表、树等，你将深刻理解它们的内部工作原理、时间和空间复杂度以及适用的场景。这不仅仅是学习 C 语言的过程，更是<strong>锻炼算法思维和底层编程能力</strong>的关键一步，是真正从“会用 C”迈向“精通 C”的分水岭。</p>
+        </div>
+
+        <!-- ==================== Linked List ==================== -->
+        <div class="structure-section">
+            <h2>链表 (Linked List)</h2>
+            <h3>基本概念</h3>
+            <p>链表是一种线性数据结构，但与数组不同，它的元素（节点）在内存中不一定是连续存储的。每个节点包含数据部分和指向下一个节点的指针 (<code class="inline">next</code>)。</p>
+            <pre><code class="language-c">// 单向链表节点的基本结构
+typedef struct Node {
+    int data;             // 存储的数据
+    struct Node *next;    // 指向下一个节点的指针
+} Node;</code></pre>
+            <p>链表可以是单向的、双向的（包含指向前一个节点的指针 <code class="inline">prev</code>）或循环的。</p>
+
+            <div class="why-implement">
+                <h4>为什么用 C 实现？</h4>
+                <p>实现链表是<strong>掌握 C 语言指针和动态内存分配 (<code class="inline">malloc</code>, <code class="inline">free</code>) 的绝佳练习</strong>。你需要手动管理节点的创建、连接和销毁，处理各种边界情况（如空链表、只有一个节点的链表）。</p>
+            </div>
+
+            <h4>关键操作</h4>
+            <p class="key-ops">你需要实现的核心功能通常包括：</p>
+            <ul>
+                <li>创建链表/节点</li>
+                <li>插入节点（头插、尾插、中间插入）</li>
+                <li>删除节点</li>
+                <li>查找节点</li>
+                <li>遍历链表</li>
+                <li>销毁链表（释放所有节点内存）</li>
+            </ul>
+        </div>
+
+        <!-- ==================== Stack ==================== -->
+        <div class="structure-section">
+            <h2>栈 (Stack)</h2>
+            <h3>基本概念</h3>
+            <p>栈是一种遵循<strong>后进先出 (Last-In, First-Out - LIFO)</strong> 原则的线性数据结构。想象一摞盘子，你最后放上去的盘子总是第一个被取走。</p>
+            <p>栈通常可以用数组（顺序栈）或链表（链式栈）来实现。</p>
+
+            <div class="why-implement">
+                <h4>为什么用 C 实现？</h4>
+                <p>实现栈可以帮助你理解<strong>受限的线性结构</strong>。如果你用数组实现，需要管理栈顶指针和处理栈满的情况；如果用链表实现，则是在链表操作的基础上增加 LIFO 的约束。这是理解函数调用栈、表达式求值等应用的基础。</p>
+            </div>
+
+            <h4>关键操作</h4>
+            <p class="key-ops">主要操作集中在栈顶：</p>
+            <ul>
+                <li><code class="inline">push</code>: 入栈（在栈顶添加元素）。</li>
+                <li><code class="inline">pop</code>: 出栈（移除并返回栈顶元素）。</li>
+                <li><code class="inline">peek</code> / <code class="inline">top</code>: 查看栈顶元素（不移除）。</li>
+                <li><code class="inline">isEmpty</code>: 判断栈是否为空。</li>
+                <li><code class="inline">isFull</code>: (对于顺序栈) 判断栈是否已满。</li>
+            </ul>
+        </div>
+
+        <!-- ==================== Queue ==================== -->
+        <div class="structure-section">
+            <h2>队列 (Queue)</h2>
+            <h3>基本概念</h3>
+            <p>队列是一种遵循<strong>先进先出 (First-In, First-Out - FIFO)</strong> 原则的线性数据结构。就像排队买票，先来的人先服务。</p>
+            <p>队列同样可以用数组（顺序队列，常使用循环数组避免频繁移动）或链表（链式队列）来实现。</p>
+
+            <div class="why-implement">
+                <h4>为什么用 C 实现？</h4>
+                <p>实现队列需要管理队头 (<code class="inline">front</code>) 和队尾 (<code class="inline">rear</code>) 两个指针（或索引）。特别是使用循环数组实现时，需要<strong>处理指针回绕（模运算）和判断队空/队满的条件</strong>，是很好的逻辑思维训练。队列是广度优先搜索 (BFS)、操作系统任务调度等的基础。</p>
+            </div>
+
+            <h4>关键操作</h4>
+            <p class="key-ops">操作通常在队头和队尾进行：</p>
+            <ul>
+                <li><code class="inline">enqueue</code>: 入队（在队尾添加元素）。</li>
+                <li><code class="inline">dequeue</code>: 出队（移除并返回队头元素）。</li>
+                <li><code class="inline">peek</code> / <code class="inline">front</code>: 查看队头元素（不移除）。</li>
+                <li><code class="inline">isEmpty</code>: 判断队列是否为空。</li>
+                <li><code class="inline">isFull</code>: (对于顺序队列) 判断队列是否已满。</li>
+            </ul>
+        </div>
+
+        <!-- ==================== Hash Table ==================== -->
+        <div class="structure-section">
+            <h2>哈希表 (Hash Table) / 散列表</h2>
+            <h3>基本概念</h3>
+            <p>哈希表是一种提供快速<strong>键值对 (Key-Value) 存储和查找</strong>的数据结构。它通过一个<strong>哈希函数 (Hash Function)</strong> 将键 (Key) 映射到一个索引（桶/槽位），理想情况下可以直接定位到值 (Value)。</p>
+            <p>关键挑战在于处理<strong>哈希冲突</strong>（不同的键映射到同一个索引）。常见的解决方法有：</p>
+            <ul>
+                <li><strong>链地址法 (Chaining):</strong> 每个桶对应一个链表，存储所有映射到该桶的键值对。</li>
+                <li><strong>开放地址法 (Open Addressing):</strong> 当冲突发生时，探测下一个可用的槽位（线性探测、二次探测、双重哈希等）。</li>
+            </ul>
+            <pre><code class="language-c">// 基于链地址法的哈希表可能结构 (简化)
+typedef struct HashNode {
+    char *key;
+    int value;
+    struct HashNode *next; // 指向链表中下一个节点
+} HashNode;
+
+typedef struct HashTable {
+    HashNode **buckets;     // 指向 Node* 指针数组 (桶数组)
+    size_t size;          // 桶的数量
+    size_t count;         // 当前存储的键值对数量
+} HashTable;</code></pre>
+
+            <div class="why-implement">
+                <h4>为什么用 C 实现？</h4>
+                <p>实现哈希表是综合性的挑战，涉及：</p>
+                <ul>
+                    <li><strong>设计或选择合适的哈希函数。</strong></li>
+                    <li><strong>高效处理哈希冲突</strong>（链表操作或探测逻辑）。</li>
+                    <li><strong>动态数组管理</strong>（桶数组的分配和可能的扩容/缩容 <code>realloc</code>）。</li>
+                    <li><strong>字符串处理和比较</strong>（如果键是字符串）。</li>
+                    <li><strong>内存管理</strong>（节点、键、桶数组的分配与释放）。</li>
+                </ul>
+                <p>这是对前面数据结构知识（数组、链表）和 C 语言能力的综合运用。</p>
+            </div>
+
+            <h4>关键操作</h4>
+            <p class="key-ops">核心是键值对操作：</p>
+            <ul>
+                <li><code class="inline">insert</code> / <code class="inline">put</code>: 插入或更新键值对。</li>
+                <li><code class="inline">search</code> / <code class="inline">get</code>: 根据键查找值。</li>
+                <li><code class="inline">delete</code> / <code class="inline">remove</code>: 根据键删除键值对。</li>
+                <li>(可能) <code class="inline">resize</code>: 当负载因子过高时，调整哈希表大小并重新哈希所有元素。</li>
+            </ul>
+        </div>
+
+        <!-- ==================== Tree ==================== -->
+        <div class="structure-section">
+            <h2>树 (Tree)</h2>
+            <h3>基本概念</h3>
+            <p>树是一种非线性的分层数据结构，由节点组成。有一个特殊的根节点，每个节点可以有零个或多个子节点。常见的树类型包括：</p>
+            <ul>
+                <li><strong>二叉树 (Binary Tree):</strong> 每个节点最多有两个子节点（左子节点和右子节点）。</li>
+                <li><strong>二叉搜索树 (Binary Search Tree - BST):</strong> 一种特殊的二叉树，对于任意节点，其左子树所有节点的值都小于该节点的值，右子树所有节点的值都大于该节点的值。提供较快的查找、插入和删除（平均 O(log n)）。</li>
+                <li><strong>平衡二叉树 (Balanced Binary Tree):</strong> 如 AVL 树、红黑树，通过旋转等操作保持树的高度平衡，确保最坏情况下的性能也是 O(log n)。</li>
+                <li><strong>B 树 / B+ 树:</strong> 常用于数据库和文件系统索引。</li>
+                <li><strong>堆 (Heap):</strong> 通常用数组实现的完全二叉树，满足堆属性（最大堆或最小堆），常用于优先队列。</li>
+            </ul>
+             <pre><code class="language-c">// 二叉树节点的基本结构
+typedef struct TreeNode {
+    int data;
+    struct TreeNode *left;  // 指向左子节点
+    struct TreeNode *right; // 指向右子节点
+} TreeNode;</code></pre>
+
+            <div class="why-implement">
+                <h4>为什么用 C 实现？</h4>
+                <p>实现树结构，特别是二叉树及其变种，是<strong>掌握递归思想和复杂指针操作</strong>的绝佳途径。</p>
+                <ul>
+                    <li>树的遍历（前序、中序、后序）天然适合递归实现。</li>
+                    <li>节点的插入和删除涉及多指针的修改和各种情况的处理（叶节点、单子节点、双子节点）。</li>
+                    <li>实现平衡树（如 AVL）需要理解和实现旋转操作，是高级算法能力的体现。</li>
+                    <li>需要仔细管理每个节点的内存生命周期。</li>
+                </ul>
+             </div>
+
+            <h4>关键操作 (以 BST 为例)</h4>
+            <p class="key-ops">主要包括：</p>
+            <ul>
+                <li><code class="inline">insert</code>: 插入新节点，保持 BST 属性。</li>
+                <li><code class="inline">search</code>: 查找特定值的节点。</li>
+                <li><code class="inline">delete</code>: 删除节点，并维持 BST 属性（这是最复杂的操作之一）。</li>
+                <li><code class="inline">traverse</code>: 遍历树（前序、中序、后序、层序）。</li>
+                <li>(可能) 查找最小值/最大值、查找前驱/后继节点。</li>
+            </ul>
+        </div>
+
+        <!-- ==================== Path to Mastery ==================== -->
+        <h2>迈向精通之路</h2>
+        <div class="next-steps">
+            <p>理解数据结构的概念是一回事，能用像 C 这样要求精细控制的语言将其实现出来是另一回事。这个过程会强迫你思考：</p>
+            <ul>
+                <li><strong class="emphasis">内存是如何布局和管理的？</strong> (<code class="inline">malloc</code>, <code class="inline">free</code>, 指针算术)</li>
+                <li><strong class="emphasis">指针操作的各种细节和陷阱？</strong> (空指针、野指针、多级指针)</li>
+                <li><strong class="emphasis">如何处理各种边界条件和错误情况？</strong></li>
+                <li><strong class="emphasis">如何设计清晰、可复用的接口 (API)？</strong> (头文件、源文件分离)</li>
+                <li><strong class="emphasis">如何编写测试用例来验证实现的正确性？</strong></li>
+                <li><strong class="emphasis">不同实现方式的时间和空间复杂度权衡 (Big O)？</strong></li>
+            </ul>
+            <p><strong>建议步骤：</strong></p>
+            <ol>
+                <li>从最基础的<strong>单向链表</strong>开始。</li>
+                <li>然后尝试实现<strong>栈和队列</strong>（可以用数组或链表）。</li>
+                <li>接着挑战<strong>二叉搜索树</strong>，重点掌握递归遍历和插入/删除。</li>
+                <li>最后尝试实现<strong>哈希表</strong>（链地址法相对容易入手）。</li>
+                <li>在掌握基础版本后，可以尝试更高级的变种（双向链表、循环队列、平衡树等）。</li>
+            </ol>
+            <p>寻找优秀的教程、书籍（如《C 程序设计语言》、《算法导论》）或在线课程资源，但最终的目标是<strong>关上书本，自己动手写代码</strong>。</p>
+        </div>
+
+        <div class="conclusion">
+            <p>用 C 语言实现数据结构的过程可能充满挑战，会遇到各种编译错误和运行时 Bug，但克服这些困难所带来的收获是巨大的。它不仅能让你成为更优秀的 C 程序员，更能让你对计算机科学的核心原理有更深刻的理解。祝你在这段旅程中学习愉快，收获满满！</p>
+        </div>
+
+    </div>
+</body>
+</html>

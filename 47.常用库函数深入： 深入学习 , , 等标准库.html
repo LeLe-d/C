@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C 标准库函数深入学习</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.7;
+            margin: 20px;
+            background-color: #f9fbfc; /* A very light blue/gray background */
+            color: #333;
+        }
+        .container {
+            max-width: 1100px; /* Wider container for more content */
+            margin: auto;
+            background: #ffffff;
+            padding: 35px 40px; /* More padding */
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e4eaf0;
+        }
+        h1 {
+            color: #2c3e50; /* Dark blue */
+            text-align: center;
+            border-bottom: 3px solid #3498db; /* Standard blue */
+            padding-bottom: 15px;
+            margin-bottom: 40px;
+            font-size: 2.2em;
+        }
+        h2 {
+            color: #2980b9; /* Stronger blue */
+            margin-top: 45px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #a9cce3; /* Lighter blue border */
+            font-size: 1.8em;
+        }
+        h3 {
+            color: #16a085; /* Teal */
+            margin-top: 30px;
+            font-weight: 600;
+            font-size: 1.4em;
+        }
+        h4 {
+            color: #8e44ad; /* Purple for sub-categories/notes */
+            margin-top: 20px;
+            font-weight: normal;
+            font-style: italic;
+            font-size: 1.1em;
+        }
+        code.inline {
+            background-color: #ecf0f1; /* Light gray background */
+            padding: 3px 7px;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            color: #c0392b; /* Reddish */
+            font-size: 0.9em;
+            border: 1px solid #e0e5ea;
+        }
+        pre {
+            background-color: #2d3436; /* Dark gray/black */
+            color: #dfe6e9;          /* Light gray text */
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            border: 1px solid #636e72;
+            font-size: 0.95em; /* Slightly larger pre code */
+            margin-top: 15px;
+            margin-bottom: 25px;
+        }
+        pre code { /* Reset styles for code inside pre */
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+            font-size: 1em;
+            border: none;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin-bottom: 12px;
+        }
+        strong, .emphasis {
+            font-weight: 600;
+             color: #d35400; /* Orange/brown for emphasis */
+        }
+        .warning {
+            background-color: #fef5e7; /* Light orange background */
+            border-left: 5px solid #f39c12; /* Orange border */
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .warning strong {
+            color: #b9770e; /* Darker orange */
+        }
+        .function-group {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #fdfefe;
+        }
+        .function-sig {
+            font-family: monospace;
+            font-weight: bold;
+            color: #2980b9;
+            margin-bottom: 5px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>C 标准库函数深入学习</h1>
+
+        <p>C 语言的标准库提供了一套丰富的函数，用于执行常见的任务，如输入/输出、字符串操作、内存管理、数学计算等。深入理解这些核心库函数对于编写高效、健壮和可移植的 C 程序至关重要。本页将重点探讨 <code>&lt;stdio.h&gt;</code>、<code>&lt;stdlib.h&gt;</code> 和 <code>&lt;string.h&gt;</code> 中的常用函数。</p>
+
+        <!-- ==================== stdio.h ==================== -->
+        <h2>&lt;stdio.h&gt; (Standard Input/Output)</h2>
+        <p><code>stdio.h</code> 提供了处理输入和输出操作的核心功能，主要是通过<strong>流 (Stream)</strong> 的概念来实现的。流是数据的序列，可以与文件、设备（如键盘、屏幕）等关联。</p>
+        <p><strong>关键概念：</strong></p>
+        <ul>
+            <li><strong>流 (Stream):</strong> 一个抽象接口，用于读写数据。常见的预定义流有 <code>stdin</code> (标准输入)、<code>stdout</code> (标准输出)、<code>stderr</code> (标准错误)。</li>
+            <li><strong><code>FILE</code> 结构:</strong> 一个包含控制流所需信息（如文件描述符、缓冲区、当前位置、错误状态等）的结构体类型。文件操作函数通常返回或接受 <code>FILE*</code> 指针。</li>
+            <li><strong><code>EOF</code> (End Of File):</strong> 一个特殊的整数常量，通常为 -1，表示已到达文件末尾或发生错误。</li>
+        </ul>
+
+        <div class="function-group">
+            <h3>文件操作</h3>
+            <h4><code>fopen()</code></h4>
+            <p class="function-sig">FILE *fopen(const char *filename, const char *mode);</p>
+            <p>打开一个文件，并将其与一个流关联起来。返回一个指向 <code>FILE</code> 结构的指针，供后续文件操作使用。如果失败，返回 <code>NULL</code>。</p>
+            <p><strong>常用模式 (<code>mode</code>):</strong></p>
+            <ul>
+                <li><code class="inline">"r"</code>: 读取 (文件必须存在)。</li>
+                <li><code class="inline">"w"</code>: 写入 (如果文件存在则清空，不存在则创建)。</li>
+                <li><code class="inline">"a"</code>: 追加 (在文件末尾写入，不存在则创建)。</li>
+                <li><code class="inline">"r+"</code>: 读写 (文件必须存在)。</li>
+                <li><code class="inline">"w+"</code>: 读写 (清空或创建)。</li>
+                <li><code class="inline">"a+"</code>: 读追加 (不存在则创建)。</li>
+                <li>添加 <code class="inline">"b"</code> (如 <code class="inline">"rb"</code>, <code class="inline">"wb"</code>) 表示以<strong>二进制模式</strong>操作，否则默认为文本模式（可能进行换行符转换等）。</li>
+            </ul>
+            <pre><code class="language-c">FILE *inputFile = fopen("data.txt", "r");
+if (inputFile == NULL) {
+    perror("Error opening data.txt for reading");
+    // 处理错误...
+}
+
+FILE *outputFile = fopen("output.log", "wb"); // 打开二进制文件用于写入
+if (outputFile == NULL) {
+    perror("Error opening output.log for writing");
+    // 处理错误...
+}</code></pre>
+            <div class="warning"><strong>重要：</strong> 每次调用 <code>fopen</code> 后，<strong>必须检查返回的指针是否为 <code>NULL</code></strong>，以处理文件打开失败的情况。</div>
+
+            <h4><code>fclose()</code></h4>
+            <p class="function-sig">int fclose(FILE *stream);</p>
+            <p>关闭指定的流，断开与文件的关联。这会刷新任何未写入的缓冲数据，释放相关资源。成功时返回 0，失败时返回 <code>EOF</code>。</p>
+            <pre><code class="language-c">if (fclose(inputFile) != 0) {
+    perror("Error closing input file");
+}
+if (fclose(outputFile) != 0) {
+    perror("Error closing output file");
+}</code></pre>
+            <div class="warning"><strong>重要：</strong> 打开的文件在使用完毕后<strong>必须关闭</strong>，否则可能导致数据丢失或资源泄漏。</div>
+
+            <h4><code>fread()</code> 和 <code>fwrite()</code></h4>
+            <p class="function-sig">size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream);</p>
+            <p class="function-sig">size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream);</p>
+            <p>用于二进制文件的读写。它们读取或写入 <code>nmemb</code> 个数据项，每个数据项的大小为 <code>size</code> 字节，数据存储在 <code>ptr</code> 指向的内存中。</p>
+            <p><strong>返回值：</strong> 成功读取或写入的<strong>数据项个数</strong> (<code>nmemb</code>)。如果返回值小于期望的 <code>nmemb</code>，可能表示到达文件末尾 (<code>fread</code>) 或发生错误。</p>
+            <pre><code class="language-c">int numbers[10];
+size_t items_read = fread(numbers, sizeof(int), 10, inputFile);
+if (items_read < 10) {
+    if (feof(inputFile)) {
+        printf("Reached end of file before reading 10 integers.\n");
+    } else if (ferror(inputFile)) {
+        perror("Error reading integers");
+    }
+}
+
+typedef struct { int id; double value; } Record;
+Record rec = {1, 3.14};
+size_t items_written = fwrite(&rec, sizeof(Record), 1, outputFile);
+if (items_written < 1) {
+     perror("Error writing record");
+}</code></pre>
+
+            <h4><code>fseek()</code>, <code>ftell()</code>, <code>rewind()</code></h4>
+            <p class="function-sig">int fseek(FILE *stream, long offset, int whence);</p>
+            <p class="function-sig">long ftell(FILE *stream);</p>
+            <p class="function-sig">void rewind(FILE *stream);</p>
+            <ul>
+                <li><code>fseek</code>: 移动文件流的读写位置。<code>offset</code> 是偏移量，<code>whence</code> 指定基准位置：<code>SEEK_SET</code> (文件开头), <code>SEEK_CUR</code> (当前位置), <code>SEEK_END</code> (文件末尾)。成功返回 0，失败返回非零。</li>
+                <li><code>ftell</code>: 返回流的当前读写位置（相对于文件开头的字节数）。失败返回 -1L。</li>
+                <li><code>rewind</code>: 将读写位置移回文件开头，相当于 <code>fseek(stream, 0L, SEEK_SET)</code>，并清除错误和 EOF 标志。</li>
+            </ul>
+            <pre><code class="language-c">// 移动到文件末尾前 10 个字节
+if (fseek(outputFile, -10L, SEEK_END) != 0) {
+    perror("fseek failed");
+}
+
+long current_pos = ftell(outputFile);
+if (current_pos == -1L) {
+    perror("ftell failed");
+} else {
+    printf("Current position: %ld bytes from start.\n", current_pos);
+}
+
+rewind(inputFile); // 回到文件开头</code></pre>
+            <div class="warning"><code>fseek</code> 和 <code>ftell</code> 对文本模式的文件行为可能不可靠，尤其是在涉及多字节字符或不同换行符约定的系统上。对二进制文件使用更安全。</div>
+
+            <h4><code>feof()</code> 和 <code>ferror()</code></h4>
+            <p class="function-sig">int feof(FILE *stream);</p>
+            <p class="function-sig">int ferror(FILE *stream);</p>
+            <p>用于检查流的状态。<code>feof</code> 返回非零值表示已到达文件末尾。<code>ferror</code> 返回非零值表示发生了读写错误。</p>
+            <p>通常在读写函数（如 <code>fread</code>, <code>fgetc</code>）返回意外结果后，使用这两个函数来确定具体原因。</p>
+
+            <h4><code>fflush()</code></h4>
+            <p class="function-sig">int fflush(FILE *stream);</p>
+            <p>强制将输出流缓冲区中的数据写入关联的文件或设备。如果 <code>stream</code> 是 <code>NULL</code>，则刷新所有打开的输出流。对输入流调用行为未定义（某些实现可能清空输入缓冲区）。成功返回 0，失败返回 <code>EOF</code>。</p>
+            <pre><code class="language-c">printf("Processing data..."); // 可能仍在缓冲区
+fflush(stdout); // 确保 "Processing data..." 立即显示在屏幕上
+// ...长时间操作...
+printf("Done.\n");</code></pre>
+        </div>
+
+        <div class="function-group">
+            <h3>格式化输入/输出</h3>
+            <p>这类函数根据格式字符串 (format string) 来解析输入或格式化输出。</p>
+            <h4><code>printf()</code>, <code>fprintf()</code>, <code>sprintf()</code></h4>
+            <p class="function-sig">int printf(const char *format, ...);</p>
+            <p class="function-sig">int fprintf(FILE *stream, const char *format, ...);</p>
+            <p class="function-sig">int sprintf(char *str, const char *format, ...);</p>
+            <ul>
+                <li><code>printf</code>: 输出到标准输出 (<code>stdout</code>)。</li>
+                <li><code>fprintf</code>: 输出到指定的流 (<code>stream</code>)。</li>
+                <li><code>sprintf</code>: 输出到字符数组 (<code>str</code>) 中。<strong class="emphasis">极易导致缓冲区溢出！</strong> C99 引入了更安全的 <code>snprintf</code>。</li>
+            </ul>
+            <p><strong>格式说明符 (Format Specifiers)</strong> 是核心，例如：</p>
+            <ul>
+                <li><code>%d</code>, <code>%i</code>: 有符号十进制整数。</li>
+                <li><code>%u</code>: 无符号十进制整数。</li>
+                <li><code>%o</code>: 无符号八进制整数。</li>
+                <li><code>%x</code>, <code>%X</code>: 无符号十六进制整数。</li>
+                <li><code>%f</code>: 浮点数 (小数形式)。</li>
+                <li><code>%e</code>, <code>%E</code>: 浮点数 (科学计数法)。</li>
+                <li><code>%g</code>, <code>%G</code>: 浮点数 (自动选择 <code>%f</code> 或 <code>%e</code>)。</li>
+                <li><code>%c</code>: 单个字符。</li>
+                <li><code>%s</code>: 字符串 (字符指针)。</li>
+                <li><code>%p</code>: 指针地址。</li>
+                <li><code>%%</code>: 输出一个 <code>%</code> 字符。</li>
+            </ul>
+            <p>可以包含宽度、精度、标志等修饰符 (如 <code>%04d</code>, <code>%.2f</code>, <code>%-10s</code>)。</p>
+            <pre><code class="language-c">int count = 10;
+double price = 99.95;
+char label[] = "Apple";
+fprintf(outputFile, "Item: %-10s | Count: %03d | Price: $%.2f\n", label, count, price);
+
+char buffer[100];
+// 使用 snprintf (更安全) 代替 sprintf
+int written = snprintf(buffer, sizeof(buffer), "Log entry %d: Processed %s", 1, label);
+if (written >= sizeof(buffer)) {
+    printf("Warning: Output truncated for sprintf buffer.\n");
+} else if (written < 0) {
+    perror("snprintf error");
+}</code></pre>
+
+            <h4><code>scanf()</code>, <code>fscanf()</code>, <code>sscanf()</code></h4>
+            <p class="function-sig">int scanf(const char *format, ...);</p>
+            <p class="function-sig">int fscanf(FILE *stream, const char *format, ...);</p>
+            <p class="function-sig">int sscanf(const char *str, const char *format, ...);</p>
+            <ul>
+                <li><code>scanf</code>: 从标准输入 (<code>stdin</code>) 读取。</li>
+                <li><code>fscanf</code>: 从指定的流 (<code>stream</code>) 读取。</li>
+                <li><code>sscanf</code>: 从字符数组 (<code>str</code>) 中读取。</li>
+            </ul>
+            <p>根据格式字符串解析输入，并将结果存储到后续参数（必须是指针！）指向的内存位置。返回成功匹配和赋值的项数，错误或文件末尾时返回 <code>EOF</code>。</p>
+            <div class="warning"><strong>极度危险！</strong> <code>scanf</code> 家族函数非常容易出错和导致安全漏洞：
+                <ul>
+                    <li>读取字符串 (<code>%s</code>) 时不限制长度，极易导致<strong>缓冲区溢出</strong>。应始终指定最大宽度，如 <code>%99s</code> (留一位给 <code>\0</code>)。</li>
+                    <li>输入格式与预期不符时，可能导致读取失败或行为异常。</li>
+                    <li>必须传递变量的<strong>地址</strong> (使用 <code>&</code>) 作为参数（字符串数组名除外）。</li>
+                    <li>返回值<strong>必须检查</strong>，以确认是否成功读取了所有期望的数据项。</li>
+                 </ul>
+                 <strong>强烈建议：</strong> 尽量避免使用 <code>scanf</code> 读取用户输入，尤其是字符串。使用 <code>fgets</code> 读取整行，然后用 <code>sscanf</code> 或其他方法解析更安全。
+            </div>
+            <pre><code class="language-c">int age;
+char name[50];
+printf("Enter name and age: ");
+// 最好不用 scanf("%s %d", name, &age);
+
+// 更安全的方式:
+char line_buffer[100];
+if (fgets(line_buffer, sizeof(line_buffer), stdin) != NULL) {
+    // 解析 buffer，例如使用 sscanf
+    int items_parsed = sscanf(line_buffer, "%49s %d", name, &age); // 限制 name 长度
+    if (items_parsed == 2) {
+        printf("Name: %s, Age: %d\n", name, age);
+    } else {
+        printf("Invalid input format.\n");
+    }
+}
+</code></pre>
+        </div>
+
+        <div class="function-group">
+            <h3>字符和行输入/输出</h3>
+            <h4><code>getchar()</code>, <code>fgetc()</code>, <code>putchar()</code>, <code>fputc()</code></h4>
+            <p class="function-sig">int getchar(void);</p>
+            <p class="function-sig">int fgetc(FILE *stream);</p>
+            <p class="function-sig">int putchar(int char);</p>
+            <p class="function-sig">int fputc(int char, FILE *stream);</p>
+            <ul>
+                <li><code>getchar</code>/<code>fgetc</code>: 读取单个字符。返回读取的字符（作为 <code>int</code>）或 <code>EOF</code>。</li>
+                <li><code>putchar</code>/<code>fputc</code>: 写入单个字符。成功时返回写入的字符，失败时返回 <code>EOF</code>。</li>
+                <li><code>getchar</code> 等价于 <code>fgetc(stdin)</code>，<code>putchar(c)</code> 等价于 <code>fputc(c, stdout)</code>。</li>
+            </ul>
+            <pre><code class="language-c">int ch;
+printf("Enter text (Ctrl+D or Ctrl+Z to end):\n");
+while ((ch = getchar()) != EOF) {
+    putchar(ch); // Echo input
+}
+
+// Copy file character by character
+FILE *in = fopen("source.txt", "r");
+FILE *out = fopen("dest.txt", "w");
+// ... error checks ...
+while ((ch = fgetc(in)) != EOF) {
+    if (fputc(ch, out) == EOF) {
+        perror("Error writing character");
+        break;
+    }
+}
+// ... close files ...</code></pre>
+
+             <h4><code>fgets()</code>, <code>fputs()</code></h4>
+            <p class="function-sig">char *fgets(char *str, int n, FILE *stream);</p>
+            <p class="function-sig">int fputs(const char *str, FILE *stream);</p>
+            <ul>
+                <li><code>fgets</code>: 从流中读取最多 <code>n-1</code> 个字符到 <code>str</code> 中，或者直到遇到换行符 <code>\n</code> 或文件末尾。如果读取了换行符，它也会被存储在 <code>str</code> 中。总会在读取的字符后添加空终止符 <code>\0</code>。成功时返回 <code>str</code>，失败或文件末尾未读取任何字符时返回 <code>NULL</code>。<strong>推荐使用 <code>fgets</code> 代替危险的 <code>gets</code>。</strong></li>
+                <li><code>fputs</code>: 将空终止字符串 <code>str</code> 写入流中。它<strong>不会</strong>自动添加换行符。成功返回非负值，失败返回 <code>EOF</code>。</li>
+            </ul>
+            <pre><code class="language-c">char line[256];
+printf("Enter a line: ");
+if (fgets(line, sizeof(line), stdin) != NULL) {
+    // fgets 读取的行可能包含末尾的 '\n'，可能需要移除
+    line[strcspn(line, "\n")] = 0; // 查找第一个换行符并替换为 \0
+    printf("You entered: %s\n", line);
+
+    if (fputs(line, outputFile) == EOF) {
+         perror("Error writing line");
+    }
+    fputc('\n', outputFile); // 如果需要换行，手动添加
+}</code></pre>
+        </div>
+
+        <!-- ==================== stdlib.h ==================== -->
+        <h2>&lt;stdlib.h&gt; (Standard Library Utilities)</h2>
+        <p><code>stdlib.h</code> 提供了一系列通用的工具函数，包括内存分配、字符串转换、伪随机数生成、进程控制、搜索和排序等。</p>
+
+        <div class="function-group">
+            <h3>动态内存管理</h3>
+            <p>这些函数允许程序在运行时根据需要分配和释放内存。</p>
+            <h4><code>malloc()</code></h4>
+            <p class="function-sig">void *malloc(size_t size);</p>
+            <p>分配 <code>size</code> 字节的未初始化内存块。成功时返回指向该内存块的指针，失败时（如内存不足）返回 <code>NULL</code>。</p>
+
+            <h4><code>calloc()</code></h4>
+            <p class="function-sig">void *calloc(size_t nmemb, size_t size);</p>
+            <p>分配足够存储 <code>nmemb</code> 个元素的内存块，每个元素大小为 <code>size</code> 字节。分配的内存会被<strong>初始化为零</strong>。成功返回指针，失败返回 <code>NULL</code>。</p>
+
+            <h4><code>realloc()</code></h4>
+            <p class="function-sig">void *realloc(void *ptr, size_t size);</p>
+            <p>尝试重新调整 <code>ptr</code> 指向的已分配内存块的大小为 <code>size</code> 字节。<code>ptr</code> 必须是之前由 <code>malloc</code>, <code>calloc</code> 或 <code>realloc</code> 返回的指针，或者是 <code>NULL</code>（此时行为类似 <code>malloc</code>）。</p>
+            <ul>
+                <li>如果新大小 <code class="inline">size</code> 大于旧大小，新增部分内容未定义。</li>
+                <li>如果新大小 <code class="inline">size</code> 小于旧大小，末尾部分数据会丢失。</li>
+                <li>如果无法在原地调整，<code>realloc</code> 会分配<strong>新的内存块</strong>，将旧块内容复制到新块，释放旧块，并返回新块的地址。</li>
+                <li>如果 <code>realloc</code> 失败，返回 <code>NULL</code>，<strong>原内存块 <code>ptr</code> 保持不变且仍需释放</strong>。</li>
+                <li>如果 <code>size</code> 为 0，行为是实现定义的（可能返回 <code>NULL</code> 或一个可传递给 <code>free</code> 的唯一指针），并释放原内存。</li>
+             </ul>
+
+            <h4><code>free()</code></h4>
+            <p class="function-sig">void free(void *ptr);</p>
+            <p>释放 <code>ptr</code> 指向的内存块。<code>ptr</code> 必须是之前由 <code>malloc</code>, <code>calloc</code> 或 <code>realloc</code> 返回的指针，或者为 <code>NULL</code> (<code>free(NULL)</code> 是安全无操作的)。</p>
+            <div class="warning"><strong>动态内存管理核心原则：</strong>
+                <ul>
+                    <li>每次分配内存后 (<code>malloc</code>, <code>calloc</code>, <code>realloc</code> 返回非NULL时)，<strong>必须检查返回的指针是否为 <code>NULL</code></strong>。</li>
+                    <li>分配的内存不再需要时，<strong>必须使用 <code>free</code> 释放</strong>，否则会导致<strong>内存泄漏</strong>。</li>
+                    <li><strong>不要</strong>对同一个内存块 <code>free</code> 两次（Double Free）。</li>
+                    <li><strong>不要</strong>使用已经 <code>free</code> 的内存（Dangling Pointer）。</li>
+                    <li><code>realloc</code> 失败时，原指针仍然有效且需要释放。</li>
+                    <li><code>sizeof</code> 操作符是获取类型或变量大小的关键。</li>
+                 </ul>
+            </div>
+            <pre><code class="language-c">#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+
+int main() {
+    int n = 10;
+    // 分配 n 个整数的空间
+    int *arr = (int *)malloc(n * sizeof(int)); 
+    if (arr == NULL) {
+        perror("malloc failed");
+        return 1;
+    }
+
+    // 使用 arr...
+    for (int i = 0; i < n; ++i) {
+        arr[i] = i * i;
+    }
+
+    // 尝试将数组扩大到 20 个整数
+    int new_size = 20;
+    int *temp_arr = (int *)realloc(arr, new_size * sizeof(int));
+    if (temp_arr == NULL) {
+        // realloc 失败，原 arr 仍然有效且需要释放
+        perror("realloc failed");
+        free(arr); // 释放原始内存
+        return 1;
+    }
+    // realloc 成功，使用新的指针
+    arr = temp_arr; 
+
+    // 使用扩大的数组... (arr[10] 到 arr[19] 未初始化)
+    arr[15] = 100;
+
+    // 使用完毕，释放内存
+    free(arr); 
+    arr = NULL; // 好习惯：将指针置空，防止悬挂指针
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="function-group">
+            <h3>字符串转换</h3>
+            <p>将字符串表示的数值转换为相应的数字类型。</p>
+             <h4><code>atoi()</code>, <code>atol()</code>, <code>atof()</code></h4>
+            <p class="function-sig">int atoi(const char *str);</p>
+            <p class="function-sig">long atol(const char *str);</p>
+            <p class="function-sig">double atof(const char *str);</p>
+            <p>将字符串转换为 int, long, double。这些函数比较简单，但在错误处理方面能力有限（例如，无法区分字符串 "0" 和无效字符串，都可能返回 0）。遇到无法转换的字符时会停止解析。</p>
+
+            <h4><code>strtol()</code>, <code>strtoul()</code>, <code>strtod()</code></h4>
+            <p class="function-sig">long strtol(const char *nptr, char **endptr, int base);</p>
+            <p class="function-sig">unsigned long strtoul(const char *nptr, char **endptr, int base);</p>
+            <p class="function-sig">double strtod(const char *nptr, char **endptr);</p>
+            <p>这些是<strong>更健壮、功能更强</strong>的转换函数：</p>
+            <ul>
+                <li>可以指定转换的基数 (<code>base</code>，对于 <code>strtol</code>/<code>strtoul</code>，范围 2-36，0 表示自动检测前缀如 <code>0x</code>, <code>0</code>)。</li>
+                <li>通过 <code>endptr</code> 参数（如果非 <code>NULL</code>）返回指向未成功转换的第一个字符的指针，可用于检查整个字符串是否都被转换。</li>
+                <li>提供更完善的溢出和错误检测（检查 <code>errno</code>）。</li>
+             </ul>
+             <pre><code class="language-c">#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;errno.h&gt;
+
+char *str_num = "  -1234 tail";
+char *end;
+errno = 0; // 清除 errno
+
+long val = strtol(str_num, &end, 10); // 按 10 进制转换
+
+if (end == str_num) {
+    printf("No digits were found\n");
+} else if (*end != '\0') {
+    printf("Further characters after number: %s\n", end);
+} else if (errno == ERANGE) {
+    printf("Number out of range for long\n");
+} else {
+     printf("Successfully converted value: %ld\n", val); // 输出: -1234
+}</code></pre>
+        </div>
+
+        <div class="function-group">
+            <h3>伪随机数生成</h3>
+             <h4><code>rand()</code> 和 <code>srand()</code></h4>
+            <p class="function-sig">int rand(void);</p>
+            <p class="function-sig">void srand(unsigned int seed);</p>
+            <ul>
+                <li><code>rand</code>: 返回一个范围在 0 到 <code>RAND_MAX</code> (<code>stdlib.h</code> 中定义的常量，至少为 32767) 之间的伪随机整数。</li>
+                <li><code>srand</code>: 使用 <code>seed</code> 值初始化（“播种”）伪随机数生成器。如果程序每次运行时都使用相同的 <code>seed</code>，那么 <code>rand()</code> 产生的序列也将是相同的。</li>
+            </ul>
+            <p>通常使用当前时间作为种子，以产生不同的随机序列：</p>
+            <pre><code class="language-c">#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;time.h&gt; // for time()
+
+// 初始化随机数种子 (通常只需在程序开始时调用一次)
+srand(time(NULL)); 
+
+// 生成 1 到 100 之间的随机数
+int random_num = (rand() % 100) + 1; 
+printf("Random number (1-100): %d\n", random_num);</code></pre>
+            <div class="warning">标准 <code>rand()</code> 函数的随机性质量可能不高，且不是线程安全的。对于需要高质量随机数（如加密）或多线程环境，应考虑使用更现代或特定平台的随机数生成器。</div>
+        </div>
+
+        <div class="function-group">
+            <h3>进程控制</h3>
+            <h4><code>exit()</code>, <code>abort()</code>, <code>system()</code>, <code>getenv()</code></h4>
+             <p class="function-sig">void exit(int status);</p>
+             <p class="function-sig">void abort(void);</p>
+             <p class="function-sig">int system(const char *command);</p>
+             <p class="function-sig">char *getenv(const char *name);</p>
+             <ul>
+                 <li><code>exit</code>: 正常终止程序。会执行清理操作（如刷新 I/O 缓冲区，调用 <code>atexit</code> 注册的函数），并向操作系统返回 <code>status</code> 退出码（通常 0 表示成功，非 0 表示错误）。</li>
+                 <li><code>abort</code>: 异常终止程序。通常不进行清理操作，可能会生成核心转储 (core dump)。</li>
+                 <li><code>system</code>: 将 <code>command</code> 字符串传递给宿主环境的命令处理器执行（如 shell）。返回命令处理器的状态。<strong>存在安全风险</strong>，应避免将用户输入直接拼接到 <code>command</code> 中。</li>
+                 <li><code>getenv</code>: 获取名为 <code>name</code> 的环境变量的值。返回指向环境变量值的字符串指针，如果变量不存在则返回 <code>NULL</code>。返回的字符串不应被修改。</li>
+             </ul>
+        </div>
+
+        <div class="function-group">
+            <h3>搜索与排序</h3>
+            <h4><code>bsearch()</code> 和 <code>qsort()</code></h4>
+            <p class="function-sig">void *bsearch(const void *key, const void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));</p>
+            <p class="function-sig">void qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));</p>
+            <p>提供通用的二分查找 (<code>bsearch</code>) 和快速排序 (<code>qsort</code>) 功能。</p>
+            <ul>
+                <li><code>base</code>: 指向要排序/搜索的数组的第一个元素。</li>
+                <li><code>nmemb</code>: 数组中的元素数量。</li>
+                <li><code>size</code>: 每个元素的大小（字节）。</li>
+                <li><code>key</code>: (仅 <code>bsearch</code>) 指向要搜索的键值。</li>
+                <li><code>compar</code>: <strong>核心！</strong> 指向一个<strong>比较函数</strong>的指针。该函数接收两个指向数组元素的指针 (<code>const void*</code>)，并返回：
+                    <ul>
+                        <li>< 0: 如果第一个元素小于第二个元素。</li>
+                        <li>0: 如果两个元素相等。</li>
+                        <li>> 0: 如果第一个元素大于第二个元素。</li>
+                    </ul>
+                </li>
+            </ul>
+             <p><code>bsearch</code> 要求数组必须<strong>预先排好序</strong>（使用与 <code>compar</code> 函数一致的排序规则）。</p>
+             <pre><code class="language-c">#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+
+// 比较函数 (用于 int 数组)
+int compare_ints(const void *a, const void *b) {
+    int int_a = *((const int *)a); // 将 void* 转换为 const int* 再解引用
+    int int_b = *((const int *)b);
+
+    if (int_a < int_b) return -1;
+    if (int_a > int_b) return 1;
+    return 0;
+    // 或者简洁地: return (int_a > int_b) - (int_a < int_b);
+    // 或者: return int_a - int_b; // 如果差值不会溢出 int
+}
+
+int main() {
+    int numbers[] = {5, 2, 8, 1, 9, 4};
+    size_t n = sizeof(numbers) / sizeof(numbers[0]);
+
+    // 1. 排序数组
+    qsort(numbers, n, sizeof(int), compare_ints);
+
+    printf("Sorted array: ");
+    for (size_t i = 0; i < n; ++i) {
+        printf("%d ", numbers[i]); // 输出: 1 2 4 5 8 9
+    }
+    printf("\n");
+
+    // 2. 搜索元素 (例如搜索 4)
+    int key = 4;
+    int *found = (int *)bsearch(&key, numbers, n, sizeof(int), compare_ints);
+
+    if (found != NULL) {
+        printf("Found %d at address %p\n", *found, found);
+    } else {
+        printf("%d not found in the array.\n", key);
+    }
+    
+    return 0;
+}</code></pre>
+        </div>
+
+        <!-- ==================== string.h ==================== -->
+        <h2>&lt;string.h&gt; (String Manipulation)</h2>
+        <p><code>string.h</code> 提供了操作 C 风格字符串（以空字符 <code>\0</code> 结尾的字符数组）和内存块的函数。</p>
+        <p><strong>核心概念与风险：</strong></p>
+        <ul>
+            <li><strong>空终止符 (Null Terminator <code>\0</code>):</strong> C 字符串必须以此结尾。大多数 <code>string.h</code> 函数依赖它来确定字符串的结束。</li>
+            <li><strong>缓冲区溢出 (Buffer Overflow):</strong> 许多传统的字符串函数（如 <code>strcpy</code>, <code>strcat</code>, <code>sprintf</code>, <code>gets</code>）不检查目标缓冲区的大小，如果源字符串太长，写入操作会超出目标缓冲区边界，覆盖相邻内存，这是<strong>最常见的 C 语言安全漏洞之一</strong>。</li>
+            <li><strong>内存块操作 (<code>mem*</code> 函数):</strong> 如 <code>memcpy</code>, <code>memmove</code>, <code>memcmp</code>, <code>memset</code>。它们操作指定字节数的内存，不关心空终止符，可用于任何数据类型。</li>
+         </ul>
+        <div class="warning"><strong>安全第一！</strong> 优先使用那些允许指定目标缓冲区大小的函数（如 <code>strncpy</code>, <code>strncat</code>, <code>snprintf</code>, <code>fgets</code>, <code>memcpy</code>, <code>memmove</code>），并始终确保目标缓冲区足够大，或者正确处理截断情况。</div>
+
+        <div class="function-group">
+            <h3>复制与拼接</h3>
+            <h4><code>strcpy()</code> 和 <code>strncpy()</code></h4>
+            <p class="function-sig">char *strcpy(char *dest, const char *src);</p>
+            <p class="function-sig">char *strncpy(char *dest, const char *src, size_t n);</p>
+            <ul>
+                <li><code>strcpy</code>: 将源字符串 <code>src</code> (包括 <code>\0</code>) 复制到目标 <code>dest</code>。<strong class="emphasis">极不安全</strong>，如果 <code>src</code> 比 <code>dest</code> 缓冲区长，会发生溢出。</li>
+                <li><code>strncpy</code>: 最多复制 <code>src</code> 中的 <code>n</code> 个字符到 <code>dest</code>。
+                    <ul>
+                        <li>如果 <code>src</code> 长度小于 <code>n</code>，则用 <code>\0</code> 填充 <code>dest</code> 直到写入了 <code>n</code> 个字节。</li>
+                        <li><strong class="emphasis">如果 <code>src</code> 长度大于等于 <code>n</code>，则复制的 <code>n</code> 个字符中不会包含 <code>\0</code>！</strong> 目标 <code>dest</code> 可能不是空终止的。必须手动确保空终止。</li>
+                    </ul>
+                </li>
+            </ul>
+             <pre><code class="language-c">char src[] = "Hello World";
+char dest[10];
+
+// strcpy(dest, src); // !! 危险 !! 会溢出 dest
+
+// 使用 strncpy (需要手动确保 null 终止)
+strncpy(dest, src, sizeof(dest) - 1); // 最多复制 9 个字符
+dest[sizeof(dest) - 1] = '\0';        // 强制添加 null 终止符
+printf("strncpy result: %s\n", dest); // 输出: strncpy result: Hello Wor
+</code></pre>
+
+            <h4><code>strcat()</code> 和 <code>strncat()</code></h4>
+            <p class="function-sig">char *strcat(char *dest, const char *src);</p>
+            <p class="function-sig">char *strncat(char *dest, const char *src, size_t n);</p>
+            <ul>
+                <li><code>strcat</code>: 将源字符串 <code>src</code> 拼接到目标字符串 <code>dest</code> 的末尾 (覆盖 <code>dest</code> 原来的 <code>\0</code>)。<strong class="emphasis">极不安全</strong>，如果 <code>dest</code> 空间不足以容纳拼接后的结果，会发生溢出。</li>
+                <li><code>strncat</code>: 最多将 <code>src</code> 中的 <code>n</code> 个字符拼接到 <code>dest</code> 末尾，并<strong>始终会自动添加一个 <code>\0</code></strong>。目标 <code>dest</code> 必须有足够的空间容纳原有内容 + 最多 <code>n</code> 个字符 + 最终的 <code>\0</code>。</li>
+             </ul>
+             <pre><code class="language-c">char path[100] = "/home/user/";
+char filename[] = "data.txt";
+
+// strcat(path, filename); // !! 危险 !! 如果 path 初始内容很长
+
+// 使用 strncat
+size_t current_len = strlen(path);
+size_t remaining_space = sizeof(path) - current_len - 1; // -1 for the null terminator
+if (remaining_space > 0) {
+    strncat(path, filename, remaining_space);
+}
+// path 现在是 "/home/user/data.txt"
+printf("Full path: %s\n", path);
+</code></pre>
+
+
+            <h4><code>memcpy()</code> 和 <code>memmove()</code></h4>
+            <p class="function-sig">void *memcpy(void *dest, const void *src, size_t n);</p>
+            <p class="function-sig">void *memmove(void *dest, const void *src, size_t n);</p>
+            <p>从 <code>src</code> 复制 <code>n</code> 个字节到 <code>dest</code>。适用于任何类型的内存块。</p>
+            <ul>
+                <li><code>memcpy</code>: <strong>如果源和目标内存区域重叠，行为是未定义的。</strong> 通常更快。</li>
+                <li><code>memmove</code>: <strong>安全处理源和目标内存区域重叠的情况。</strong> 行为总是正确的，但可能稍慢。</li>
+            </ul>
+             <pre><code class="language-c">int source_arr[] = {1, 2, 3, 4, 5};
+int dest_arr[5];
+
+// 复制整个数组
+memcpy(dest_arr, source_arr, sizeof(source_arr));
+
+// 内存重叠的场景: 将数组元素向右移动一位
+int data[] = {10, 20, 30, 40, 50};
+// memcpy(&data[1], data, 3 * sizeof(int)); // 未定义行为! src 和 dest 重叠
+
+// 使用 memmove 处理重叠
+memmove(&data[1], data, 3 * sizeof(int)); // 正确: data 变成 {10, 10, 20, 30, 50}
+</code></pre>
+        </div>
+
+        <div class="function-group">
+            <h3>比较</h3>
+            <h4><code>strcmp()</code> 和 <code>strncmp()</code></h4>
+            <p class="function-sig">int strcmp(const char *s1, const char *s2);</p>
+            <p class="function-sig">int strncmp(const char *s1, const char *s2, size_t n);</p>
+            <p>按字典序比较两个字符串。</p>
+            <ul>
+                <li><code>strcmp</code>: 比较整个字符串，直到遇到 <code>\0</code> 或发现不匹配的字符。</li>
+                <li><code>strncmp</code>: 最多比较前 <code>n</code> 个字符。</li>
+            </ul>
+            <p><strong>返回值：</strong></p>
+            <ul>
+                <li>< 0: 如果 <code>s1</code> 小于 <code>s2</code>。</li>
+                <li>0: 如果 <code>s1</code> 等于 <code>s2</code> (或前 <code>n</code> 个字符相等)。</li>
+                <li>> 0: 如果 <code>s1</code> 大于 <code>s2</code>。</li>
+            </ul>
+            <pre><code class="language-c">char pass1[] = "password123";
+char pass2[] = "passwordABC";
+char input[20] = "password123";
+
+if (strcmp(input, pass1) == 0) {
+    printf("Password matches pass1.\n"); // 会执行
+}
+
+if (strncmp(pass1, pass2, 8) == 0) {
+     printf("First 8 chars of pass1 and pass2 match.\n"); // 会执行 ("password")
+}</code></pre>
+
+            <h4><code>memcmp()</code></h4>
+            <p class="function-sig">int memcmp(const void *s1, const void *s2, size_t n);</p>
+            <p>比较 <code>s1</code> 和 <code>s2</code> 指向的内存区域的前 <code>n</code> 个字节。按字节比较，不关心数据类型或空终止符。返回值规则同 <code>strcmp</code>。</p>
+             <pre><code class="language-c">int arr1[] = {1, 2, 3};
+int arr2[] = {1, 2, 4};
+int arr3[] = {1, 2, 3};
+
+if (memcmp(arr1, arr2, sizeof(arr1)) != 0) {
+    printf("arr1 and arr2 differ.\n"); // 会执行
+}
+if (memcmp(arr1, arr3, sizeof(arr1)) == 0) {
+     printf("arr1 and arr3 are identical.\n"); // 会执行
+}</code></pre>
+        </div>
+
+        <div class="function-group">
+            <h3>搜索</h3>
+            <h4><code>strchr()</code> 和 <code>strrchr()</code></h4>
+            <p class="function-sig">char *strchr(const char *s, int c);</p>
+            <p class="function-sig">char *strrchr(const char *s, int c);</p>
+            <ul>
+                <li><code>strchr</code>: 在字符串 <code>s</code> 中查找字符 <code>c</code> 的<strong>第一次</strong>出现。</li>
+                <li><code>strrchr</code>: 在字符串 <code>s</code> 中查找字符 <code>c</code> 的<strong>最后一次</strong>出现。</li>
+             </ul>
+            <p>成功时返回指向找到的字符的指针，失败时返回 <code>NULL</code>。查找也包括结尾的 <code>\0</code>。</p>
+
+            <h4><code>strstr()</code></h4>
+             <p class="function-sig">char *strstr(const char *haystack, const char *needle);</p>
+             <p>在字符串 <code>haystack</code> 中查找子字符串 <code>needle</code> 的<strong>第一次</strong>出现。成功返回指向 <code>haystack</code> 中子字符串起始位置的指针，失败返回 <code>NULL</code>。</p>
+
+            <h4><code>strtok()</code></h4>
+            <p class="function-sig">char *strtok(char *str, const char *delim);</p>
+            <p>用于将字符串 <code>str</code> 按分隔符 <code>delim</code> 分割成一系列标记 (tokens)。</p>
+            <ul>
+                <li>第一次调用时，<code>str</code> 指向要分割的字符串。</li>
+                <li>后续调用时，<code>str</code> 应为 <code>NULL</code>，<code>strtok</code> 会继续从上次停止的位置查找。</li>
+                <li><strong class="emphasis"><code>strtok</code> 会修改原始字符串</strong> (将分隔符替换为 <code>\0</code>)。</li>
+                <li><strong class="emphasis"><code>strtok</code> 是不可重入的</strong>，因为它内部维护静态状态。在多线程环境或嵌套调用中不安全。C11 提供了可重入版本 <code>strtok_s</code> (或 POSIX 的 <code>strtok_r</code>)。</li>
+            </ul>
+             <pre><code class="language-c">#include &lt;string.h&gt;
+#include &lt;stdio.h&gt;
+
+int main() {
+    char sentence[] = "This is a sample sentence.";
+    char *delimiters = " ."; // 按空格和句点分割
+    char *token;
+
+    // 第一次调用
+    token = strtok(sentence, delimiters); 
+
+    while (token != NULL) {
+        printf("Token: %s\n", token);
+        // 后续调用，第一个参数为 NULL
+        token = strtok(NULL, delimiters); 
+    }
+    // 原始 sentence 字符串已被修改！
+    // 输出:
+    // Token: This
+    // Token: is
+    // Token: a
+    // Token: sample
+    // Token: sentence
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="function-group">
+            <h3>其他常用函数</h3>
+             <h4><code>strlen()</code></h4>
+            <p class="function-sig">size_t strlen(const char *s);</p>
+            <p>计算字符串 <code>s</code> 的长度，即从开头到第一个空终止符 <code>\0</code> 之间的字符数 (<strong>不包括 <code>\0</code> 本身</strong>)。</p>
+
+             <h4><code>memset()</code></h4>
+            <p class="function-sig">void *memset(void *s, int c, size_t n);</p>
+            <p>将 <code>s</code> 指向的内存区域的前 <code>n</code> 个字节设置为指定的字符 <code>c</code> (转换为 <code>unsigned char</code>)。通常用于初始化内存块为 0 或其他特定值。返回 <code>s</code>。</p>
+             <pre><code class="language-c">char buffer[100];
+// 将 buffer 清零
+memset(buffer, 0, sizeof(buffer));
+
+int counts[50];
+// 将 counts 数组初始化为 -1
+memset(counts, -1, sizeof(counts)); // 注意：只能可靠地设置字节值为 0 或 -1 (0xFF)
+                                   // 不能用 memset(counts, 1, ...) 来将所有 int 设置为 1
+</code></pre>
+        </div>
+
+        <h2>总结</h2>
+        <p><code>&lt;stdio.h&gt;</code>, <code>&lt;stdlib.h&gt;</code>, 和 <code>&lt;string.h&gt;</code> 是 C 程序员工具箱中最基础、最重要的部分。深入理解它们的功能、参数、返回值以及潜在的陷阱（特别是内存安全和错误处理）是编写高质量 C 代码的基础。始终记得查阅文档，注意函数的限制条件，并优先选择更安全的替代方案（如 <code>snprintf</code> 代替 <code>sprintf</code>，<code>fgets</code> 代替 <code>gets</code>，<code>memmove</code> 处理重叠内存）。</p>
+
+    </div>
+</body>
+</html>

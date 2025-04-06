@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C 语言错误处理机制</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.8;
+            margin: 20px;
+            background-color: #f8f9fa; /* Light gray background */
+            color: #212529; /* Dark gray text */
+        }
+        .container {
+            max-width: 950px;
+            margin: auto;
+            background: #ffffff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid #dee2e6;
+        }
+        h1 {
+            color: #dc3545; /* Bootstrap Danger Red */
+            text-align: center;
+            border-bottom: 3px solid #f5c6cb; /* Light red */
+            padding-bottom: 18px;
+            margin-bottom: 40px;
+            font-size: 2.4em;
+        }
+        h2 {
+            color: #d9534f; /* Slightly darker red */
+            margin-top: 45px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f8d7da; /* Very light red border */
+            font-size: 1.9em;
+        }
+        h3 {
+            color: #007bff; /* Primary Blue for subheadings */
+            margin-top: 30px;
+            font-weight: 600;
+            font-size: 1.5em;
+        }
+        code.inline {
+            background-color: #e9ecef; /* Light gray background */
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            color: #6f42c1; /* Purple text for code */
+            font-size: 0.9em;
+            border: 1px solid #e0e5ea;
+        }
+        pre {
+            background-color: #212529; /* Dark background */
+            color: #f8f9fa;          /* Light text */
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            border: 1px solid #495057;
+            font-size: 0.95em;
+            margin-top: 15px;
+            margin-bottom: 25px;
+        }
+        pre code { /* Reset styles for code inside pre */
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+            font-size: 1em;
+            border: none;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin-bottom: 12px;
+        }
+        strong, .emphasis {
+            font-weight: 700;
+             color: #c0392b; /* Strong Red for emphasis */
+        }
+        .introduction, .conclusion, .best-practices {
+            background-color: #fdfefe;
+            padding: 20px;
+            border-left: 5px solid #dc3545; /* Red border */
+            margin: 25px 0;
+            border-radius: 5px;
+        }
+        .error-mechanism {
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            background-color: #fdfefe;
+        }
+        .header-info {
+             font-style: italic;
+             color: #6c757d; /* Gray */
+             margin-bottom: 15px;
+             display: block; /* Make it block level */
+        }
+         .warning {
+            background-color: #fff3cd; /* Warning yellow background */
+            border-left: 5px solid #ffc107; /* Warning yellow border */
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .warning strong {
+            color: #856404; /* Darker yellow */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>C 语言错误处理机制</h1>
+
+        <div class="introduction">
+            <p>在 C 语言中，函数通常通过<strong>返回值</strong>来表明操作是否成功。例如，文件操作函数失败时可能返回 <code class="inline">NULL</code> 或 <code class="inline">-1</code>，内存分配函数失败时返回 <code class="inline">NULL</code>。然而，仅仅知道操作失败了通常不够，我们还需要了解<strong>失败的原因</strong>。</p>
+            <p>C 标准库提供了一套简单的机制来报告更详细的错误信息，主要涉及三个核心部分：全局变量 <code class="inline">errno</code>、函数 <code class="inline">perror()</code> 和函数 <code class="inline">strerror()</code>。</p>
+        </div>
+
+        <!-- ==================== errno ==================== -->
+        <div class="error-mechanism">
+            <h2><code class="inline">errno</code> 全局变量</h2>
+            <span class="header-info">需要包含头文件: <code class="inline">&lt;errno.h&gt;</code></span>
+
+            <h3>概念</h3>
+            <p><code class="inline">errno</code> 是一个在 <code class="inline">&lt;errno.h&gt;</code> 中声明的 <code class="inline">int</code> 类型的<strong>左值 (lvalue)</strong>。它实际上通常是一个宏，在支持多线程的环境中会扩展为线程局部存储 (thread-local storage) 的变量，以保证线程安全。</p>
+            <p>当某些标准库函数（尤其是涉及系统调用或数学运算的函数，如 <code class="inline">fopen()</code>, <code class="inline">malloc()</code>, <code class="inline">sqrt()</code> 等）执行失败时，它们会设置 <code class="inline">errno</code> 为一个<strong>正整数错误码</strong>，用来指示具体的错误类型。<code class="inline">&lt;errno.h&gt;</code> 中定义了这些错误码的宏，例如：</p>
+            <ul>
+                <li><code class="inline">EACCES</code>: 权限不足 (Permission denied)</li>
+                <li><code class="inline">ENOENT</code>: 文件或目录不存在 (No such file or directory)</li>
+                <li><code class="inline">ENOMEM</code>: 内存不足 (Cannot allocate memory)</li>
+                <li><code class="inline">EINVAL</code>: 无效参数 (Invalid argument)</li>
+                <li><code class="inline">EDOM</code>: (数学函数) 参数超出定义域 (Mathematics argument out of domain of func)</li>
+                <li><code class="inline">ERANGE</code>: (数学函数) 结果超出表示范围 (Mathematics result not representable)</li>
+                <li>... 等等</li>
+            </ul>
+
+            <div class="warning">
+                <strong>极其重要：</strong>
+                <ul>
+                    <li><strong class="emphasis">只有当函数明确表明发生错误时（通常通过其返回值判断），<code>errno</code> 的值才有意义。</strong> 函数成功执行时，标准<strong>不保证</strong>会修改或清除 <code class="inline">errno</code>，它可能仍然保留着上一次错误的值。</li>
+                    <li>因此，正确的做法是：<strong>先检查函数的返回值判断是否出错，如果出错，再立即检查 <code class="inline">errno</code> 的值</strong>，并且在下一次可能修改 <code class="inline">errno</code> 的库函数调用之前使用它。</li>
+                    <li>如果需要在调用可能失败的函数前确保 <code class="inline">errno</code> 是干净的（例如，想区分函数返回 0 但设置了 <code class="inline">errno</code> 的特殊情况），可以在调用前手动设置 <code class="inline">errno = 0;</code>。</li>
+                </ul>
+            </div>
+
+            <h4>示例</h4>
+            <pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;errno.h&gt;
+#include &lt;math.h&gt;
+
+int main() {
+    errno = 0; // (可选) 调用前清零 errno
+    double result = sqrt(-1.0); 
+
+    if (errno != 0) { // 检查 errno 是否被设置
+        // 注意：检查 errno 通常在判断函数返回值表明失败后进行
+        // 这里 sqrt 对无效输入的行为是设置 errno 并返回 NaN
+        printf("sqrt(-1.0) failed.\n");
+        if (errno == EDOM) {
+            printf("Error code EDOM: Argument out of domain.\n");
+        } else {
+            printf("Error code: %d\n", errno);
+            // 可以进一步处理其他错误码...
+        }
+        // 在这里，errno 的值是有意义的
+    } else {
+        // 即使 sqrt 返回 NaN，如果实现不设置 errno，这里也会执行
+        printf("sqrt(-1.0) succeeded? Result: %f\n", result); // 可能是 NaN
+    }
+    
+    // 在下一次库调用后，errno 的值可能再次改变，不再反映 sqrt 的错误
+    printf("Current errno after printf: %d\n", errno); 
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <!-- ==================== perror ==================== -->
+        <div class="error-mechanism">
+            <h2><code class="inline">perror()</code> 函数</h2>
+            <span class="header-info">需要包含头文件: <code class="inline">&lt;stdio.h&gt;</code> (虽然它处理 <code class="inline">errno</code>)</span>
+
+            <h3>概念</h3>
+            <p class="function-sig">void perror(const char *s);</p>
+            <p><code class="inline">perror()</code> 函数用于将与当前 <code class="inline">errno</code> 值相对应的系统错误消息打印到<strong>标准错误输出 (<code class="inline">stderr</code>)</strong>。</p>
+            <p>它会先打印用户提供的字符串 <code class="inline">s</code> (如果非 NULL)，后面跟着一个冒号和一个空格，最后是具体的错误描述文本。</p>
+            <p>这是一种非常方便快捷地报告错误的标准方法。</p>
+
+            <h4>示例</h4>
+            <pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;errno.h&gt;
+#include &lt;string.h&gt; // 为了演示 strerror 对比
+
+int main() {
+    FILE *fp = fopen("non_existent_file.txt", "r");
+
+    if (fp == NULL) {
+        // fopen 失败，检查 errno 并使用 perror 报告
+        perror("Error opening file 'non_existent_file.txt'"); 
+        
+        // 你仍然可以获取 errno 的值用于其他逻辑
+        int error_code = errno;
+        printf("(Error code was: %d)\n", error_code);
+
+        // 对比 strerror 的用法
+        printf("strerror description: %s\n", strerror(error_code));
+
+        // 处理错误，例如退出程序
+        // exit(EXIT_FAILURE); 
+    } else {
+        printf("File opened successfully!\n");
+        fclose(fp);
+    }
+
+    return 0;
+}</code></pre>
+            <p>如果文件不存在，上面的 <code class="inline">perror</code> 调用可能会输出类似这样的内容到 `stderr`:
+            <pre><code>Error opening file 'non_existent_file.txt': No such file or directory</code></pre>
+            </p>
+        </div>
+
+        <!-- ==================== strerror ==================== -->
+        <div class="error-mechanism">
+            <h2><code class="inline">strerror()</code> 函数</h2>
+            <span class="header-info">需要包含头文件: <code class="inline">&lt;string.h&gt;</code></span>
+
+            <h3>概念</h3>
+            <p class="function-sig">char *strerror(int errnum);</p>
+            <p><code class="inline">strerror()</code> 函数根据传入的错误码 <code class="inline">errnum</code> (通常就是 <code class="inline">errno</code> 的值)，返回一个指向描述该错误的<strong>静态字符串</strong>的指针。</p>
+            <p>这比 <code class="inline">perror</code> 更灵活，因为它允许你获取错误描述字符串，然后可以将其用于日志记录、自定义错误消息格式、发送到 GUI 等，而不仅仅是打印到 <code class="inline">stderr</code>。</p>
+
+            <div class="warning">
+                <strong>注意：</strong>
+                <ul>
+                    <li>返回的字符串指针指向的是一个<strong>静态分配的缓冲区</strong>。这意味着：
+                        <ul>
+                            <li>后续对 <code class="inline">strerror()</code> 的调用可能会<strong>覆盖</strong>之前返回的字符串内容。</li>
+                            <li>你不应该尝试修改 (<code class="inline">free</code> 或写入) 这个返回的字符串。</li>
+                        </ul>
+                    </li>
+                    <li><code class="inline">strerror()</code> 在多线程环境下可能<strong>不是线程安全的</strong> (因为静态缓冲区)。对于线程安全的需求，应使用 <code class="inline">strerror_r()</code> (POSIX) 或 <code class="inline">strerror_s()</code> (C11 Annex K)。</li>
+                </ul>
+            </div>
+
+            <h4>示例</h4>
+            <pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;errno.h&gt;
+#include &lt;string.h&gt;
+
+int main() {
+    // 尝试分配过大的内存 (可能会失败并设置 errno 为 ENOMEM)
+    // 注意：非常大的值可能导致其他问题，这里用一个示意值
+    size_t very_large_size = (size_t)-1 / 2; // 尝试分配一半的最大内存
+    void *mem = malloc(very_large_size);
+
+    if (mem == NULL) {
+        int error_code = errno; // 保存 errno 的值
+
+        // 使用 strerror 获取错误描述
+        const char *error_message = strerror(error_code); 
+
+        // 可以自定义输出格式
+        fprintf(stderr, "FATAL ERROR: Memory allocation failed.\n");
+        fprintf(stderr, "  Reason (errno %d): %s\n", error_code, error_message);
+        
+        // 记录到日志文件 (假设有 log_error 函数)
+        // log_error("Malloc failed with errno %d: %s", error_code, error_message);
+
+        exit(EXIT_FAILURE);
+    } else {
+        printf("Memory allocated successfully (this might be surprising!).\n");
+        free(mem); // 记得释放
+    }
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <!-- ==================== Best Practices ==================== -->
+        <div class="best-practices">
+            <h2>错误处理最佳实践</h2>
+            <ol>
+                <li><strong>始终检查函数的返回值</strong>，特别是那些文档中说明可能失败的函数（I/O, 内存分配, 系统调用等）。</li>
+                <li><strong>仅在函数返回值表明失败后，才检查 <code class="inline">errno</code>。</strong></li>
+                <li>检查 <code class="inline">errno</code> 后，如果需要其值，最好将其<strong>保存到局部变量</strong>中，因为后续的任何库函数调用（甚至包括 <code class="inline">printf</code>！）都可能改变 <code class="inline">errno</code>。</li>
+                <li>使用 <code class="inline">perror()</code> 进行快速、简单的错误报告到 <code class="inline">stderr</code>。</li>
+                <li>使用 <code class="inline">strerror()</code>（或其线程安全版本）获取错误字符串，用于更灵活的错误处理（如日志记录、用户界面反馈）。</li>
+                <li>为你的应用程序定义一套<strong>一致的错误处理策略</strong>。是记录日志并继续？是打印错误并退出？还是尝试恢复？</li>
+                <li>不要忽略错误！未处理的错误是导致程序崩溃和不可预测行为的主要原因。</li>
+            </ol>
+        </div>
+
+        <!-- ==================== Conclusion ==================== -->
+        <div class="conclusion">
+            <p><code class="inline">errno</code>, <code class="inline">perror()</code>, 和 <code class="inline">strerror()</code> 是 C 语言提供的基本但非常重要的错误报告工具。理解它们的工作方式和局限性，并养成良好的错误检查习惯，是编写健壮、可靠的 C 程序的关键一步。</p>
+        </div>
+
+    </div>
+</body>
+</html>

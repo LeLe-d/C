@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - 指针数组与数组指针：定义与区别</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段四：数组与指针 - 指针数组与数组指针：定义与区别</h2>
+
+        <p>在 C/C++ 中，“指针数组” (Pointer Array) 和“数组指针” (Array Pointer) 是两个容易混淆但本质完全不同的概念。它们在定义、内存布局和用途上都有显著差异。清晰地理解这两者对于正确使用指针和数组至关重要。</p>
+
+        <h3>1. 指针数组 (Pointer Array / Array of Pointers)</h3>
+        <p class="definition">本质：一个<strong class="highlight">数组</strong>，其每个元素都是一个<strong class="highlight">指针</strong>。</p>
+        <p><strong>定义语法：</strong></p>
+        <pre><code class="syntax">data_type *array_name[ARRAY_SIZE];</code></pre>
+        <p><strong>解读：</strong></p>
+        <ul>
+            <li><code>array_name</code> 首先与 <code>[]</code> 结合，表明 <code>array_name</code> 是一个数组。因为运算符优先级 <code>[]</code> 高于 <code>*</code>。</li>
+            <li>数组的大小由 <code>ARRAY_SIZE</code> 决定。</li>
+            <li><code>data_type *</code> 说明了这个数组中存储的每个元素的类型是“指向 <code>data_type</code> 类型数据的指针”。</li>
+        </ul>
+        <p><strong>内存示意：</strong></p>
+        <p>指针数组本身在内存中占据连续的空间，用于存放多个地址值。每个地址值（即数组的每个元素）指向内存中的另一个位置（可能不连续），那里存储着实际的数据（<code>data_type</code> 类型）。</p>
+        <pre><code>
+ array_name:
+ +-----------+
+ |  ptr[0]   | --------> memory location 0 (contains data_type)
+ +-----------+
+ |  ptr[1]   | --------> memory location 1 (contains data_type)
+ +-----------+
+ |   ...     |
+ +-----------+
+ |ptr[SIZE-1]| --------> memory location SIZE-1 (contains data_type)
+ +-----------+
+ (Array of pointers, stores addresses)
+        </code></pre>
+
+        <p><strong>示例：</strong> 存储多个字符串（字符指针数组）</p>
+        <pre><code class="language-c">#include <stdio.h>
+
+int main() {
+    // 定义一个包含 3 个元素的指针数组
+    // 每个元素都是一个 char* (指向字符的指针)
+    char *str_array[3];
+
+    // 分别让数组元素指向不同的字符串字面量
+    str_array[0] = "Hello";
+    str_array[1] = "World";
+    str_array[2] = "Pointer Array";
+
+    printf("Pointer Array stores addresses:\n");
+    for (int i = 0; i < 3; i++) {
+        // str_array[i] 是一个 char* 指针
+        // %p 打印地址，%s 打印指针指向的字符串
+        printf("  Element %d: Address=%p, String=\"%s\"\n",
+               i, (void*)str_array[i], str_array[i]);
+    }
+
+    // sizeof(str_array) 是整个数组的大小 (指针数量 * 指针大小)
+    printf("\nsizeof(str_array) = %zu bytes\n", sizeof(str_array));
+    // sizeof(str_array[0]) 是单个指针的大小
+    printf("sizeof(str_array[0]) = %zu bytes\n", sizeof(str_array[0]));
+
+    return 0;
+}
+        </code></pre>
+        <p><strong>常见用途：</strong></p>
+        <ul>
+            <li>存储多个字符串（如上例）。</li>
+            <li>管理一组动态分配的内存块。</li>
+            <li>函数指针数组（回调机制）。</li>
+        </ul>
+
+        <h3>2. 数组指针 (Array Pointer / Pointer to an Array)</h3>
+        <p class="definition">本质：一个<strong class="highlight">指针</strong>，它指向一个<strong class="highlight">完整的数组</strong>。</p>
+        <p><strong>定义语法：</strong></p>
+        <pre><code class="syntax">data_type (*pointer_name)[ARRAY_SIZE];</code></pre>
+        <p><strong>解读：</strong></p>
+        <ul>
+            <li><code>(*pointer_name)</code> 中的括号至关重要！它使得 <code>*</code> 首先与 <code>pointer_name</code> 结合，表明 <code>pointer_name</code> 是一个指针。</li>
+            <li><code>[ARRAY_SIZE]</code> 表明这个指针指向的是一个数组，其大小为 <code>ARRAY_SIZE</code>。</li>
+            <li><code>data_type</code> 说明了数组中每个元素的类型。</li>
+            <li>所以，<code>pointer_name</code> 是一个指向“包含 <code>ARRAY_SIZE</code> 个 <code>data_type</code> 类型元素的数组”的指针。</li>
+        </ul>
+        <p><strong>内存示意：</strong></p>
+        <p>数组指针本身只存储一个地址值，即它所指向的那个数组的起始地址。</p>
+         <pre><code>
+ pointer_name:
+ +--------------+
+ | address_of_A | --------> Array A:
+ +--------------+          +----------+----------+-----+----------+
+ (Pointer variable)        | A[0]     | A[1]     | ... |A[SIZE-1] |
+                           +----------+----------+-----+----------+
+                           (The entire array object)
+        </code></pre>
+
+        <p><strong>示例：</strong> 指向一个包含 5 个整数的数组</p>
+        <pre><code class="language-c">#include <stdio.h>
+
+int main() {
+    int numbers[5] = {1, 2, 3, 4, 5};
+
+    // 定义一个数组指针 ptr, 指向包含 5 个 int 的数组
+    int (*ptr)[5];
+
+    // 让 ptr 指向 numbers 数组
+    // 注意：&numbers 得到的是指向整个数组的指针，类型为 int(*)[5]
+    //       numbers (数组名) 会退化为指向首元素的指针，类型为 int*
+    //       类型必须匹配！
+    ptr = &numbers;
+
+    printf("Array Pointer stores the address of the array: %p\n", (void*)ptr);
+    printf("Address of the array 'numbers': %p\n", (void*)&numbers);
+    printf("Address of the first element 'numbers[0]': %p\n", (void*)&numbers[0]);
+
+    // 通过数组指针访问数组元素
+    // (*ptr) 先解引用得到整个数组，然后 [i] 取下标
+    printf("\nAccessing elements using (*ptr)[i]:\n");
+    for (int i = 0; i < 5; i++) {
+        printf("  (*ptr)[%d] = %d\n", i, (*ptr)[i]);
+    }
+
+    // 指针算术：ptr++ 会使指针移动整个数组的大小
+    printf("\nPointer Arithmetic:\n");
+    printf("  ptr address: %p\n", (void*)ptr);
+    ptr++; // 移动 sizeof(int[5]) = 5 * sizeof(int) 字节
+    printf("  ptr address after ptr++: %p\n", (void*)ptr);
+    ptr--; // 移回来
+
+    // sizeof(ptr) 是指针变量自身的大小
+    printf("\nsizeof(ptr) = %zu bytes\n", sizeof(ptr));
+    // sizeof(*ptr) 是指针指向的整个数组的大小
+    printf("sizeof(*ptr) = %zu bytes (Size of the array it points to)\n", sizeof(*ptr));
+
+
+    return 0;
+}
+        </code></pre>
+        <p><strong>常见用途：</strong></p>
+        <ul>
+            <li>作为函数参数，传递多维数组（尤其是二维数组）。函数形参可以写成 `void func(int (*arr_ptr)[COLUMN_SIZE])` 来接收二维数组。</li>
+            <li>指向数组，进行特定的指针算术操作（以整个数组大小为步长）。</li>
+        </ul>
+
+        <h3>3. 主要区别总结</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>特性</th>
+                    <th>指针数组 (Pointer Array)</th>
+                    <th>数组指针 (Array Pointer)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>本质</strong></td>
+                    <td>是一个<strong class="highlight">数组</strong></td>
+                    <td>是一个<strong class="highlight">指针</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>存储内容</strong></td>
+                    <td>多个<strong class="highlight">地址 (指针)</strong></td>
+                    <td>一个<strong class="highlight">地址</strong> (指向数组的起始地址)</td>
+                </tr>
+                <tr>
+                    <td><strong>定义语法</strong></td>
+                    <td><code>type *name[SIZE];</code></td>
+                    <td><code>type (*name)[SIZE];</code> <br>(括号<strong class="highlight">必须</strong>有)</td>
+                </tr>
+                <tr>
+                    <td><strong><code>sizeof(name)</code></strong></td>
+                    <td>整个<strong class="highlight">指针数组</strong>的大小 <br>(<code>SIZE * sizeof(pointer)</code>)</td>
+                    <td><strong class="highlight">指针变量</strong>自身的大小 <br>(如 4 或 8 字节)</td>
+                </tr>
+                <tr>
+                    <td><strong><code>sizeof(*name)</code></strong></td>
+                    <td>第一个<strong class="highlight">元素 (指针)</strong> 的大小<br>(<code>sizeof(pointer)</code>)</td>
+                    <td>指针所指向的<strong class="highlight">整个数组</strong>的大小 <br>(<code>SIZE * sizeof(type)</code>)</td>
+                </tr>
+                 <tr>
+                    <td><strong>指针算术 <code>name++</code></strong></td>
+                    <td>编译错误 (数组名不能自增) <br> (但可以对元素指针进行算术, 如 <code>name[i]++</code> 如果它指向数组元素)</td>
+                    <td>指针移动<strong class="highlight">整个数组的大小</strong> <br>(<code>sizeof(type[SIZE])</code> 字节)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>4. 结论</h3>
+        <p>指针数组和数组指针是 C/C++ 中两个截然不同的概念：</p>
+        <ul>
+            <li><strong>指针数组</strong> 是“存放指针的数组”。</li>
+            <li><strong>数组指针</strong> 是“指向数组的指针”。</li>
+        </ul>
+        <p>理解它们定义的语法差异（特别是数组指针中的括号）以及它们在内存表示、<code>sizeof</code> 运算和指针算术上的不同行为，是避免混淆和正确使用它们的关键。</p>
+        </div>
+    </div>
+</body>
+</html>

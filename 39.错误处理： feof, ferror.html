@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - 文件错误处理：feof 与 ferror</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段六：文件操作 - 文件错误处理：<code>feof</code> 与 <code>ferror</code></h2>
+
+        <p>在进行文件 I/O 操作时，很多函数（如 <code>fgetc</code>, <code>fgets</code>, <code>fscanf</code>, <code>fread</code>, <code>fputc</code>, <code>fputs</code>, <code>fprintf</code>, <code>fwrite</code>）在遇到问题时会返回特定的值（如 <code>EOF</code>, <code>NULL</code> 或比预期小的计数值）来指示异常情况。然而，这些返回值本身往往不足以区分两种主要的异常情况：</p>
+        <ol>
+            <li><span class="highlight">文件结束 (End-Of-File, EOF)</span>: 正常到达了文件的末尾，没有更多数据可读。</li>
+            <li><span class="highlight">I/O 错误 (Input/Output Error)</span>: 发生了实际的读写错误，例如磁盘已满、权限不足、硬件故障、文件描述符无效等。</li>
+        </ol>
+        <p>为了区分这两种情况，C 标准库提供了两个状态查询函数：<code>feof</code> 和 <code>ferror</code>。</p>
+
+        <div class="note">
+            <strong>关键时机：</strong> <code>feof</code> 和 <code>ferror</code> 通常在文件 I/O 函数返回表示失败或异常的值<span class="highlight">之后</span>被调用，用以确定失败的具体原因。
+        </div>
+
+        <h3><code>feof</code> 函数 (检查文件结束指示器)</h3>
+        <p><code>feof</code> 函数用于检查指定文件流的<span class="highlight">文件结束 (EOF) 指示器</span>是否已被设置。</p>
+
+        <h4>函数原型</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+int feof(FILE *<span class="code-arg">stream</span>);</code></pre>
+
+        <h4>参数说明</h4>
+        <ul>
+            <li><code>stream</code>: 指向要检查的文件的 <code>FILE</code> 结构指针。</li>
+        </ul>
+
+        <h4>返回值</h4>
+        <ul>
+            <li>如果 `stream` 的 EOF 指示器<span class="highlight">已被设置</span>，返回一个<span class="highlight">非零值</span> (true)。</li>
+            <li>如果 EOF 指示器<span class="highlight">未被设置</span>，返回 <code>0</code> (false)。</li>
+        </ul>
+
+        <div class="warning">
+            <strong>重要：</strong> <code>feof</code> <span class="highlight">不会预测</span>是否到达文件末尾。它只报告<span class="highlight">上一次读操作是否因为尝试读取超出文件末尾而失败</span>。因此，不应该用 <code>while (!feof(fp))</code> 作为文件读取循环的主要条件，而应该检查读取函数的返回值。
+            <pre><code class="language-c">// **错误** 的循环方式:
+while (!feof(fp)) {
+    // 可能会在最后一次成功读取后，多执行一次循环体
+    result = fread(...);
+    if (result > 0) { process(data); }
+}
+
+// **正确** 的循环方式 (以 fread 为例):
+while ((result = fread(buffer, size, count, fp)) == count) {
+    // 成功读取了 count 个项
+    process(buffer);
+}
+// 循环结束后，检查原因
+if (feof(fp)) {
+    // 到达文件末尾
+} else if (ferror(fp)) {
+    // 发生读取错误
+} else {
+    // 如果 result > 0 但 < count, 说明读取了部分数据后到达 EOF 或出错
+    process_partial(buffer, result);
+     if (ferror(fp)) { /* 再次检查错误 */ }
+}
+</code></pre>
+        </div>
+
+        <h3><code>ferror</code> 函数 (检查错误指示器)</h3>
+        <p><code>ferror</code> 函数用于检查指定文件流的<span class="highlight">错误指示器</span>是否已被设置。</p>
+
+        <h4>函数原型</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+int ferror(FILE *<span class="code-arg">stream</span>);</code></pre>
+
+        <h4>参数说明</h4>
+        <ul>
+            <li><code>stream</code>: 指向要检查的文件的 <code>FILE</code> 结构指针。</li>
+        </ul>
+
+        <h4>返回值</h4>
+        <ul>
+            <li>如果 `stream` 的错误指示器<span class="highlight">已被设置</span>（表示发生了 I/O 错误），返回一个<span class="highlight">非零值</span> (true)。</li>
+            <li>如果错误指示器<span class="highlight">未被设置</span>，返回 <code>0</code> (false)。</li>
+        </ul>
+
+        <div class="note">
+            错误指示器一旦被设置（无论是读或写错误），通常会保持设置状态，直到调用 <code>clearerr</code> 函数、<code>rewind</code> 函数或者关闭文件 (<code>fclose</code>) 为止。
+        </div>
+
+        <h3><code>clearerr</code> 函数 (清除指示器)</h3>
+        <p><code>clearerr</code> 函数用于清除指定文件流的<span class="highlight">文件结束 (EOF) 指示器</span>和<span class="highlight">错误指示器</span>。</p>
+
+        <h4>函数原型</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+void clearerr(FILE *<span class="code-arg">stream</span>);</code></pre>
+
+         <h4>参数说明</h4>
+        <ul>
+            <li><code>stream</code>: 指向目标文件的 <code>FILE</code> 结构指针。</li>
+        </ul>
+
+        <h4>行为</h4>
+        <ul>
+            <li>重置 `stream` 的 EOF 和错误标志。这使得你可以尝试在同一个流上继续进行 I/O 操作（如果错误是可恢复的）。</li>
+        </ul>
+
+        <h4>返回值</h4>
+        <ul>
+            <li>无 (<code>void</code>)。</li>
+        </ul>
+
+         <h4>使用场景</h4>
+         <ul>
+             <li>在检测到并处理了一个非致命错误后，如果希望继续使用该文件流，可以调用 <code>clearerr</code>。</li>
+             <li>在需要精确区分不同操作阶段的错误时，可以在阶段开始前调用 <code>clearerr</code>。</li>
+             <li>注意：对于严重的或不可恢复的错误，通常最好直接关闭文件。</li>
+         </ul>
+
+        <h3>综合使用示例</h3>
+        <p>以下示例演示了如何在读取文件时结合使用 <code>fgetc</code>, <code>feof</code>, 和 <code>ferror</code>。</p>
+        <pre><code class="language-c">#include <stdio.h>
+
+int main() {
+    FILE *fp = NULL;
+    int ch;
+
+    fp = fopen("my_document.txt", "r"); // 尝试打开文件
+    if (fp == NULL) {
+        perror("Error opening file my_document.txt");
+        return 1;
+    }
+
+    printf("Reading file content:\n");
+
+    // 循环读取字符
+    while ((ch = fgetc(fp)) != EOF) {
+        // 成功读取一个字符
+        putchar(ch); // 输出到屏幕
+    }
+
+    // 当 fgetc 返回 EOF 时，检查循环结束的原因
+    if (ferror(fp)) {
+        // 检查是否发生了读取错误
+        printf("\n\n--- An I/O error occurred while reading the file. ---\n");
+        perror("Details"); // 打印系统提供的错误信息
+        clearerr(fp); // 清除错误标志 (可选, 取决于后续操作)
+    } else if (feof(fp)) {
+        // 检查是否是正常到达文件末尾
+        printf("\n\n--- Reached the end of the file successfully. ---\n");
+    } else {
+        // 理论上，如果 fgetc 返回 EOF，feof 或 ferror 至少一个应该为真
+        // 但为了完整性可以包含此分支
+        printf("\n\n--- fgetc returned EOF, but neither feof nor ferror is set? (Unusual) ---\n");
+    }
+
+    // 关闭文件
+    if (fclose(fp) != 0) {
+        perror("Error closing file");
+    }
+
+    return 0;
+}</code></pre>
+
+        <h3>总结</h3>
+        <ul>
+            <li>当文件 I/O 函数返回指示失败或异常的值时（如 <code>EOF</code>, <code>NULL</code>, 短计数值），需要进一步判断原因。</li>
+            <li>调用 <code>feof(stream)</code> 来检查失败是否因为<span class="highlight">到达文件末尾</span>。</li>
+            <li>调用 <code>ferror(stream)</code> 来检查失败是否因为<span class="highlight">发生了 I/O 错误</span>。</li>
+            <li>通常，这两个函数中只有一个会返回非零值来解释失败原因。</li>
+            <li>不要使用 <code>!feof(fp)</code> 作为文件读取循环的主要条件；应检查读取函数的<span class="highlight">返回值</span>。</li>
+            <li><code>clearerr(stream)</code> 用于清除 EOF 和错误标志，以便在同一个流上继续操作（如果合适）。</li>
+            <li><code>rewind(stream)</code> 也会清除这两个标志。</li>
+        </ul>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - 文件二进制读写：fread 与 fwrite</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段六：文件操作 - 文件二进制读写：<code>fread</code> 与 <code>fwrite</code></h2>
+
+
+        <p>对于非文本文件（如图像、音频、数据库文件）或者需要精确、高效地存储和读取内存数据结构（如数组、结构体）的情况，文本模式的 I/O 函数（如 <code>fprintf</code>, <code>fscanf</code>）通常不适用或效率低下。这时，我们需要使用二进制 I/O 函数 <code>fread</code> 和 <code>fwrite</code>。</p>
+        <p>二进制读写直接操作内存中的字节表示，不进行任何格式转换（如数字转字符串、行尾符转换等），因此速度更快，且能保证数据的精确存储和恢复。</p>
+        <div class="warning">
+            <strong>重要：</strong> 使用 <code>fread</code> 和 <code>fwrite</code> 时，必须在 <code>fopen</code> 中指定<span class="highlight">二进制模式</span> (添加 <code>'b'</code>，例如 <code>"rb"</code>, <code>"wb"</code>, <code>"ab"</code>, <code>"r+b"</code>, <code>"w+b"</code>, <code>"a+b"</code>)。
+        </div>
+
+        <h3><code>fwrite</code> 函数 (二进制写入)</h3>
+        <p><code>fwrite</code> 函数将内存中指定数量的数据项按二进制形式（即内存中的原始字节序列）写入到文件流中。</p>
+
+        <h4>函数原型</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+size_t fwrite(const void *<span class="code-arg">ptr</span>, size_t <span class="code-arg">size</span>, size_t <span class="code-arg">count</span>, FILE *<span class="code-arg">stream</span>);</code></pre>
+
+        <h4>参数说明</h4>
+        <ul>
+            <li><code>ptr</code>: 指向要写入的数据块的<span class="highlight">起始内存地址</span>的指针 (<code>void*</code> 可以接受任何类型的指针)。</li>
+            <li><code>size</code>: 要写入的<span class="highlight">每个数据项的大小</span>（以字节为单位）。通常使用 <code>sizeof()</code> 运算符获取。</li>
+            <li><code>count</code>: 要写入的<span class="highlight">数据项的数量</span>。</li>
+            <li><code>stream</code>: 指向目标文件的 <code>FILE</code> 结构指针（必须以二进制写入或追加模式打开）。</li>
+        </ul>
+        <p>总共尝试写入的字节数是 <code>size * count</code>。</p>
+
+        <h4>返回值</h4>
+        <ul>
+            <li>成功时，返回<span class="highlight">实际成功写入的数据项的数量</span>。通常情况下，如果成功，返回值应等于 <code>count</code>。</li>
+            <li>如果返回值<span class="highlight">小于 <code>count</code></span>，则表示发生了写入错误。</li>
+        </ul>
+
+        <h4>使用示例：写入结构体数组</h4>
+        <pre><code class="language-c">#include <stdio.h>
+#include <stdlib.h> // for exit()
+
+typedef struct {
+    int id;
+    char name[50];
+    double value;
+} Record;
+
+int main() {
+    FILE *fp = NULL;
+    Record records_to_write[3] = {
+        {1, "Apple", 1.25},
+        {2, "Banana", 0.75},
+        {3, "Cherry", 2.50}
+    };
+    size_t items_written;
+    size_t num_records = sizeof(records_to_write) / sizeof(Record); // 计算数组元素个数
+
+    // 以二进制写入模式打开文件
+    fp = fopen("data.bin", "wb");
+    if (fp == NULL) {
+        perror("Error opening data.bin for writing");
+        return 1;
+    }
+
+    printf("Writing %zu records to data.bin...\n", num_records);
+
+    // 将整个数组一次性写入文件
+    items_written = fwrite(records_to_write, sizeof(Record), num_records, fp);
+
+    // 检查写入是否成功
+    if (items_written != num_records) {
+        fprintf(stderr, "Error writing to file: only %zu of %zu items written.\n",
+                items_written, num_records);
+        // 可以选择检查 ferror(fp)
+        fclose(fp);
+        return 1;
+    }
+
+    printf("Successfully wrote %zu records.\n", items_written);
+
+    // 关闭文件
+    if (fclose(fp) != 0) {
+        perror("Error closing file");
+    } else {
+        printf("File closed successfully.\n");
+    }
+
+    return 0;
+}</code></pre>
+
+
+        <h3><code>fread</code> 函数 (二进制读取)</h3>
+        <p><code>fread</code> 函数从文件流中按二进制形式读取指定数量的数据项，并将它们存储到内存中的指定位置。</p>
+
+        <h4>函数原型</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+size_t fread(void *<span class="code-arg">ptr</span>, size_t <span class="code-arg">size</span>, size_t <span class="code-arg">count</span>, FILE *<span class="code-arg">stream</span>);</code></pre>
+
+        <h4>参数说明</h4>
+        <ul>
+            <li><code>ptr</code>: 指向用于<span class="highlight">存储读取数据</span>的内存块（缓冲区）的指针。缓冲区必须足够大，能够容纳 <code>size * count</code> 字节的数据。</li>
+            <li><code>size</code>: 要读取的<span class="highlight">每个数据项的大小</span>（以字节为单位）。</li>
+            <li><code>count</code>: <span class="highlight">尝试读取的数据项的数量</span>。</li>
+            <li><code>stream</code>: 指向源文件的 <code>FILE</code> 结构指针（必须以二进制读取模式打开）。</li>
+        </ul>
+         <p>总共尝试读取的字节数是 <code>size * count</code>。</p>
+
+        <h4>返回值</h4>
+        <ul>
+            <li>成功时，返回<span class="highlight">实际成功读取的数据项的数量</span>。</li>
+            <li>如果返回值<span class="highlight">小于 <code>count</code></span>，可能原因有两个：
+                <ul>
+                    <li>已经到达文件末尾 (EOF)。</li>
+                    <li>发生了读取错误。</li>
+                </ul>
+            </li>
+        </ul>
+
+        <div class="note">
+            <strong>EOF/错误检查：</strong> 当 <code>fread</code> 返回值小于请求的 <code>count</code> 时，必须调用 <code class="highlight">feof(stream)</code> 和 <code class="highlight">ferror(stream)</code> 来判断具体原因。
+            <ul>
+                <li>如果 <code>feof(stream)</code> 返回非零值，表示是因为到达文件末尾而读取不足。</li>
+                <li>如果 <code>ferror(stream)</code> 返回非零值，表示是因为发生读取错误而读取不足。</li>
+            </ul>
+            即使返回值等于 <code>count</code>，也可能在读取最后一个项后到达 EOF 或发生错误，但这种情况较少见，通常在下一次调用 `fread` 时体现。
+        </div>
+
+        <h4>使用示例：读取结构体数组</h4>
+        <pre><code class="language-c">#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+    int id;
+    char name[50];
+    double value;
+} Record;
+
+#define MAX_RECORDS 10 // 假设我们最多读取 10 条记录
+
+int main() {
+    FILE *fp = NULL;
+    Record records_read[MAX_RECORDS];
+    size_t items_read;
+    size_t i;
+    size_t total_records_read = 0;
+
+    // 以二进制读取模式打开之前写入的文件
+    fp = fopen("data.bin", "rb");
+    if (fp == NULL) {
+        perror("Error opening data.bin for reading");
+        return 1;
+    }
+
+    printf("Reading records from data.bin...\n");
+
+    // 循环读取，每次尝试读取一个 Record 结构体
+    // 更常见的做法是尝试一次读取多个，但这里为了演示简单，每次读一个
+    while (total_records_read < MAX_RECORDS &&
+           (items_read = fread(&records_read[total_records_read], sizeof(Record), 1, fp)) == 1)
+    {
+        // fread 成功读取了 1 个项
+        total_records_read++;
+    }
+
+    // 检查循环退出的原因
+    if (ferror(fp)) {
+        perror("Error reading from file");
+    } else if (feof(fp)) {
+        printf("\nReached end of file after reading %zu records.\n", total_records_read);
+    } else if (total_records_read == MAX_RECORDS) {
+         printf("\nBuffer full after reading %zu records.\n", total_records_read);
+    }
+
+    // 打印读取到的记录
+    printf("\n--- Records Read ---\n");
+    for (i = 0; i < total_records_read; i++) {
+        printf("ID: %d, Name: %s, Value: %.2f\n",
+               records_read[i].id, records_read[i].name, records_read[i].value);
+    }
+    printf("--------------------\n");
+
+
+    // 关闭文件
+    if (fclose(fp) != 0) {
+        perror("Error closing file");
+    } else {
+        printf("File closed successfully.\n");
+    }
+
+    return 0;
+}</code></pre>
+
+        <h3>总结</h3>
+        <ul>
+            <li><code>fwrite</code> 用于将内存中的数据<span class="highlight">按二进制格式写入</span>文件。</li>
+            <li><code>fread</code> 用于从文件中<span class="highlight">按二进制格式读取</span>数据到内存。</li>
+            <li>都需要指定<span class="highlight">数据指针、单项大小(size)、项数(count)和文件指针</span>。</li>
+            <li><code>fwrite</code> 返回成功写入的<span class="highlight">项数</span>，小于 count 表示错误。</li>
+            <li><code>fread</code> 返回成功读取的<span class="highlight">项数</span>，小于 count 表示 EOF 或错误，需用 <code>feof/ferror</code> 检查。</li>
+            <li>是处理<span class="highlight">非文本数据</span>、精确存储/读取<span class="highlight">结构体、数组</span>等内存块的标准方法。</li>
+            <li>进行二进制 I/O 时，文件必须以<span class="highlight">二进制模式 (`'b'`)</span> 打开。</li>
+            <li>二进制 I/O 通常比文本 I/O <span class="highlight">更高效</span>，因为它避免了格式转换。</li>
+        </ul>
+        </div>
+    </div>
+</body>
+</html>

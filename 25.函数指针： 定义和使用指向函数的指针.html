@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - 函数指针：定义与使用</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段四：数组与指针 - 函数指针：定义与使用</h2>
+
+        <p>在 C/C++ 中，函数像变量一样，也存储在内存中，拥有自己的内存地址。<strong>函数指针 (Function Pointer)</strong> 就是一种特殊的指针，它存储的不是数据变量的地址，而是<strong class="highlight">函数的入口地址</strong>。</p>
+        <p>通过函数指针，我们可以实现更加灵活和动态的编程，例如将函数作为参数传递（回调函数）、构建函数表等。</p>
+
+        <h3>1. 定义函数指针</h3>
+        <p>定义一个函数指针变量需要指定它所指向的函数的<strong class="highlight">返回类型</strong>和<strong class="highlight">参数列表</strong>。这必须与它将要指向的函数的签名完全匹配。</p>
+        <p><strong>语法：</strong></p>
+        <pre><code class="syntax">return_type (*pointer_name)(parameter_type1, parameter_type2, ...);</code></pre>
+
+        <div class="explanation">
+            <strong>语法解读：</strong>
+            <ul>
+                <li><code>return_type</code>: 函数指针所指向函数的返回类型。</li>
+                <li><code>(*pointer_name)</code>: 这里的括号 <strong class="highlight">非常重要</strong>！它将 <code>*</code> 与 <code>pointer_name</code> 结合，表明 <code>pointer_name</code> 是一个指针。如果没有括号，<code>return_type *pointer_name(...)</code> 会被解释为声明一个返回 <code>return_type*</code> 类型指针的普通函数。</li>
+                <li><code>(parameter_type1, parameter_type2, ...)</code>: 函数指针所指向函数的参数类型列表。参数名可以省略，但类型必须写明且匹配。</li>
+            </ul>
+        </div>
+
+        <p><strong>示例：</strong></p>
+        <pre><code class="language-c">// 声明一个函数指针 p_func，它可以指向
+// 返回类型为 int，接收两个 int 参数的函数
+int (*p_func)(int, int);
+
+// 声明一个函数指针 p_greet，它可以指向
+// 返回类型为 void，接收一个 char* 参数的函数
+void (*p_greet)(char*);
+
+// 声明一个函数指针 p_process，它可以指向
+// 返回类型为 double，不接收任何参数的函数
+double (*p_process)(void); // 或者 double (*p_process)();
+</code></pre>
+
+        <h3>2. 获取函数地址并赋值给函数指针</h3>
+        <p>函数的名称，在大多数表达式中，会自动<strong class="highlight">"退化" (decay)</strong> 为该函数的入口地址（即指向函数的指针）。因此，直接将函数名赋值给类型匹配的函数指针即可。</p>
+        <p>也可以显式地使用取地址运算符 <code>&</code> 获取函数地址，但通常是可选的。</p>
+
+        <p><strong>示例：</strong></p>
+        <pre><code class="language-c">#include <stdio.h>
+
+// 定义两个函数
+int add(int a, int b) {
+    return a + b;
+}
+
+void say_hello(char *name) {
+    printf("Hello, %s!\n", name);
+}
+
+int main() {
+    // 定义函数指针
+    int (*p_add)(int, int);
+    void (*p_hello)(char*);
+
+    // 将函数地址赋值给函数指针
+    p_add = add;          // 常用方式，函数名自动转换为地址
+    // p_add = &add;      // 显式取地址，效果相同
+
+    p_hello = say_hello;
+    // p_hello = &say_hello; // 效果相同
+
+    printf("Address of add function: %p\n", (void*)add);
+    printf("Value stored in p_add:   %p\n", (void*)p_add);
+
+    return 0;
+}</code></pre>
+
+        <h3>3. 通过函数指针调用函数</h3>
+        <p>一旦函数指针指向了一个有效的函数地址，就可以通过它来调用该函数。有两种常用的语法形式，它们通常是等价的：</p>
+        <ul>
+            <li><strong>显式解引用调用：</strong> <code>(*pointer_name)(argument1, argument2, ...)</code></li>
+            <li><strong>隐式解引用调用：</strong> <code>pointer_name(argument1, argument2, ...)</code> (更常用，更简洁)</li>
+        </ul>
+
+        <p><strong>示例（续上例）：</strong></p>
+        <pre><code class="language-c">#include <stdio.h>
+
+int add(int a, int b) { return a + b; }
+void say_hello(char *name) { printf("Hello, %s!\n", name); }
+
+int main() {
+    int (*p_add)(int, int);
+    void (*p_hello)(char*);
+
+    p_add = add;
+    p_hello = say_hello;
+
+    // 通过函数指针调用函数
+    int sum = (*p_add)(5, 3);      // 显式解引用调用
+    printf("Sum using (*p_add): %d\n", sum);
+
+    sum = p_add(10, 20);          // 隐式解引用调用 (更常见)
+    printf("Sum using p_add: %d\n", sum);
+
+    (*p_hello)("Alice");         // 显式解引用调用
+    p_hello("Bob");             // 隐式解引用调用 (更常见)
+
+    return 0;
+}</code></pre>
+        <p><strong>输出：</strong></p>
+        <pre><code>Sum using (*p_add): 8
+Sum using p_add: 30
+Hello, Alice!
+Hello, Bob!</code></pre>
+
+        <h3>4. 使用 typedef 简化函数指针定义</h3>
+        <p>函数指针的定义语法可能显得复杂和冗长，尤其当作为函数参数或返回值时。使用 <code>typedef</code> 可以创建一个更简洁易读的类型别名。</p>
+        <p><strong>语法：</strong></p>
+        <pre><code class="syntax">typedef return_type (*TypeName)(parameter_list);</code></pre>
+        <p>然后就可以使用 <code>TypeName</code> 来声明函数指针变量。</p>
+        <p><strong>示例：</strong></p>
+        <pre><code class="language-c">#include <stdio.h>
+
+// 使用 typedef 定义一个函数指针类型别名 MathOperation
+// 它代表指向 "返回 int，接收两个 int" 的函数的指针
+typedef int (*MathOperation)(int, int);
+
+// 使用 typedef 定义 FuncPtrVoidChar 类型
+typedef void (*FuncPtrVoidChar)(char*);
+
+int add(int a, int b) { return a + b; }
+int subtract(int a, int b) { return a - b; }
+void greet(char* name) { printf("Greetings, %s!\n", name); }
+
+int main() {
+    // 使用类型别名声明函数指针变量，语法更简洁
+    MathOperation op1 = add;
+    MathOperation op2 = subtract;
+    FuncPtrVoidChar hello_func = greet;
+
+    printf("op1(10, 5) = %d\n", op1(10, 5)); // Calls add
+    printf("op2(10, 5) = %d\n", op2(10, 5)); // Calls subtract
+    hello_func("Typedef User");          // Calls greet
+
+    return 0;
+}</code></pre>
+
+        <h3>5. 函数指针的常见用途</h3>
+        <ul>
+            <li><strong>回调函数 (Callback Functions):</strong> 将一个函数（的指针）传递给另一个函数，以便在特定事件发生或特定条件满足时，由后者“回调”前者。例如，标准库函数 <code>qsort()</code> 就接收一个比较函数的指针。</li>
+            <li><strong>函数表/调度表 (Function Tables / Dispatch Tables):</strong> 创建一个函数指针数组，可以根据索引或条件动态地选择并调用不同的函数。常用于实现状态机或替代冗长的 <code>if-else</code> 或 <code>switch</code> 结构。</li>
+            <li><strong>实现某种形式的多态 (Polymorphism):</strong> 在 C 语言中，可以通过结构体包含函数指针成员来模拟面向对象语言中的虚函数或接口。</li>
+        </ul>
+
+        <h3>6. 总结</h3>
+        <ul>
+            <li>函数指针是存储函数内存地址的指针变量。</li>
+            <li>定义函数指针时，必须指定其指向函数的返回类型和参数列表，并使用 <code>(*pointer_name)</code> 语法。</li>
+            <li>函数名通常会自动转换为函数地址，可以直接赋值给类型匹配的函数指针。</li>
+            <li>可以通过 <code>(*ptr)(args)</code> 或 <code>ptr(args)</code> 语法调用函数指针指向的函数。</li>
+            <li><code>typedef</code> 可以极大地简化函数指针类型的声明和使用，提高代码可读性。</li>
+            <li>函数指针是实现回调、函数表等高级编程技巧的基础。</li>
+        </ul>
+        </div>
+    </div>
+</body>
+</html>

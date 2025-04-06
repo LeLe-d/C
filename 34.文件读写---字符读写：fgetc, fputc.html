@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C语言学习 - 文件字符读写：fgetc 与 fputc</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre {
+            background-color: #2d2d2d; /* Dark background for code */
+            color: #f0f0f0;       /* Light text color */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;     /* Add scrollbar if code is wide */
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.95em;
+            border: 1px solid #444;
+            margin-top: 10px;
+        }
+        code { /* Inline code style */
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #c0392b;
+        }
+        pre code { /* Reset inline style within pre block */
+             background-color: transparent;
+             padding: 0;
+             border-radius: 0;
+             color: inherit; /* Inherit color from pre */
+        }
+        /* Basic Syntax Highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .type { color: #569cd6; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .operator { color: #d4d4d4; }
+        .punctuation { color: #d4d4d4; }
+        .cast { color: #4ec9b0; font-weight: bold; } /* Teal color for casts */
+
+        strong {
+            color: #e67e22;
+        }
+        .highlight {
+             background-color: #fff3cd;
+             padding: 1px 3px;
+             border-radius: 3px;
+             font-weight: bold;
+        }
+        .note {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #fdf3e6;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>阶段六：文件操作 - 文件字符读写：<code>fgetc</code> 与 <code>fputc</code></h2>
+
+        <p>在 C 语言中，对文件进行操作时，最基本的操作单位之一就是字符。<code>stdio.h</code> 库提供了两个核心函数用于逐个字符地读取和写入文件：<code>fgetc</code> 和 <code>fputc</code>。</p>
+
+        <h3><code>fgetc</code> 函数 (读取字符)</h3>
+        <p><code>fgetc</code> 函数用于从指定的文件流中读取一个字符。</p>
+
+        <h4>函数原型</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+int fgetc(FILE *stream);</code></pre>
+
+        <h4>参数说明</h4>
+        <ul>
+            <li><code>stream</code>: 指向要读取的文件的 <code>FILE</code> 结构指针（由 <code>fopen</code> 返回）。</li>
+        </ul>
+
+        <h4>返回值</h4>
+        <ul>
+            <li>成功时，返回读取到的字符，该字符被转换为一个 <code>int</code> 类型的值（无符号扩展）。</li>
+            <li>如果到达文件末尾 (End-Of-File)，返回宏 <code>EOF</code>。</li>
+            <li>如果发生读取错误，也返回 <code>EOF</code>。</li>
+        </ul>
+
+        <div class="note">
+            <strong>重要：</strong> <code>fgetc</code> 返回的是 <code>int</code> 类型，而不是 <code>char</code>。这是为了能够区分有效字符（其值在 0 到 255 之间）和特殊标志 <code>EOF</code>（通常定义为 -1）。因此，接收 <code>fgetc</code> 返回值的变量**必须**声明为 <code>int</code> 类型，以便正确检测 <code>EOF</code>。
+        </div>
+
+        <div class="warning">
+            <strong>错误检查：</strong> 由于到达文件末尾和发生读取错误都返回 <code>EOF</code>，如果需要区分这两种情况，应在接收到 <code>EOF</code> 后调用 <code>feof(stream)</code> 和 <code>ferror(stream)</code> 函数进行判断。
+            <ul>
+                <li><code>feof(stream)</code>: 如果是文件末尾导致返回 <code>EOF</code>，则返回非零值。</li>
+                <li><code>ferror(stream)</code>: 如果是读取错误导致返回 <code>EOF</code>，则返回非零值。</li>
+            </ul>
+        </div>
+
+        <h4>使用示例</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+int main() {
+    FILE *fp = NULL;
+    int ch; // **必须是 int 类型**
+
+    fp = fopen("input.txt", "r"); // 假设 input.txt 存在且包含文本
+    if (fp == NULL) {
+        perror("Error opening input.txt");
+        return 1;
+    }
+
+    printf("Reading characters from input.txt:\n");
+
+    // 循环读取字符直到文件末尾或发生错误
+    while ((ch = fgetc(fp)) != EOF) {
+        putchar(ch); // 将读取到的字符输出到标准输出 (屏幕)
+                     // 或者: printf("%c", ch);
+    }
+
+    // 检查循环结束的原因
+    if (feof(fp)) {
+        printf("\nReached end of file.\n");
+    } else if (ferror(fp)) {
+        perror("Error reading from file");
+    }
+
+    // 关闭文件
+    if (fclose(fp) != 0) {
+        perror("Error closing file");
+    }
+
+    return 0;
+}</code></pre>
+
+
+        <h3><code>fputc</code> 函数 (写入字符)</h3>
+        <p><code>fputc</code> 函数用于将一个字符写入到指定的文件流中。</p>
+
+        <h4>函数原型</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+int fputc(int character, FILE *stream);</code></pre>
+
+        <h4>参数说明</h4>
+        <ul>
+            <li><code>character</code>: 要写入的字符。虽然函数接受一个 <code>int</code> 类型的值，但通常会传入一个 <code>char</code> 类型的值，它会被隐式转换为 <code>int</code>。只有该整数值的低字节（即 `unsigned char` 部分）会被写入。</li>
+            <li><code>stream</code>: 指向要写入的文件的 <code>FILE</code> 结构指针（由 <code>fopen</code> 以写入或追加模式打开）。</li>
+        </ul>
+
+        <h4>返回值</h4>
+        <ul>
+            <li>成功时，返回写入的字符（作为 <code>int</code> 类型的值）。</li>
+            <li>如果发生写入错误，返回 <code>EOF</code>，并设置文件流的错误指示器。</li>
+        </ul>
+
+        <div class="note">
+             与 <code>fgetc</code> 类似，检查 <code>fputc</code> 的返回值是否为 <code>EOF</code> 可以判断写入是否成功。如果发生错误，可以使用 <code>ferror(stream)</code> 进一步确认。
+        </div>
+
+        <h4>使用示例</h4>
+        <pre><code class="language-c">#include <stdio.h>
+
+int main() {
+    FILE *fp = NULL;
+    char str[] = "Hello, C File I/O!";
+    int i;
+    int result;
+
+    fp = fopen("output.txt", "w"); // 以写入模式打开，若存在则清空
+    if (fp == NULL) {
+        perror("Error opening output.txt for writing");
+        return 1;
+    }
+
+    printf("Writing characters to output.txt...\n");
+
+    // 逐个字符写入字符串
+    for (i = 0; str[i] != '\0'; i++) {
+        result = fputc(str[i], fp);
+        if (result == EOF) {
+            perror("Error writing character to file");
+            fclose(fp); // 尝试关闭文件
+            return 1; // 写入失败，退出
+        }
+    }
+     // 也可以写入一个换行符
+    if (fputc('\n', fp) == EOF) {
+         perror("Error writing newline character");
+         fclose(fp);
+         return 1;
+    }
+
+
+    printf("Finished writing.\n");
+
+    // 关闭文件（非常重要，确保缓冲区内容写入磁盘）
+    if (fclose(fp) != 0) {
+        perror("Error closing file");
+    } else {
+        printf("File closed successfully.\n");
+    }
+
+    return 0;
+}</code></pre>
+
+        <h3>总结</h3>
+        <ul>
+            <li><code>fgetc</code> 用于从文件流中读取单个字符，返回 <code>int</code> 类型，接收变量必须是 <code>int</code> 以正确处理 <code>EOF</code>。</li>
+            <li><code>fputc</code> 用于向文件流中写入单个字符，接受 <code>int</code> 参数（通常传入 <code>char</code>），返回写入的字符或 <code>EOF</code>（表示错误）。</li>
+            <li>使用这两个函数进行字符级 I/O 时，都需要先用 <code>fopen</code> 打开文件，并指定合适的模式（读模式 "r" 用于 <code>fgetc</code>，写模式 "w" 或追加模式 "a" 用于 <code>fputc</code>）。</li>
+            <li>操作完成后，必须使用 <code>fclose</code> 关闭文件。</li>
+            <li>对于 <code>fgetc</code>，需要检查返回值是否为 <code>EOF</code> 来判断文件结束或错误，可使用 <code>feof</code> 和 <code>ferror</code> 区分。</li>
+             <li>对于 <code>fputc</code>，检查返回值是否为 <code>EOF</code> 可以判断写入是否出错。</li>
+        </ul>
+        </div>
+    </div>
+</body>
+</html>

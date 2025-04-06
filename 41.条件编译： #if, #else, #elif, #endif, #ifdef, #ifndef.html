@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C 预处理指令 - 条件编译</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f8f9fa; /* Lighter gray background */
+            color: #212529; /* Darker text color */
+        }
+        .container {
+            max-width: 850px; /* Slightly wider container */
+            margin: auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            border: 1px solid #dee2e6; /* Subtle border */
+        }
+        h1 {
+            color: #0056b3; /* Bootstrap primary blue */
+            text-align: center;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #007bff; /* Slightly brighter blue */
+            margin-top: 35px;
+            border-left: 4px solid #007bff;
+            padding-left: 10px;
+        }
+        h3 {
+            color: #17a2b8; /* Info blue/cyan */
+            margin-top: 25px;
+        }
+        code {
+            background-color: #e9ecef; /* Light gray background for code */
+            padding: 3px 7px;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            color: #c7254e; /* Pinkish red for inline code */
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #343a40; /* Dark background for code blocks */
+            color: #f8f9fa;          /* Light text */
+            padding: 18px;
+            border-radius: 6px;
+            overflow-x: auto;       /* Handle long lines */
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            border: 1px solid #495057; /* Slightly lighter border for dark theme */
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+        pre code {
+            background-color: transparent; /* Reset background for code inside pre */
+            color: inherit;                /* Inherit color from pre */
+            padding: 0;
+            border-radius: 0;
+            font-size: 1em; /* Reset font size */
+        }
+        p, ul {
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .directive-group {
+            margin-bottom: 40px;
+            padding-bottom: 25px;
+            border-bottom: 1px dashed #adb5bd; /* Dashed gray border */
+        }
+        .directive-group:last-child {
+            border-bottom: none;
+        }
+        strong {
+            color: #d9534f; /* Warning red for emphasis */
+        }
+        .use-case {
+            background-color: #f0faff; /* Very light blue background */
+            border-left: 5px solid #17a2b8; /* Cyan border */
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>C 预处理指令 - 条件编译</h1>
+
+        <p>条件编译指令允许你根据预处理阶段的条件，选择性地包含或排除某部分源代码。这对于编写跨平台代码、包含调试代码或根据不同配置编译不同功能非常有用。</p>
+
+        <div class="directive-group">
+            <h2>#if, #else, #elif, #endif</h2>
+            <p>这组指令提供了最通用的条件编译机制。它们基于<strong>常量表达式</strong>的值来决定包含哪些代码块。</p>
+            <ul>
+                <li><code>#if 常量表达式</code>: 如果 `常量表达式` 的结果非零（真），则包含其后的代码块，直到遇到 <code>#elif</code>, <code>#else</code> 或 <code>#endif</code>。</li>
+                <li><code>#elif 常量表达式</code>: "else if"。如果前面的 <code>#if</code> 或 <code>#elif</code> 条件为假，并且当前的 `常量表达式` 为真，则包含其后的代码块。可以有多个 <code>#elif</code>。</li>
+                <li><code>#else</code>: 如果前面的所有 <code>#if</code> 和 <code>#elif</code> 条件都为假，则包含 <code>#else</code> 后面的代码块。一个条件块中最多只能有一个 <code>#else</code>。</li>
+                <li><code>#endif</code>: 标记条件编译块的结束。<strong>每个 <code>#if</code>, <code>#ifdef</code>, <code>#ifndef</code> 都必须有一个对应的 <code>#endif</code>。</strong></li>
+            </ul>
+            <p><strong>注意：</strong><code>#if</code> 和 <code>#elif</code> 后面的表达式必须是在预处理阶段就能求值的常量表达式（例如，整数常量、字符常量、<code>defined</code> 运算符的结果、以及它们的算术和逻辑运算）。</p>
+
+            <h3>示例：</h3>
+            <pre><code class="language-c">#include &lt;stdio.h&gt;
+
+#define VERSION 2
+// 或者通过编译选项定义: gcc -DVERSION=2 main.c
+
+int main() {
+    printf("Program starting...\n");
+
+#if VERSION == 1
+    printf("Running Version 1 features.\n");
+#elif VERSION == 2
+    printf("Running Version 2 features with enhancements.\n");
+#elif VERSION > 2
+    printf("Running an experimental or future version (%d).\n", VERSION);
+#else
+    printf("Unknown or unsupported version.\n");
+#endif // 必须有 #endif 来结束 #if 块
+
+    printf("Program finished.\n");
+    return 0;
+}</code></pre>
+            <div class="use-case">
+                <strong>常用场景：</strong> 根据不同的版本号、目标平台（如 <code>#if defined(_WIN32)</code>）、或者配置选项编译不同的代码路径。
+            </div>
+        </div>
+
+        <div class="directive-group">
+            <h2>#ifdef (if defined)</h2>
+            <p><code>#ifdef 宏名称</code> 指令检查指定的 `宏名称` 是否已经被定义（通过 <code>#define</code> 或编译器命令行选项 <code>-D</code>）。如果已定义，则包含其后的代码块，直到遇到 <code>#else</code>, <code>#elif</code> (不常用在此结构) 或 <code>#endif</code>。</p>
+            <p>它等价于 <code>#if defined(宏名称)</code>。</p>
+            <p><strong>注意：</strong><code>#ifdef</code> 只关心宏是否被定义，不关心宏的值是什么（即使宏被定义为 0，<code>#ifdef</code> 也会判定为真）。</p>
+
+            <h3>示例：</h3>
+            <pre><code class="language-c">#include &lt;stdio.h&gt;
+
+// 通过注释掉下面这行来禁用 DEBUG 宏
+#define DEBUG 
+
+int main() {
+    int data = 10;
+    printf("Processing data...\n");
+
+#ifdef DEBUG
+    // 这部分代码只有在 DEBUG 宏被定义时才会被编译
+    fprintf(stderr, "Debug: Current data value = %d\n", data); 
+#endif // 结束 #ifdef
+
+    data *= 2;
+    printf("Data processed. Final value: %d\n", data);
+
+    return 0;
+}</code></pre>
+            <div class="use-case">
+                <strong>常用场景：</strong> 包含或排除调试代码、日志输出，或者根据特性开关（Feature Flag）启用/禁用特定功能块。
+            </div>
+        </div>
+
+        <div class="directive-group">
+            <h2>#ifndef (if not defined)</h2>
+            <p><code>#ifndef 宏名称</code> 指令检查指定的 `宏名称` 是否<strong>未</strong>被定义。如果未定义，则包含其后的代码块，直到遇到 <code>#else</code>, <code>#elif</code> (不常用在此结构) 或 <code>#endif</code>。</p>
+            <p>它等价于 <code>#if !defined(宏名称)</code>。</p>
+
+            <h3>示例 (最常见的用法：头文件保护 Include Guards)：</h3>
+            <p>为了防止同一个头文件被多次包含到同一个源文件中（这会导致重复定义错误），通常使用 <code>#ifndef</code> 来创建 "Include Guards"。</p>
+            <pre><code class="language-c">// ---- my_header.h ----
+
+#ifndef MY_HEADER_H_  // 1. 检查 MY_HEADER_H_ 是否未定义
+#define MY_HEADER_H_  // 2. 如果未定义，则定义 MY_HEADER_H_
+
+// --- 头文件的实际内容开始 ---
+struct MyStruct {
+    int id;
+    char* name;
+};
+
+void processStruct(struct MyStruct* s);
+
+// --- 头文件的实际内容结束 ---
+
+#endif // MY_HEADER_H_ // 3. 结束 #ifndef 块
+
+// ---- main.c ----
+#include &lt;stdio.h&gt;
+#include "my_header.h" // 第一次包含，MY_HEADER_H_ 被定义
+#include "my_header.h" // 第二次包含，#ifndef 条件为假，内容被跳过
+
+int main() {
+    struct MyStruct data = {1, "Example"};
+    processStruct(&data);
+    return 0;
+}
+
+// ---- my_functions.c ----
+#include "my_header.h" // 在这里也包含
+
+void processStruct(struct MyStruct* s) {
+    // 函数实现...
+    printf("Processing struct ID: %d, Name: %s\n", s->id, s->name);
+}
+</code></pre>
+            <div class="use-case">
+                <strong>最重要场景：</strong> 防止头文件被重复包含（Include Guards）。也可以用于为宏提供默认值（如果尚未定义）。
+            </div>
+            <p><strong>Include Guard 解释：</strong></p>
+            <ol>
+                <li>当编译器第一次处理 <code>#include "my_header.h"</code> 时，<code>MY_HEADER_H_</code> 宏是未定义的，所以 <code>#ifndef</code> 条件为真。</li>
+                <li>紧接着 <code>#define MY_HEADER_H_</code> 执行，定义了这个宏。</li>
+                <li>头文件的内容被包含进来。</li>
+                <li>当编译器在同一个编译单元（例如同一个 `.c` 文件）中再次遇到 <code>#include "my_header.h"</code> 时，<code>MY_HEADER_H_</code> 宏已经被定义了。</li>
+                <li>因此，<code>#ifndef MY_HEADER_H_</code> 条件变为假。</li>
+                <li>预处理器会跳过从 <code>#ifndef</code> 到 <code>#endif</code> 之间的所有内容，从而避免了重复包含。</li>
+            </ol>
+        </div>
+
+    </div>
+</body>
+</html>

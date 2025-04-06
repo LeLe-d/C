@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C 语言多文件编程</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.7;
+            margin: 20px;
+            background-color: #fdfdfe; /* Very light background */
+            color: #34495e; /* Dark blue-gray text */
+        }
+        .container {
+            max-width: 950px; /* Wider for better code layout */
+            margin: auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.07);
+            border: 1px solid #ecf0f1; /* Light gray border */
+        }
+        h1 {
+            color: #2c3e50; /* Darker blue */
+            text-align: center;
+            border-bottom: 3px solid #3498db; /* Blue underline */
+            padding-bottom: 15px;
+            margin-bottom: 35px;
+        }
+        h2 {
+            color: #2980b9; /* Stronger blue */
+            margin-top: 35px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #bdc3c7; /* Light gray border for H2 */
+        }
+        h3 {
+            color: #3498db; /* Lighter blue */
+            margin-top: 25px;
+            font-weight: 600;
+        }
+        code {
+            background-color: #ecf0f1; /* Light gray background for code */
+            padding: 3px 7px;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            color: #e74c3c; /* Reddish color for inline code */
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #2d3436; /* Dark gray/black background */
+            color: #dfe6e9;          /* Light gray text */
+            padding: 18px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            border: 1px solid #636e72; /* Gray border for dark theme */
+            font-size: 0.9em;
+            margin-top: 15px;
+            margin-bottom: 20px; /* Add space after code block */
+        }
+        pre code { /* Reset styles for code inside pre */
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+            font-size: 1em; /* Ensure consistent font size */
+        }
+        .code-container {
+            margin-bottom: 25px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .code-container h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-family: monospace;
+            color: #555;
+            font-weight: bold;
+        }
+        ul {
+            padding-left: 25px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        strong {
+            color: #2980b9; /* Use heading blue for strong text */
+        }
+        .explanation {
+            background-color: #eaf2f8; /* Light blue background for explanations */
+            border-left: 5px solid #3498db; /* Blue border */
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .filename {
+             font-family: monospace;
+             font-weight: bold;
+             color: #7f8c8d; /* Gray color for filenames */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>C 语言多文件编程</h1>
+
+        <p>当项目规模逐渐增大时，将所有代码都放在一个单独的 <code>.c</code> 文件中会变得难以管理和维护。多文件编程是将程序的不同功能模块分散到不同的源文件（<code>.c</code>）和头文件（<code>.h</code>）中的一种组织方式。这带来了许多好处：</p>
+        <ul>
+            <li><strong>模块化：</strong> 将相关功能的代码（函数、数据结构）组织在一起。</li>
+            <li><strong>可重用性：</strong> 模块化的代码更容易在其他项目中复用。</li>
+            <li><strong>可维护性：</strong> 修改或调试特定功能时，只需关注相关文件。</li>
+            <li><strong>团队协作：</strong> 不同开发者可以并行开发不同的模块。</li>
+            <li><strong>编译效率：</strong> 修改单个文件时，通常只需要重新编译该文件及其依赖项，而不是整个项目。</li>
+        </ul>
+
+        <h2>头文件 (.h) 和源文件 (.c) 的角色</h2>
+
+        <div class="explanation">
+            <p>核心思想是：<strong>声明（Declaration）</strong> 放在头文件 (<code>.h</code>) 中，<strong>定义（Definition）</strong> 放在源文件 (<code>.c</code>) 中。</p>
+        </div>
+
+        <h3>头文件 (.h) - 接口声明</h3>
+        <ul>
+            <li><strong>作用：</strong> 充当模块的“接口”或“说明书”。它告诉其他模块（或其他 <code>.c</code> 文件）这个模块提供了哪些功能（函数）、数据类型（结构体、枚举）、常量（宏定义）以及可以访问的全局变量（使用 <code>extern</code> 声明）。</li>
+            <li><strong>包含内容：</strong>
+                <ul>
+                    <li>函数<strong>原型</strong>（声明，不包含函数体 <code>{}</code>）。</li>
+                    <li>结构体 (<code>struct</code>)、联合体 (<code>union</code>)、枚举 (<code>enum</code>) 的<strong>定义</strong>。</li>
+                    <li>宏<strong>定义</strong> (<code>#define</code>)。</li>
+                    <li><code>typedef</code> 定义的类型别名。</li>
+                    <li>全局变量的 <code>extern</code> <strong>声明</strong>（表示变量在别处定义）。</li>
+                </ul>
+            </li>
+            <li><strong>重要实践：Include Guards</strong>
+                <p>为了防止同一个头文件在同一个编译单元中被重复包含（这会导致重复定义错误），必须使用 "Include Guards"。最常用的方法是 <code>#ifndef / #define / #endif</code> 组合。</p>
+                <pre><code class="language-c">// ---- my_module.h ----
+
+#ifndef MY_MODULE_H  // 如果 MY_MODULE_H 宏未定义...
+#define MY_MODULE_H  // ...则定义 MY_MODULE_H 宏
+
+/* --- 头文件内容开始 --- */
+
+// 宏定义
+#define MAX_ITEMS 100
+
+// 结构体定义
+typedef struct {
+    int id;
+    char name[50];
+} Item;
+
+// 全局变量声明 (定义在 .c 文件中)
+extern int global_counter; 
+
+// 函数原型 (声明)
+void process_item(Item* item);
+int get_item_count(void); 
+
+/* --- 头文件内容结束 --- */
+
+#endif // MY_MODULE_H</code></pre>
+            </li>
+        </ul>
+
+        <h3>源文件 (.c) - 实现细节</h3>
+        <ul>
+            <li><strong>作用：</strong> 包含模块功能的具体实现代码。</li>
+            <li><strong>包含内容：</strong>
+                <ul>
+                    <li>函数的完整<strong>定义</strong>（包含函数体 <code>{}</code>）。</li>
+                    <li>全局变量的<strong>定义</strong>和初始化。</li>
+                    <li>模块内部使用的静态全局变量和静态函数（用 <code>static</code> 关键字限制作用域，使其只在当前 <code>.c</code> 文件可见）。</li>
+                </ul>
+            </li>
+            <li><strong>关系：</strong> 通常，每个 <code>.c</code> 文件会 <code>#include</code> 其对应的 <code>.h</code> 文件（如果存在），以获取所需的声明，并确保实现与声明一致。它也会 <code>#include</code> 其他需要的头文件（如 <code>stdio.h</code> 或其他模块的 <code>.h</code> 文件）。</li>
+        </ul>
+
+        <h2>组织结构示例</h2>
+        <p>假设我们有一个简单的项目，包含主程序和一些数学工具函数：</p>
+        <ul>
+            <li><code>main.c</code>: 主程序文件，使用数学工具。</li>
+            <li><code>math_utils.h</code>: 数学工具模块的头文件，声明函数接口。</li>
+            <li><code>math_utils.c</code>: 数学工具模块的源文件，实现具体函数。</li>
+        </ul>
+
+        <div class="code-container">
+            <h4 class="filename">math_utils.h</h4>
+            <pre><code class="language-c">#ifndef MATH_UTILS_H
+#define MATH_UTILS_H
+
+// 声明一个加法函数
+int add(int a, int b);
+
+// 声明一个全局变量，记录操作次数 (将在 .c 文件中定义)
+extern int operation_count; 
+
+#endif // MATH_UTILS_H</code></pre>
+        </div>
+
+        <div class="code-container">
+            <h4 class="filename">math_utils.c</h4>
+            <pre><code class="language-c">// 包含对应的头文件，获取声明并确保一致性
+#include "math_utils.h" 
+
+// 定义全局变量 operation_count 并初始化
+// 注意：没有 extern 关键字，这是定义！
+int operation_count = 0; 
+
+// 定义（实现）add 函数
+int add(int a, int b) {
+    operation_count++; // 每次调用时增加计数
+    return a + b;
+}
+
+// 可能还有其他只在本文件使用的静态函数或变量
+static void internal_helper() {
+    // ... 仅 math_utils.c 内部可见 ...
+}
+</code></pre>
+        </div>
+
+        <div class="code-container">
+            <h4 class="filename">main.c</h4>
+            <pre><code class="language-c">#include &lt;stdio.h&gt;
+// 包含数学工具的头文件以使用其功能
+#include "math_utils.h" 
+
+int main() {
+    int x = 10, y = 5;
+    int sum = add(x, y); // 调用在 math_utils.c 中定义的 add 函数
+
+    printf("%d + %d = %d\n", x, y, sum);
+    
+    // 访问在 math_utils.c 中定义的全局变量 (通过 math_utils.h 的 extern 声明)
+    printf("Total operations performed: %d\n", operation_count); 
+
+    // 再次调用 add
+    sum = add(sum, 3);
+    printf("New sum: %d\n", sum);
+    printf("Total operations performed now: %d\n", operation_count);
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <h2>extern 关键字的应用</h2>
+        <p><code>extern</code> (external) 关键字主要用于变量和函数的**声明**，表示“这个变量或函数是在别处（通常是另一个 <code>.c</code> 文件或库）定义的”。</p>
+
+        <h3>1. extern 用于全局变量</h3>
+        <ul>
+            <li>当你想在一个 <code>.c</code> 文件中使用另一个 <code>.c</code> 文件中定义的全局变量时，你需要在使用的文件中（或其包含的头文件中）使用 <code>extern</code> 来声明该变量。</li>
+            <li><strong>定义（只能有一次）：</strong> 在某个 <code>.c</code> 文件中，正常定义变量，可以带初始化。例如：<code>int global_data = 100;</code> (在 <code>math_utils.c</code> 中)</li>
+            <li><strong>声明（可以有多次）：</strong> 在需要访问该变量的 <code>.h</code> 文件或 <code>.c</code> 文件中，使用 <code>extern</code> 关键字，并且**不能**进行初始化。例如：<code>extern int global_data;</code> (在 <code>math_utils.h</code> 或 <code>main.c</code> 中)</li>
+            <li>最佳实践是将 <code>extern</code> 声明放在对应的 <code>.h</code> 文件中，这样任何包含该头文件的 <code>.c</code> 文件都可以访问这个全局变量。</li>
+        </ul>
+
+        <h3>2. extern 用于函数</h3>
+        <ul>
+            <li>函数原型（例如 <code>int add(int a, int b);</code>）本身就隐含了 <code>extern</code> 的含义，表示函数的定义在别处。</li>
+            <li>因此，在函数声明前显式添加 <code>extern</code> 是合法的，但通常是多余和不必要的。<code>extern int add(int a, int b);</code> 和 <code>int add(int a, int b);</code> 在作为函数声明时效果相同。</li>
+            <li>关键在于函数声明（原型）不包含函数体 <code>{}</code>，这就告诉编译器函数的实现代码在其他地方。</li>
+        </ul>
+
+        <div class="explanation">
+             <p><strong>总结：</strong><code>extern</code> 主要用于**声明**一个全局变量或函数是在外部定义的，使得编译器在当前文件找不到定义时不报错，而是将解析其地址的任务留给链接器。对于函数，函数原型隐式具有 `extern` 效果；对于全局变量，则需要显式使用 `extern` 进行声明。</p>
+        </div>
+
+        <h2>编译多文件项目</h2>
+        <p>要编译包含多个源文件的项目，你需要告诉编译器将所有相关的 <code>.c</code> 文件一起编译并链接。</p>
+        <p>使用 GCC 或 Clang 的典型命令如下：</p>
+        <pre><code class="bash"># 将 main.c 和 math_utils.c 编译并链接成一个名为 my_app 的可执行文件
+gcc main.c math_utils.c -o my_app
+
+# 或者分步编译和链接 (对于大型项目更常用)
+# 1. 编译 main.c 生成目标文件 main.o (-c 表示只编译不链接)
+gcc -c main.c -o main.o
+# 2. 编译 math_utils.c 生成目标文件 math_utils.o
+gcc -c math_utils.c -o math_utils.o
+# 3. 链接所有目标文件生成可执行文件 my_app
+gcc main.o math_utils.o -o my_app 
+</code></pre>
+        <p>链接器 (Linker) 会负责解析各个目标文件之间的引用（例如 <code>main.c</code> 中对 <code>add</code> 函数和 <code>operation_count</code> 变量的引用），找到它们在 <code>math_utils.o</code> 中的定义，并将所有代码和数据组合成最终的可执行文件。</p>
+
+    </div>
+</body>
+</html>
